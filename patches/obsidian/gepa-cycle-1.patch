@@ -1,0 +1,138 @@
+diff --git a/skills/note-taking/obsidian/SKILL.md b/skills/note-taking/obsidian/SKILL.md
+index 0c557dd9..3773b71a 100644
+--- a/skills/note-taking/obsidian/SKILL.md
++++ b/skills/note-taking/obsidian/SKILL.md
+@@ -1,36 +1,56 @@
+ ---
+ name: obsidian
+-description: Read, search, and create notes in the Obsidian vault.
++description: Read, search, create, and update notes in an Obsidian vault on disk. Use for personal knowledge management, meeting notes, journal entries, project docs, and linking ideas via Wikilinks.
++version: 1.1.0
++author: Hermes Agent
++license: MIT
++metadata:
++  hermes:
++    tags: [Obsidian, Notes, Knowledge-Management, Markdown, PKM]
++    related_skills: [apple-notes, lightrag]
++prerequisites:
++  env: [OBSIDIAN_VAULT_PATH]
+ ---
+ 
+ # Obsidian Vault
+ 
+-**Location:** Set via `OBSIDIAN_VAULT_PATH` environment variable (e.g. in `~/.hermes/.env`).
++Read, create, and manage Markdown notes in the user's Obsidian vault.
+ 
+-If unset, defaults to `~/Documents/Obsidian Vault`.
++**Vault location:** `OBSIDIAN_VAULT_PATH` env var (set in `~/.hermes/.env`).
++Falls back to `~/Documents/Obsidian Vault` if unset.
+ 
+-Note: Vault paths may contain spaces - always quote them.
++> Always quote vault paths — they commonly contain spaces.
+ 
+-## Read a note
++## When to Use
++
++- User says "take a note", "add to my vault", "search my notes", or "in Obsidian"
++- User wants a daily journal, meeting note, or project log
++- User wants to link ideas together or find something they wrote earlier
++- Prefer **Apple Notes** if the user is on macOS and doesn't mention Obsidian specifically
++
++## Read a Note
+ 
+ ```bash
+ VAULT="${OBSIDIAN_VAULT_PATH:-$HOME/Documents/Obsidian Vault}"
+ cat "$VAULT/Note Name.md"
+ ```
+ 
+-## List notes
++## List Notes
+ 
+ ```bash
+ VAULT="${OBSIDIAN_VAULT_PATH:-$HOME/Documents/Obsidian Vault}"
+ 
+-# All notes
+-find "$VAULT" -name "*.md" -type f
++# All notes (sorted by name)
++find "$VAULT" -name "*.md" -type f | sort
+ 
+ # In a specific folder
+-ls "$VAULT/Subfolder/"
++ls "$VAULT/Projects/"
++
++# Sorted by modification time (most recent first)
++find "$VAULT" -name "*.md" -type f -printf '%T@ %p\n' | sort -rn | head -20 | awk '{print $2}'
+ ```
+ 
+-## Search
++## Search Notes
+ 
+ ```bash
+ VAULT="${OBSIDIAN_VAULT_PATH:-$HOME/Documents/Obsidian Vault}"
+@@ -38,11 +58,14 @@ VAULT="${OBSIDIAN_VAULT_PATH:-$HOME/Documents/Obsidian Vault}"
+ # By filename
+ find "$VAULT" -name "*.md" -iname "*keyword*"
+ 
+-# By content
++# By content (case-insensitive, show filenames only)
+ grep -rli "keyword" "$VAULT" --include="*.md"
++
++# By content (show matching lines with context)
++grep -rin "keyword" "$VAULT" --include="*.md" -A 2 -B 2
+ ```
+ 
+-## Create a note
++## Create a Note
+ 
+ ```bash
+ VAULT="${OBSIDIAN_VAULT_PATH:-$HOME/Documents/Obsidian Vault}"
+@@ -53,14 +76,45 @@ Content here.
+ ENDNOTE
+ ```
+ 
+-## Append to a note
++For a **Daily Note** (YYYY-MM-DD format, common in Obsidian):
+ 
+ ```bash
+ VAULT="${OBSIDIAN_VAULT_PATH:-$HOME/Documents/Obsidian Vault}"
+-echo "
+-New content here." >> "$VAULT/Existing Note.md"
++DATE=$(date +%Y-%m-%d)
++cat > "$VAULT/Daily/$DATE.md" << ENDNOTE
++# $DATE
++
++## Tasks
++
++- 
++
++## Notes
++
++ENDNOTE
++```
++
++## Append to a Note
++
++```bash
++VAULT="${OBSIDIAN_VAULT_PATH:-$HOME/Documents/Obsidian Vault}"
++printf '\n## New Section\n\nContent here.\n' >> "$VAULT/Existing Note.md"
+ ```
+ 
+ ## Wikilinks
+ 
+-Obsidian links notes with `[[Note Name]]` syntax. When creating notes, use these to link related content.
++Obsidian links notes with `[[Note Name]]` syntax. When creating notes, use these to link related content:
++
++```markdown
++See also: [[Project Alpha]], [[Meeting 2026-04-11]]
++```
++
++Wikilinks do **not** require the `.md` extension. The note must exist (or Obsidian will show it as an unresolved link).
++
++## Pitfalls
++
++- **Vault path spaces**: Always quote `"$VAULT/Note.md"` — unquoted paths with spaces cause `cat: Obsidian: No such file or directory` errors.
++- **OBSIDIAN_VAULT_PATH unset**: If not set in `~/.hermes/.env`, the default `~/Documents/Obsidian Vault` may not exist. Check first with `ls "$VAULT"`.
++- **Overwriting vs appending**: Use `cat >` to overwrite, `>>` to append. Never overwrite unless certain the user wants to replace the full note.
++- **Subfolder must exist**: `cat > "$VAULT/Projects/NewNote.md"` fails if `Projects/` doesn't exist. Create it first: `mkdir -p "$VAULT/Projects"`.
++- **Wikilink case sensitivity**: Obsidian on macOS is case-insensitive, but Linux vaults are case-sensitive — `[[Meeting Notes]]` ≠ `[[meeting notes]]` on Linux.
++- **Binary/attachment files**: The vault may contain images, PDFs, and other attachments. Use `find "$VAULT" -name "*.md"` to restrict to notes only.

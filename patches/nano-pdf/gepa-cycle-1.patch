@@ -1,0 +1,99 @@
+diff --git a/skills/productivity/nano-pdf/SKILL.md b/skills/productivity/nano-pdf/SKILL.md
+index 059cb598..82867999 100644
+--- a/skills/productivity/nano-pdf/SKILL.md
++++ b/skills/productivity/nano-pdf/SKILL.md
+@@ -1,19 +1,29 @@
+ ---
+ name: nano-pdf
+-description: Edit PDFs with natural-language instructions using the nano-pdf CLI. Modify text, fix typos, update titles, and make content changes to specific pages without manual editing.
+-version: 1.0.0
++description: Edit PDFs with natural-language instructions using the nano-pdf CLI. Modify text, fix typos, update titles, change dates, and make content changes to specific pages without manual editing. Requires an LLM API key.
++version: 1.1.0
+ author: community
+ license: MIT
+ metadata:
+   hermes:
+     tags: [PDF, Documents, Editing, NLP, Productivity]
+     homepage: https://pypi.org/project/nano-pdf/
++prerequisites:
++  commands: [nano-pdf]
++  env_optional: [OPENAI_API_KEY, ANTHROPIC_API_KEY]
+ ---
+ 
+ # nano-pdf
+ 
+ Edit PDFs using natural-language instructions. Point it at a page and describe what to change.
+ 
++## When to Use
++
++- User wants to change text in a PDF without opening it in a PDF editor
++- Fix a typo, update a date, rename a client, or change a title in a PDF
++- User says "edit this PDF", "fix the typo on page 2", or "update the contract"
++- **Not for**: structural layout changes, adding/removing pages, form-filling, or image editing — use a dedicated PDF editor for those
++
+ ## Prerequisites
+ 
+ ```bash
+@@ -22,6 +32,14 @@ uv pip install nano-pdf
+ 
+ # Or with pip
+ pip install nano-pdf
++
++# Verify installation
++nano-pdf --version
++```
++
++nano-pdf requires an LLM API key. Check which one it uses:
++```bash
++nano-pdf --help | grep -i "key\|api\|model"
+ ```
+ 
+ ## Usage
+@@ -30,6 +48,8 @@ pip install nano-pdf
+ nano-pdf edit <file.pdf> <page_number> "<instruction>"
+ ```
+ 
++The command **modifies the file in place**. Always back up first if the original matters.
++
+ ## Examples
+ 
+ ```bash
+@@ -41,11 +61,33 @@ nano-pdf edit report.pdf 3 "Update the date from January to February 2026"
+ 
+ # Fix content
+ nano-pdf edit contract.pdf 2 "Change the client name from 'Acme Corp' to 'Acme Industries'"
++
++# Fix typo
++nano-pdf edit memo.pdf 1 "Fix the spelling of 'recieve' to 'receive' throughout the page"
++```
++
++## Workflow: Safe Edit Pattern
++
++```bash
++# 1. Back up the original
++cp report.pdf report.pdf.bak
++
++# 2. Apply the edit
++nano-pdf edit report.pdf 2 "Change the date to April 11, 2026"
++
++# 3. Verify — check file size changed (crude but quick)
++ls -lh report.pdf report.pdf.bak
++
++# 4. Tell the user to open it for visual verification
++echo "Edit applied. Please open report.pdf to verify the change looks correct."
+ ```
+ 
+-## Notes
++## Pitfalls
+ 
+-- Page numbers may be 0-based or 1-based depending on version — if the edit hits the wrong page, retry with ±1
+-- Always verify the output PDF after editing (use `read_file` to check file size, or open it)
+-- The tool uses an LLM under the hood — requires an API key (check `nano-pdf --help` for config)
+-- Works well for text changes; complex layout modifications may need a different approach
++- **Page indexing ambiguity**: nano-pdf page numbers may be 0-based or 1-based depending on version. If the edit hits the wrong page, retry with `±1`. Always confirm page numbering with the user if uncertain.
++- **In-place modification**: nano-pdf edits the file in place — there is no `--output` flag in most versions. Backup the file before editing (`cp file.pdf file.pdf.bak`).
++- **LLM API key required**: nano-pdf calls an LLM to interpret your instruction. If no API key is configured, it will fail silently or error. Check `nano-pdf --help` for the key/model config.
++- **Complex layouts fail**: Text in tables, headers/footers, text boxes, or multi-column layouts may not be editable — the tool works best on simple body text.
++- **Scanned PDFs are image-only**: If the PDF is a scanned image (no embedded text), nano-pdf cannot edit it. Use the `ocr-and-documents` skill first to extract text, then recreate the PDF.
++- **Instruction scope**: Instructions are per-page. To change text on multiple pages, run separate commands for each page.
++- **File corruption risk**: Malformed PDF structures may cause silent corruption. Always verify the output file is readable after editing.

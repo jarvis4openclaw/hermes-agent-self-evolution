@@ -1,0 +1,51 @@
+diff --git a/skills/research/polymarket/SKILL.md b/skills/research/polymarket/SKILL.md
+index d8b0ae7c..ec58e739 100644
+--- a/skills/research/polymarket/SKILL.md
++++ b/skills/research/polymarket/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: polymarket
+ description: Query Polymarket prediction market data — search markets, get prices, orderbooks, and price history. Read-only via public REST APIs, no API key needed.
+-version: 1.0.0
++version: 1.1.0
+ author: Hermes Agent + Teknium
+ tags: [polymarket, prediction-markets, market-data, trading]
+ ---
+@@ -46,6 +46,23 @@ When a user asks about prediction market odds:
+ 3. **Present** market question, current prices as percentages, and volume
+ 4. **Deep dive** if asked — use clobTokenIds for orderbook, conditionId for history
+ 
++### Quick Search Example
++
++```bash
++# Search for markets about a topic
++curl -s "https://gamma-api.polymarket.com/markets?search=bitcoin&limit=5" | \
++  python3 -c "
++import json, sys
++markets = json.load(sys.stdin)
++for m in markets:
++    prices = json.loads(m.get('outcomePrices', '[\"?\",\"?\"]'))
++    yes_pct = float(prices[0]) * 100 if prices[0] != '?' else '?'
++    print(f\"{m['question']}\")
++    print(f\"  Yes: {yes_pct:.1f}%  Volume: \${float(m.get('volume','0')):,.0f}\")
++    print()
++"
++```
++
+ ## Presenting Results
+ 
+ Format prices as percentages for readability:
+@@ -74,3 +91,13 @@ Generous — unlikely to hit for normal usage:
+ - Trading requires wallet-based crypto authentication (EIP-712 signatures)
+ - Some new markets may have empty price history
+ - Geographic restrictions apply to trading but read-only data is globally accessible
++
++## Pitfalls
++
++- **Double-encoded fields**: `outcomePrices`, `outcomes`, and `clobTokenIds` are JSON strings inside JSON — you MUST call `json.loads()` on them again, or you'll get a string like `'["0.65","0.35"]'` instead of a list. This is the #1 source of parsing errors with this API.
++- **Empty `outcomePrices`**: New or inactive markets may have `outcomePrices: "[]"` or `null`. Always guard: `if m.get('outcomePrices') and m['outcomePrices'] != '[]'`.
++- **Resolved markets**: Closed/resolved markets still appear in search results with prices at 0.00 or 1.00. Filter by `m.get('active', False)` or `m.get('closed', True)` to exclude them.
++- **Volume units**: Volume is in USDC (≈ USD), not shares. Display as `$X` not `X USDC` to user.
++- **clobTokenIds order**: The array is always `[Yes token ID, No token ID]`. Don't swap them when calling the CLOB API.
++- **Stale prices**: Prices from the Gamma API may be slightly behind the CLOB API for active markets. Use the CLOB API for real-time accuracy.
++- **Search relevance**: The Gamma `search` endpoint uses fuzzy matching — search for "US election" and you may get unrelated markets. Filter results by checking `m['question']` contains relevant keywords.
