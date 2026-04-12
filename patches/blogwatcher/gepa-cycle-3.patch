@@ -1,0 +1,42 @@
+diff --git a/skills/research/blogwatcher/SKILL.md b/skills/research/blogwatcher/SKILL.md
+index bfcc4f1d..47711a61 100644
+--- a/skills/research/blogwatcher/SKILL.md
++++ b/skills/research/blogwatcher/SKILL.md
+@@ -8,6 +8,14 @@ metadata:
+   hermes:
+     tags: [RSS, Blogs, Feed-Reader, Monitoring]
+     homepage: https://github.com/JulienTant/blogwatcher-cli
++    trigger_conditions:
++      - user wants to track, monitor, or follow a blog or RSS/Atom feed
++      - user asks to check for new articles or posts from tracked blogs
++      - user wants to add a blog or feed to their reading list
++      - user wants to see or list unread articles
++      - user is importing or managing OPML subscriptions
++      - user asks to mark articles as read or clean up their feed backlog
++      - phrases: "check my feeds", "any new posts", "track this blog", "mark as read", "unread articles", "RSS"
+ prerequisites:
+   commands: [blogwatcher-cli]
+ ---
+@@ -126,6 +134,22 @@ Unread articles (2):
+        Categories: Comics
+ ```
+ 
++## Pitfalls
++
++1. **Feed auto-discovery fails for JS-rendered sites** — Some blogs use JavaScript rendering and have no RSS/Atom link in their `<head>`. Fix: use `--scrape-selector` to extract article links directly from HTML, e.g., `--scrape-selector "article h2 a"`. If the site has a known feed path, pass `--feed-url` explicitly.
++
++2. **Docker database lost on container restart** — Without a volume mount, the SQLite database is stored inside the ephemeral container layer and is wiped on restart. Fix: always mount a named or bind volume and set `BLOGWATCHER_DB` to a path inside it.
++
++3. **OPML import silently skips already-tracked blogs** — Re-importing the same OPML after manually adding blogs does not error, but duplicate entries are silently skipped. Fix: run `blogwatcher-cli blogs` before and after import to verify what was actually added.
++
++4. **`read-all` blocks on confirmation prompt in scripts** — Without `--yes`, the command waits for interactive confirmation, blocking automation. Fix: always pass `--yes` flag or set `BLOGWATCHER_YES=true` in the environment for non-interactive use.
++
++5. **Unread articles accumulate indefinitely** — The `articles` command only shows unread items; without periodic cleanup the list grows unbounded. Fix: use `blogwatcher-cli read-all` for blogs you no longer actively read, and remove the blog with `blogwatcher-cli remove` if no longer needed.
++
++6. **Scan rate-limits on large feed lists** — Scanning hundreds of feeds concurrently can trigger rate-limits on aggressive hosts. Fix: reduce `BLOGWATCHER_WORKERS` (e.g., to 2-4) to pace requests, or scan individual blogs with `blogwatcher-cli scan "Blog Name"`.
++
++7. **Category filter returns empty results due to case mismatch** — Categories are stored exactly as returned by the feed (case-sensitive). Fix: run `blogwatcher-cli articles --all` first to inspect the exact category string, then use that exact casing in `--category`.
++
+ ## Notes
+ 
+ - Auto-discovers RSS/Atom feeds from blog homepages when no `--feed-url` is provided.
