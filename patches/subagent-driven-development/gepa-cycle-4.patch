@@ -1,0 +1,42 @@
+diff --git a/skills/software-development/subagent-driven-development/SKILL.md b/skills/software-development/subagent-driven-development/SKILL.md
+index a47e4415..c92f08d1 100644
+--- a/skills/software-development/subagent-driven-development/SKILL.md
++++ b/skills/software-development/subagent-driven-development/SKILL.md
+@@ -1,13 +1,22 @@
+ ---
+ name: subagent-driven-development
+ description: Use when executing implementation plans with independent tasks. Dispatches fresh delegate_task per task with two-stage review (spec compliance then code quality).
+-version: 1.1.0
++version: 1.2.0
+ author: Hermes Agent (adapted from obra/superpowers)
+ license: MIT
+ metadata:
+   hermes:
+     tags: [delegation, subagent, implementation, workflow, parallel]
+     related_skills: [writing-plans, requesting-code-review, test-driven-development]
++    trigger_conditions:
++      - "implement this plan"
++      - "execute the spec"
++      - "spawn subagents for"
++      - "parallelize these tasks"
++      - "delegate implementation"
++      - "run tasks in parallel"
++      - "dispatch subtasks"
++      - "break this into parallel workstreams"
+ ---
+ 
+ # Subagent-Driven Development
+@@ -340,3 +349,13 @@ Catch issues early
+ ```
+ 
+ **Quality is not an accident. It's the result of systematic process.**
++
++## Pitfalls
++
++1. **Subagent writes to wrong path**: If the goal omits the exact output path, the subagent invents one. Always specify `Output: write files to <exact/relative/path>` in the goal string.
++2. **Context bleed assumptions**: Subagents have zero knowledge of prior conversation or sibling subagent outputs. Paste relevant code snippets verbatim into each goal.
++3. **Silent partial completion**: A subagent may return success while only implementing 3 of 5 required methods. Always run a checklist diff of spec requirements vs. returned output in Stage A review.
++4. **Integration test absent at spawn time**: If no integration test path exists yet, pytest silently passes (no tests collected). Check with `pytest --collect-only` for collected test count.
++5. **Exceeding 3 parallel subagents**: Spawning 4+ concurrent subagents causes resource contention. Batch them in waves of 3, waiting for each wave to complete before spawning the next.
++6. **Fix-loop without root cause isolation**: When spawning a fix subagent, include both failing files and the full traceback -- not just the final error line.
++7. **Committing before integration gate**: Enforce: all tasks reviewed -> integration suite green -> then commit. Never commit after individual task review but before Phase 4 passes.

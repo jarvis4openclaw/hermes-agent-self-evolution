@@ -1,0 +1,536 @@
+diff --git a/skills/github/github-issues/SKILL.md b/skills/github/github-issues/SKILL.md
+index a3bceb8e..32a233ac 100644
+--- a/skills/github/github-issues/SKILL.md
++++ b/skills/github/github-issues/SKILL.md
+@@ -1,369 +1,257 @@
+ ---
+ name: github-issues
+ description: Create, manage, triage, and close GitHub issues. Search existing issues, add labels, assign people, and link to PRs. Works with gh CLI or falls back to git + GitHub REST API via curl.
+-version: 1.1.0
++version: 1.2.0
+ author: Hermes Agent
+ license: MIT
+ metadata:
+   hermes:
+     tags: [GitHub, Issues, Project-Management, Bug-Tracking, Triage]
+     related_skills: [github-auth, github-pr-workflow]
++    trigger_conditions:
++      - "create issue"
++      - "report a bug"
++      - "file a ticket"
++      - "triage issues"
++      - "manage GitHub issues"
++      - "add label to issue"
++      - "close issue"
++      - "search for existing issues"
+ ---
+ 
+-# GitHub Issues Management
++# GitHub Issues
+ 
+-Create, search, triage, and manage GitHub issues. Each section shows `gh` first, then the `curl` fallback.
++Create, manage, triage, and close GitHub issues using the `gh` CLI or GitHub REST API.
+ 
+-## Prerequisites
++## When to Use
+ 
+-- Authenticated with GitHub (see `github-auth` skill)
+-- Inside a git repo with a GitHub remote, or specify the repo explicitly
++- **Bug reporting**: Documenting reproducible defects with steps to reproduce, expected behavior, and actual behavior before a fix exists.
++- **Feature requests**: Proposing enhancements with context and acceptance criteria prior to any implementation work.
++- **Batch triage**: Processing a backlog of unlabeled or unassigned issues in a structured, repeatable workflow.
++- **Release tracking**: Grouping issues into milestones to monitor progress toward a version or delivery deadline.
++- **Cross-team coordination**: Assigning issues to specific team members and tracking resolution status across a project.
+ 
+-### Setup
++## Not For
+ 
+-```bash
+-if command -v gh &>/dev/null && gh auth status &>/dev/null; then
+-  AUTH="gh"
+-else
+-  AUTH="git"
+-  if [ -z "$GITHUB_TOKEN" ]; then
+-    if [ -f ~/.hermes/.env ] && grep -q "^GITHUB_TOKEN=" ~/.hermes/.env; then
+-      GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" ~/.hermes/.env | head -1 | cut -d= -f2 | tr -d '\n\r')
+-    elif grep -q "github.com" ~/.git-credentials 2>/dev/null; then
+-      GITHUB_TOKEN=$(grep "github.com" ~/.git-credentials 2>/dev/null | head -1 | sed 's|https://[^:]*:\([^@]*\)@.*|\1|')
+-    fi
+-  fi
+-fi
+-
+-REMOTE_URL=$(git remote get-url origin)
+-OWNER_REPO=$(echo "$REMOTE_URL" | sed -E 's|.*github\.com[:/]||; s|\.git$||')
+-OWNER=$(echo "$OWNER_REPO" | cut -d/ -f1)
+-REPO=$(echo "$OWNER_REPO" | cut -d/ -f2)
+-```
++- **Pull request management**: Use `github-pr-workflow` skill to create branches, open PRs, monitor CI, and merge code.
++- **Code review**: Use `github-code-review` skill for inline comments, approval workflows, and review requests.
++- **Real-time team communication**: GitHub Issues are asynchronous; use Slack, Teams, or similar tools for immediate coordination.
++- **CI/CD pipeline management**: Use GitHub Actions skills for workflow configuration, secrets, and run monitoring.
+ 
+----
++## Prerequisites
+ 
+-## 1. Viewing Issues
++- `gh` CLI authenticated (`gh auth status`)
++- Repository context: either `cd` into repo or use `--repo OWNER/REPO`
+ 
+-**With gh:**
++## Creating Issues
+ 
+ ```bash
+-gh issue list
+-gh issue list --state open --label "bug"
+-gh issue list --assignee @me
+-gh issue list --search "authentication error" --state all
+-gh issue view 42
++# Interactive creation (opens editor)
++gh issue create
++
++# Non-interactive with body
++gh issue create \
++  --title "Bug: Login fails on Safari" \
++  --body "## Steps to reproduce\n1. ...\n2. ...\n\n## Expected\n...\n\n## Actual\n..." \
++  --label bug \
++  --assignee @me
++
++# From a template
++gh issue create --template bug_report.md
++
++# On a specific repo
++gh issue create --repo owner/repo --title "..."
+ ```
+ 
+-**With curl:**
++## Viewing and Searching Issues
+ 
+ ```bash
+ # List open issues
+-curl -s \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  "https://api.github.com/repos/$OWNER/$REPO/issues?state=open&per_page=20" \
+-  | python3 -c "
+-import sys, json
+-for i in json.load(sys.stdin):
+-    if 'pull_request' not in i:  # GitHub API returns PRs in /issues too
+-        labels = ', '.join(l['name'] for l in i['labels'])
+-        print(f\"#{i['number']:5}  {i['state']:6}  {labels:30}  {i['title']}\")"
++gh issue list
+ 
+ # Filter by label
+-curl -s \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  "https://api.github.com/repos/$OWNER/$REPO/issues?state=open&labels=bug&per_page=20" \
+-  | python3 -c "
+-import sys, json
+-for i in json.load(sys.stdin):
+-    if 'pull_request' not in i:
+-        print(f\"#{i['number']}  {i['title']}\")"
+-
+-# View a specific issue
+-curl -s \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  https://api.github.com/repos/$OWNER/$REPO/issues/42 \
+-  | python3 -c "
+-import sys, json
+-i = json.load(sys.stdin)
+-labels = ', '.join(l['name'] for l in i['labels'])
+-assignees = ', '.join(a['login'] for a in i['assignees'])
+-print(f\"#{i['number']}: {i['title']}\")
+-print(f\"State: {i['state']}  Labels: {labels}  Assignees: {assignees}\")
+-print(f\"Author: {i['user']['login']}  Created: {i['created_at']}\")
+-print(f\"\n{i['body']}\")"
+-
+-# Search issues
+-curl -s \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  "https://api.github.com/search/issues?q=authentication+error+repo:$OWNER/$REPO" \
+-  | python3 -c "
+-import sys, json
+-for i in json.load(sys.stdin)['items']:
+-    print(f\"#{i['number']}  {i['state']:6}  {i['title']}\")"
+-```
++gh issue list --label bug --label enhancement
+ 
+-## 2. Creating Issues
++# Filter by assignee
++gh issue list --assignee @me
+ 
+-**With gh:**
++# Search by keyword
++gh issue list --search "memory leak"
+ 
+-```bash
+-gh issue create \
+-  --title "Login redirect ignores ?next= parameter" \
+-  --body "## Description
+-After logging in, users always land on /dashboard.
+-
+-## Steps to Reproduce
+-1. Navigate to /settings while logged out
+-2. Get redirected to /login?next=/settings
+-3. Log in
+-4. Actual: redirected to /dashboard (should go to /settings)
+-
+-## Expected Behavior
+-Respect the ?next= query parameter." \
+-  --label "bug,backend" \
+-  --assignee "username"
+-```
++# View specific issue
++gh issue view 42
++gh issue view 42 --web   # open in browser
+ 
+-**With curl:**
++# List closed issues
++gh issue list --state closed
+ 
+-```bash
+-curl -s -X POST \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  https://api.github.com/repos/$OWNER/$REPO/issues \
+-  -d '{
+-    "title": "Login redirect ignores ?next= parameter",
+-    "body": "## Description\nAfter logging in, users always land on /dashboard.\n\n## Steps to Reproduce\n1. Navigate to /settings while logged out\n2. Get redirected to /login?next=/settings\n3. Log in\n4. Actual: redirected to /dashboard\n\n## Expected Behavior\nRespect the ?next= query parameter.",
+-    "labels": ["bug", "backend"],
+-    "assignees": ["username"]
+-  }'
++# JSON output for scripting
++gh issue list --json number,title,labels,assignees --limit 100
+ ```
+ 
+-### Bug Report Template
+-
+-```
+-## Bug Description
+-<What's happening>
++## Editing Issues
+ 
+-## Steps to Reproduce
+-1. <step>
+-2. <step>
++```bash
++# Add labels
++gh issue edit 42 --add-label bug,urgent
+ 
+-## Expected Behavior
+-<What should happen>
++# Remove label
++gh issue edit 42 --remove-label wontfix
+ 
+-## Actual Behavior
+-<What actually happens>
++# Change assignee
++gh issue edit 42 --add-assignee username
+ 
+-## Environment
+-- OS: <os>
+-- Version: <version>
+-```
++# Change title
++gh issue edit 42 --title "Updated title"
+ 
+-### Feature Request Template
++# Add to milestone
++gh issue edit 42 --milestone "v2.0"
+ 
++# Add to project (GitHub Projects v2)
++gh issue edit 42 --project "My Project"
+ ```
+-## Feature Description
+-<What you want>
+ 
+-## Motivation
+-<Why this would be useful>
++## Commenting on Issues
+ 
+-## Proposed Solution
+-<How it could work>
++```bash
++# Add a comment
++gh issue comment 42 -b "Investigating this now."
+ 
+-## Alternatives Considered
+-<Other approaches>
++# Edit your last comment
++gh issue comment 42 --edit-last -b "Updated info"
+ ```
+ 
+-## 3. Managing Issues
++## Closing and Reopening
+ 
+-### Add/Remove Labels
++```bash
++# Close issue
++gh issue close 42
+ 
+-**With gh:**
++# Close with comment
++gh issue close 42 -c "Fixed in #67"
+ 
+-```bash
+-gh issue edit 42 --add-label "priority:high,bug"
+-gh issue edit 42 --remove-label "needs-triage"
++# Reopen
++gh issue reopen 42
+ ```
+ 
+-**With curl:**
++## Bulk Operations
+ 
+ ```bash
+-# Add labels
+-curl -s -X POST \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  https://api.github.com/repos/$OWNER/$REPO/issues/42/labels \
+-  -d '{"labels": ["priority:high", "bug"]}'
+-
+-# Remove a label
+-curl -s -X DELETE \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  https://api.github.com/repos/$OWNER/$REPO/issues/42/labels/needs-triage
+-
+-# List available labels in the repo
+-curl -s \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  https://api.github.com/repos/$OWNER/$REPO/labels \
+-  | python3 -c "
+-import sys, json
+-for l in json.load(sys.stdin):
+-    print(f\"  {l['name']:30}  {l.get('description', '')}\")"
+-```
++# Close multiple issues
++gh issue close 42 43 44
+ 
+-### Assignment
++# Transfer issue to another repo
++gh issue transfer 42 owner/other-repo
+ 
+-**With gh:**
++# Pin an issue
++gh issue pin 42
++gh issue unpin 42
+ 
+-```bash
+-gh issue edit 42 --add-assignee username
+-gh issue edit 42 --add-assignee @me
++# Lock an issue
++gh issue lock 42 --reason spam
++gh issue unlock 42
+ ```
+ 
+-**With curl:**
++## Linking Issues to PRs
+ 
+-```bash
+-curl -s -X POST \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  https://api.github.com/repos/$OWNER/$REPO/issues/42/assignees \
+-  -d '{"assignees": ["username"]}'
++In PR description, use:
+ ```
+-
+-### Commenting
+-
+-**With gh:**
+-
+-```bash
+-gh issue comment 42 --body "Investigated — root cause is in auth middleware. Working on a fix."
++Closes #42
++Fixes #42
++Resolves #42
+ ```
+ 
+-**With curl:**
+-
++Or link via CLI:
+ ```bash
+-curl -s -X POST \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  https://api.github.com/repos/$OWNER/$REPO/issues/42/comments \
+-  -d '{"body": "Investigated — root cause is in auth middleware. Working on a fix."}'
++# Check PR/issue links
++gh pr view --json closingIssuesReferences
+ ```
+ 
+-### Closing and Reopening
+-
+-**With gh:**
++## Fallback: REST API
+ 
+ ```bash
+-gh issue close 42
+-gh issue close 42 --reason "not planned"
+-gh issue reopen 42
++# Create issue
++curl -X POST \
++  -H "Authorization: Bearer $GITHUB_TOKEN" \
++  -H "Accept: application/vnd.github+json" \
++  https://api.github.com/repos/OWNER/REPO/issues \
++  -d '{"title":"Bug: ...","body":"...","labels":["bug"]}'
++
++# List issues
++curl -H "Authorization: Bearer $GITHUB_TOKEN" \
++  https://api.github.com/repos/OWNER/REPO/issues?state=open
++
++# Update issue
++curl -X PATCH \
++  -H "Authorization: Bearer $GITHUB_TOKEN" \
++  https://api.github.com/repos/OWNER/REPO/issues/42 \
++  -d '{"state":"closed","state_reason":"completed"}'
++
++# Add comment
++curl -X POST \
++  -H "Authorization: Bearer $GITHUB_TOKEN" \
++  https://api.github.com/repos/OWNER/REPO/issues/42/comments \
++  -d '{"body":"Fixed in commit abc123"}'
+ ```
+ 
+-**With curl:**
++## Issue Templates
+ 
+ ```bash
+-# Close
+-curl -s -X PATCH \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  https://api.github.com/repos/$OWNER/$REPO/issues/42 \
+-  -d '{"state": "closed", "state_reason": "completed"}'
++# View available templates
++ls .github/ISSUE_TEMPLATE/
+ 
+-# Reopen
+-curl -s -X PATCH \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  https://api.github.com/repos/$OWNER/$REPO/issues/42 \
+-  -d '{"state": "open"}'
++# Create an issue from template URL
++open "https://github.com/owner/repo/issues/new?template=bug_report.md"
+ ```
+ 
+-### Linking Issues to PRs
++## Labels and Milestones
+ 
+-Issues are automatically closed when a PR merges with the right keywords in the body:
++```bash
++# List all labels
++gh label list
+ 
+-```
+-Closes #42
+-Fixes #42
+-Resolves #42
+-```
++# Create a label
++gh label create priority-high --color FF0000 --description "High priority"
+ 
+-To create a branch from an issue:
++# Delete a label
++gh label delete old-label
+ 
+-**With gh:**
++# List milestones
++gh api repos/:owner/:repo/milestones | jq '.[].title'
+ 
+-```bash
+-gh issue develop 42 --checkout
++# Create milestone
++gh api repos/:owner/:repo/milestones -X POST \
++  -f title="v2.0" -f due_on="2025-12-31T00:00:00Z"
+ ```
+ 
+-**With git (manual equivalent):**
++## Triage Workflow
+ 
+ ```bash
+-git checkout main && git pull origin main
+-git checkout -b fix/issue-42-login-redirect
+-```
+-
+-## 4. Issue Triage Workflow
+-
+-When asked to triage issues:
++# Morning triage — list unlabeled issues (use REST API for reliability)
++gh api repos/:owner/:repo/issues?state=open\&per_page=100 | \
++  jq '.[] | select(.labels | length == 0) | .number'
+ 
+-1. **List untriaged issues:**
++# Apply triage label
++gh issue edit <number> --add-label needs-triage
+ 
+-```bash
+-# With gh
+-gh issue list --label "needs-triage" --state open
+-
+-# With curl
+-curl -s \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  "https://api.github.com/repos/$OWNER/$REPO/issues?labels=needs-triage&state=open" \
+-  | python3 -c "
+-import sys, json
+-for i in json.load(sys.stdin):
+-    if 'pull_request' not in i:
+-        print(f\"#{i['number']}  {i['title']}\")"
++# Batch triage script
++for num in 10 11 12 13; do
++   gh issue edit $num --add-label triaged --remove-label needs-triage
++done
+ ```
+ 
+-2. **Read and categorize** each issue (view details, understand the bug/feature)
+-
+-3. **Apply labels and priority** (see Managing Issues above)
+-
+-4. **Assign** if the owner is clear
+-
+-5. **Comment with triage notes** if needed
++## Pitfalls
+ 
+-## 5. Bulk Operations
++1. **Creating duplicate issues wastes triage time**: Always search before filing: `gh issue list --search "keyword"` and `gh issue list --search "keyword" --state closed`. Close duplicates immediately with `gh issue close <num> -c "Duplicate of #<original>"` and add the `duplicate` label.
+ 
+-For batch operations, combine API calls with shell scripting:
++2. **`gh issue list --label ""` does not reliably filter for unlabeled issues**: The empty-string label argument behavior varies across gh CLI versions and may return all issues or error out. Use the REST API instead: `gh api 'repos/:owner/:repo/issues?state=open&per_page=100' | jq '.[] | select(.labels | length == 0) | .number'`.
+ 
+-**With gh:**
++3. **Label names are case-sensitive**: `Bug` and `bug` are distinct labels. Scripted bulk operations silently fail when the label name doesn't exactly match. Always run `gh label list` to confirm exact names and colors before writing automation scripts.
+ 
+-```bash
+-# Close all issues with a specific label
+-gh issue list --label "wontfix" --json number --jq '.[].number' | \
+-  xargs -I {} gh issue close {} --reason "not planned"
+-```
++4. **Issue metadata is partially lost on repo transfer**: `gh issue transfer 42 owner/other-repo` moves the issue body and comments, but project board cards, milestone associations, and cross-repo references are not preserved. Before transferring, add a comment documenting the original repo and issue number, and manually re-add project/milestone associations after the transfer.
+ 
+-**With curl:**
++5. **Closing issues without linking the fix breaks traceability**: `gh issue close 42` leaves no audit trail. Always use `gh issue close 42 -c "Fixed in PR #<number>"` or include `Closes #42` in the PR body for automatic closure with a traceable link between the issue and the resolving commit.
+ 
+-```bash
+-# List issue numbers with a label, then close each
+-curl -s \
+-  -H "Authorization: token $GITHUB_TOKEN" \
+-  "https://api.github.com/repos/$OWNER/$REPO/issues?labels=wontfix&state=open" \
+-  | python3 -c "import sys,json; [print(i['number']) for i in json.load(sys.stdin)]" \
+-  | while read num; do
+-    curl -s -X PATCH \
+-      -H "Authorization: token $GITHUB_TOKEN" \
+-      https://api.github.com/repos/$OWNER/$REPO/issues/$num \
+-      -d '{"state": "closed", "state_reason": "not_planned"}'
+-    echo "Closed #$num"
+-  done
+-```
++6. **`--edit-last` flag requires gh CLI >= 2.20**: `gh issue comment 42 --edit-last` is not available in older installations and will throw an unknown flag error. Check your version with `gh --version`. If outdated, upgrade via `brew upgrade gh` or your package manager, or edit the comment via web with `gh issue view 42 --web`.
+ 
+-## Quick Reference Table
+-
+-| Action | gh | curl endpoint |
+-|--------|-----|--------------|
+-| List issues | `gh issue list` | `GET /repos/{o}/{r}/issues` |
+-| View issue | `gh issue view N` | `GET /repos/{o}/{r}/issues/N` |
+-| Create issue | `gh issue create ...` | `POST /repos/{o}/{r}/issues` |
+-| Add labels | `gh issue edit N --add-label ...` | `POST /repos/{o}/{r}/issues/N/labels` |
+-| Assign | `gh issue edit N --add-assignee ...` | `POST /repos/{o}/{r}/issues/N/assignees` |
+-| Comment | `gh issue comment N --body ...` | `POST /repos/{o}/{r}/issues/N/comments` |
+-| Close | `gh issue close N` | `PATCH /repos/{o}/{r}/issues/N` |
+-| Search | `gh issue list --search "..."` | `GET /search/issues?q=...` |
++7. **Missing `--repo` flag silently targets the wrong repository**: Running `gh issue list` outside a cloned git directory, or inside a different repo's directory, targets an unexpected repository without warning. Always append `--repo OWNER/REPO` when scripting from non-repo directories such as cron jobs, CI pipelines, or home directories.

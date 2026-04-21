@@ -1,0 +1,42 @@
+diff --git a/skills/software-development/test-driven-development/SKILL.md b/skills/software-development/test-driven-development/SKILL.md
+index 4be2d532..36901b34 100644
+--- a/skills/software-development/test-driven-development/SKILL.md
++++ b/skills/software-development/test-driven-development/SKILL.md
+@@ -1,13 +1,22 @@
+ ---
+ name: test-driven-development
+ description: Use when implementing any feature or bugfix, before writing implementation code. Enforces RED-GREEN-REFACTOR cycle with test-first approach.
+-version: 1.1.0
++version: 1.2.0
+ author: Hermes Agent (adapted from obra/superpowers)
+ license: MIT
+ metadata:
+   hermes:
+     tags: [testing, tdd, development, quality, red-green-refactor]
+     related_skills: [systematic-debugging, writing-plans, subagent-driven-development]
++    trigger_conditions:
++      - "implement a new feature"
++      - "write tests for"
++      - "test-driven"
++      - "tdd"
++      - "red green refactor"
++      - "test first"
++      - "before writing implementation"
++      - "add functionality"
+ ---
+ 
+ # Test-Driven Development (TDD)
+@@ -340,3 +349,13 @@ Otherwise → not TDD
+ ```
+ 
+ No exceptions without the user's explicit permission.
++
++## Pitfalls
++
++1. **Writing implementation before the test**: If the test passes immediately without any implementation code, you skipped the RED phase. Confirm a FAILED result from pytest before writing a single line of implementation.
++2. **Trivially passing assertions**: Writing assert result is not None when you mean to verify a specific value gives false confidence. Assert the exact expected value.
++3. **Testing implementation details instead of behavior**: Tests that access private methods break on every refactor. Test only public API and observable outputs.
++4. **Skipping the REFACTOR phase**: Leaving code green but ugly accumulates technical debt. After every GREEN pass, clean up and re-run tests.
++5. **Shared mutable state between tests**: A global variable modified in one test bleeds into the next, causing order-dependent failures. Use pytest fixtures with yield for teardown.
++6. **Mocking code you own**: Patching your own internal functions couples tests to implementation details. Only mock external I/O boundaries.
++7. **Writing the entire test suite before any implementation**: TDD is one cycle at a time. Writing 20 failing tests at once eliminates the design feedback loop.
