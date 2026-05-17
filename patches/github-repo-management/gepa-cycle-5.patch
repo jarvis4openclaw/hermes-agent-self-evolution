@@ -1,0 +1,97 @@
+diff --git a/skills/github/github-repo-management/SKILL.md b/skills/github/github-repo-management/SKILL.md
+index 0ba049e27..0c29f3029 100644
+--- a/skills/github/github-repo-management/SKILL.md
++++ b/skills/github/github-repo-management/SKILL.md
+@@ -1,10 +1,22 @@
+ ---
+ name: github-repo-management
+ description: "Clone/create/fork repos; manage remotes, releases."
+-version: 1.1.0
++version: 1.2.0
+ author: Hermes Agent
+ license: MIT
+ platforms: [linux, macos, windows]
++trigger_conditions:
++  - "create a repo"
++  - "clone this repository"
++  - "fork a repo"
++  - "create a new project"
++  - "push to github"
++  - "create a release"
++  - "manage remotes"
++  - "branch protection"
++  - "github actions"
++  - "manage secrets"
++  - "create a gist"
+ metadata:
+   hermes:
+     tags: [GitHub, Repositories, Git, Releases, Secrets, Configuration]
+@@ -15,6 +27,21 @@ metadata:
+ 
+ Create, clone, fork, configure, and manage GitHub repositories. Each section shows `gh` first, then the `git` + `curl` fallback.
+ 
++## When to Use
++
++1. **Creating new repositories** — User wants to create a new GitHub repo (from scratch or from an existing local directory) with specific settings (public/private, license, description).
++2. **Forking and syncing** — User wants to fork an existing repo, clone it, and keep it in sync with upstream changes.
++3. **Managing releases** — User wants to create tagged releases, upload release assets, or list existing releases.
++4. **Configuring repositories** — User needs to set up branch protection, manage secrets for GitHub Actions, or update repo settings (topics, visibility, default branch).
++5. **Inspecting CI/CD** — User wants to view GitHub Actions workflow runs, re-run failed jobs, or trigger workflows manually.
++
++## Not For
++
++1. **Code review** — Use `github-code-review` skill instead.
++2. **PR lifecycle (create/merge/comment)** — Use `github-pr-workflow` skill instead.
++3. **Issue management** — Use `github-issues` skill instead.
++4. **Local git operations (commit, rebase, stash)** — This skill focuses on GitHub-side repository management, not local git workflows.
++
+ ## Prerequisites
+ 
+ - Authenticated with GitHub (see `github-auth` skill)
+@@ -30,7 +57,7 @@ else
+     if [ -f ~/.hermes/.env ] && grep -q "^GITHUB_TOKEN=" ~/.hermes/.env; then
+       GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" ~/.hermes/.env | head -1 | cut -d= -f2 | tr -d '\n\r')
+     elif grep -q "github.com" ~/.git-credentials 2>/dev/null; then
+-      GITHUB_TOKEN=$(grep "github.com" ~/.git-credentials 2>/dev/null | head -1 | sed 's|https://[^:]*:\([^@]*\)@.*|\1|')
++      GITHUB_TOKEN=$(grep "github.com" ~/.git-credentials 2>/dev/null | head -1 | sed 's|https://[^:***@]*\)@.*|\1|')
+     fi
+   fi
+ fi
+@@ -498,19 +525,23 @@ curl -s \
+ import sys, json
+ for g in json.load(sys.stdin):
+     files = ', '.join(g['files'].keys())
+-    print(f\"  {g['id']}  {g['description'] or '(no desc)':40}  {files}\")"
++    print(f\"  {g['id']:20}  {files}  {g.get('description', '')}\")"
+ ```
+ 
+-## Quick Reference Table
+-
+-| Action | gh | git + curl |
+-|--------|-----|-----------|
+-| Clone | `gh repo clone o/r` | `git clone https://github.com/o/r.git` |
+-| Create repo | `gh repo create name --public` | `curl POST /user/repos` |
+-| Fork | `gh repo fork o/r --clone` | `curl POST /repos/o/r/forks` + `git clone` |
+-| Repo info | `gh repo view o/r` | `curl GET /repos/o/r` |
+-| Edit settings | `gh repo edit --...` | `curl PATCH /repos/o/r` |
+-| Create release | `gh release create v1.0` | `curl POST /repos/o/r/releases` |
+-| List workflows | `gh workflow list` | `curl GET /repos/o/r/actions/workflows` |
+-| Rerun CI | `gh run rerun ID` | `curl POST /repos/o/r/actions/runs/ID/rerun` |
+-| Set secret | `gh secret set KEY` | `curl PUT /repos/o/r/actions/secrets/KEY` (+ encryption) |
++---
++
++## Pitfalls
++
++1. **Fork creation race condition** — After calling the fork API via curl, the fork may not be immediately available. Cloning too quickly results in 404. Fix: Always `sleep 3` after fork creation before cloning, or poll the API until the repo exists.
++
++2. **Wrong owner for org repos** — When creating repos under an organization, using `/user/repos` instead of `/orgs/{org}/repos` creates the repo under your personal account. Fix: Always use the org endpoint for org repos.
++
++3. **Branch protection 403 on admin repos** — Setting branch protection via API requires admin access. If you're a maintainer, the API returns 403. Fix: Use `gh api` which provides clearer error messages about permission levels.
++
++4. **Secrets encryption failure** — The PyNaCl encryption step requires the exact `key_id` from the API. Using a stale key_id causes the PUT to fail with 404. Fix: Always fetch the public key immediately before encrypting.
++
++5. **Release asset upload URL** — The upload URL is `uploads.github.com`, not `api.github.com`. Using the wrong host returns 404. Fix: Note the different hostname for asset uploads.
++
++6. **Fork sync losing local changes** — Running `git merge upstream/main` on a branch with local commits can create merge conflicts. Fix: Always `git checkout main` and ensure a clean working tree before syncing.
++
++7. **Gist visibility default** — The Gist API defaults to public. For private gists, you must explicitly set `"public": false`. Fix: Always specify the visibility explicitly when creating gists.

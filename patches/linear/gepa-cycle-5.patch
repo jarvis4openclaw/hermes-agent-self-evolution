@@ -1,0 +1,72 @@
+diff --git a/skills/productivity/linear/SKILL.md b/skills/productivity/linear/SKILL.md
+index a08a03e43..dccb40fb3 100644
+--- a/skills/productivity/linear/SKILL.md
++++ b/skills/productivity/linear/SKILL.md
+@@ -1,13 +1,24 @@
+ ---
+ name: linear
+ description: "Linear: manage issues, projects, teams via GraphQL + curl."
+-version: 1.0.0
++version: 1.1.0
+ author: Hermes Agent
+ license: MIT
+ platforms: [linux, macos, windows]
+ prerequisites:
+   env_vars: [LINEAR_API_KEY]
+   commands: [curl]
++trigger_conditions:
++  - "linear issue"
++  - "create a linear ticket"
++  - "update linear status"
++  - "list my issues"
++  - "linear project"
++  - "assign issue"
++  - "add comment to issue"
++  - "search linear"
++  - "linear workflow"
++  - "set priority"
+ metadata:
+   hermes:
+     tags: [Linear, Project Management, Issues, GraphQL, API, Productivity]
+@@ -17,6 +28,21 @@ metadata:
+ 
+ Manage Linear issues, projects, and teams directly via the GraphQL API using `curl`. No MCP server, no OAuth flow, no extra dependencies.
+ 
++## When to Use
++
++1. **Issue management** — Creating, updating, assigning, or searching Linear issues and tickets.
++2. **Project tracking** — Listing projects, checking progress, creating new projects, and adding issues to projects.
++3. **Status updates** — Moving issues through workflow states (triage → backlog → started → completed).
++4. **Team coordination** — Listing team members, viewing assignments, and adding comments for context.
++5. **Document access** — Fetching Linear Documents (RFCs, specs, notes) by slugId or UUID.
++
++## Not For
++
++1. **Non-Linear project management** — This skill only works with Linear. For Jira, GitHub Issues, or other tools, use the appropriate skill.
++2. **Bulk operations across many teams** — For bulk updates across 5+ teams, script with the Python helper rather than individual curl calls.
++3. **Real-time notifications** — This is a request-response API. For webhooks or event-driven workflows, use Linear's native webhook support.
++4. **OAuth app management** — This skill uses personal API keys. For OAuth app configuration, use Linear's Settings > API page directly.
++
+ ## Setup
+ 
+ 1. Get a personal API key from **Linear Settings > Account > Security & access > Personal API keys** (URL: https://linear.app/settings/account/security). Note: the org-level *Settings > API* page only shows OAuth apps and workspace-member keys, not personal keys.
+@@ -378,3 +404,19 @@ Combine filters with `or: [...]` for OR logic (default is AND within a filter ob
+ - If `stateId` is omitted when creating issues, Linear defaults to the first backlog state
+ - The `description` field supports Markdown
+ - Use `python3 -m json.tool` or `jq` to format JSON responses for readability
++
++## Pitfalls
++
++1. **Using "Bearer" prefix with API keys** — Linear personal API keys use `Authorization: $LINEAR_API_KEY` without the "Bearer" prefix. Adding "Bearer" causes a 401. Fix: Use the raw API key as the header value.
++
++2. **Confusing slugId with UUID** — Document URLs contain a hex `slugId` (e.g., `38359beef67c`), but `document(id:)` only accepts UUIDs. Passing a slugId to `document(id:)` returns null. Fix: Use `documents(filter: { slugId: { eq: "..." } })` for slugId lookups.
++
++3. **Assuming `contentData` field exists** — The ProseMirror JSON is in `contentState`, not `contentData`. Requesting `contentData` returns a 400 error. Fix: Always request `contentState` for ProseMirror JSON or `content` for Markdown.
++
++4. **Not checking GraphQL errors array** — Linear returns HTTP 200 even for failed queries. The response body contains an `errors` array with details. Fix: Always check for `errors` in the response before processing data.
++
++5. **Hardcoding team keys** — Team keys (e.g., "ENG") can be renamed by workspace admins. Code that hardcodes keys breaks silently. Fix: Query teams dynamically at runtime and cache the UUIDs.
++
++6. **Exceeding complexity limits** — Large queries with nested connections (e.g., issues → comments → user → team) can hit the 3M complexity cap. Fix: Limit `first:` to 20-50 and avoid deeply nested queries.
++
++7. **Creating issues without teamId** — Omitting `teamId` in `issueCreate` mutations returns a validation error. Fix: Always include `teamId` from a prior `list-teams` query.

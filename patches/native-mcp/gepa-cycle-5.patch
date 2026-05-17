@@ -1,0 +1,123 @@
+diff --git a/skills/mcp/native-mcp/SKILL.md b/skills/mcp/native-mcp/SKILL.md
+index ca3896745..25632bef5 100644
+--- a/skills/mcp/native-mcp/SKILL.md
++++ b/skills/mcp/native-mcp/SKILL.md
+@@ -1,10 +1,20 @@
+ ---
+ name: native-mcp
+ description: "MCP client: connect servers, register tools (stdio/HTTP)."
+-version: 1.0.0
++version: 1.1.0
+ author: Hermes Agent
+ license: MIT
+ platforms: [linux, macos, windows]
++trigger_conditions:
++  - "connect to MCP server"
++  - "MCP tools"
++  - "add MCP server"
++  - "MCP integration"
++  - "model context protocol"
++  - "register MCP tools"
++  - "stdio MCP"
++  - "HTTP MCP"
++  - "MCP server config"
+ metadata:
+   hermes:
+     tags: [MCP, Tools, Integrations]
+@@ -17,14 +27,18 @@ Hermes Agent has a built-in MCP client that connects to MCP servers at startup,
+ 
+ ## When to Use
+ 
+-Use this whenever you want to:
+-- Connect to MCP servers and use their tools from within Hermes Agent
+-- Add external capabilities (filesystem access, GitHub, databases, APIs) via MCP
+-- Run local stdio-based MCP servers (npx, uvx, or any command)
+-- Connect to remote HTTP/StreamableHTTP MCP servers
+-- Have MCP tools auto-discovered and available in every conversation
++1. **Adding external capabilities** — Connect to MCP servers to add filesystem access, GitHub, databases, APIs, or other external tools to Hermes.
++2. **Running local stdio-based MCP servers** — Use `npx`, `uvx`, or any command to run local MCP servers that provide custom tools.
++3. **Connecting to remote HTTP MCP servers** — Connect to hosted MCP services for shared tool access across teams.
++4. **Auto-discovering tools** — Have MCP tools automatically discovered and available in every conversation without manual setup.
++5. **Agent-in-the-loop workflows** — Enable MCP servers to request LLM completions during tool execution via the sampling capability.
+ 
+-For ad-hoc, one-off MCP tool calls from the terminal without configuring anything, see the `mcporter` skill instead.
++## Not For
++
++1. **Ad-hoc one-off MCP calls** — For calling MCP tools from the terminal without configuring servers, use the `mcporter` skill instead.
++2. **Non-MCP tool integrations** — This skill is specifically for the Model Context Protocol. For REST APIs, use direct curl/Python; for CLI tools, use the `terminal` tool.
++3. **Replacing built-in tools** — MCP tools supplement built-in tools; they don't replace core Hermes functionality.
++4. **Hot-reloading server configs** — Adding or removing servers requires restarting the agent. For dynamic tool switching, use `mcporter`.
+ 
+ ## Prerequisites
+ 
+@@ -156,7 +170,7 @@ mcp_servers:
+     args: ["-y", "@modelcontextprotocol/server-filesystem", "/home/user/projects"]
+ ```
+ 
+-The subprocess inherits a **filtered** environment (see Security section below) plus any variables you specify in `env`.
++The subprocess inherits a **filtered** environment (see Security section below) plus any variables you specify in the `env` config key.
+ 
+ ### HTTP / StreamableHTTP Transport
+ 
+@@ -170,7 +184,7 @@ mcp_servers:
+       Authorization: "Bearer sk-..."
+ ```
+ 
+-If HTTP support is not available in your installed `mcp` version, the server will fail with an ImportError and other servers will continue normally.
++If HTTP support is not available in your installed `mcp` version, the server will fail with an ImportError and other servers continue normally.
+ 
+ ## Security
+ 
+@@ -276,7 +290,7 @@ mcp_servers:
+     command: "npx"
+     args: ["-y", "@modelcontextprotocol/server-github"]
+     env:
+-      GITHUB_PERSONAL_ACCESS_TOKEN: "ghp_xxxxxxxxxxxxxxxxxxxx"
++      GITHUB_PERSONAL_ACCESS_TOKEN: "ghp_xx...xxxx"
+     timeout: 60
+ ```
+ 
+@@ -289,7 +303,7 @@ mcp_servers:
+   company_api:
+     url: "https://mcp.mycompany.com/v1/mcp"
+     headers:
+-      Authorization: "Bearer sk-xxxxxxxxxxxxxxxxxxxx"
++      Authorization: "Bearer sk-xxx...xxxx"
+       X-Team-Id: "engineering"
+     timeout: 180
+     connect_timeout: 30
+@@ -311,12 +325,12 @@ mcp_servers:
+     command: "npx"
+     args: ["-y", "@modelcontextprotocol/server-github"]
+     env:
+-      GITHUB_PERSONAL_ACCESS_TOKEN: "ghp_xxxxxxxxxxxxxxxxxxxx"
++      GITHUB_PERSONAL_ACCESS_TOKEN: "ghp_xx...xxxx"
+ 
+   company_api:
+     url: "https://mcp.internal.company.com/mcp"
+     headers:
+-      Authorization: "Bearer sk-xxxxxxxxxxxxxxxxxxxx"
++      Authorization: "Bearer sk-xxx...xxxx"
+     timeout: 300
+ ```
+ 
+@@ -355,3 +369,19 @@ Disable sampling for untrusted servers with `sampling: { enabled: false }`.
+ - The native MCP client is independent of `mcporter` -- you can use both simultaneously
+ - Server connections are persistent and shared across all conversations in the same agent process
+ - Adding or removing servers requires restarting the agent (no hot-reload currently)
++
++## Pitfalls
++
++1. **Wrong config key name** — The config key is `mcp_servers`, not `mcp` or `servers`. Using the wrong key silently skips all MCP setup. Fix: Always use `mcp_servers:` in `~/.hermes/config.yaml`.
++
++2. **Both `command` and `url` in same config** — A server config must have either `command` (stdio) or `url` (HTTP), not both. Including both causes undefined behavior. Fix: Use only one transport type per server.
++
++3. **Forgetting to pass API keys via `env`** — Stdio MCP servers don't inherit your shell's environment variables (by design for security). API keys must be explicitly passed in the `env` block. Fix: Add all required credentials to the server's `env:` section.
++
++4. **npx without `-y` flag** — Running `npx some-package` without `-y` prompts for confirmation ("Install package?"), which hangs in non-interactive mode. Fix: Always include `-y` in args for npx-based servers.
++
++5. **HTTP transport without streamable_http support** — Older versions of the `mcp` package don't include HTTP client support. The server fails with ImportError. Fix: Run `pip install --upgrade mcp` to get the latest version with HTTP support.
++
++6. **Assuming tools are available immediately after config change** — MCP servers are only discovered at agent startup. Editing `config.yaml` takes effect only after restart. Fix: Restart the agent after adding or removing MCP servers.
++
++7. **Unbounded sampling requests** — MCP servers with sampling enabled can make unlimited LLM requests, potentially causing runaway costs. Fix: Set `max_rpm`, `max_tokens_cap`, and `max_tool_rounds` limits. Disable sampling for untrusted servers.
