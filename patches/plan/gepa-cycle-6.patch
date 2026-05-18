@@ -1,0 +1,65 @@
+diff --git a/skills/software-development/plan/SKILL.md b/skills/software-development/plan/SKILL.md
+index dcfba8e22..ffe40ce7e 100644
+--- a/skills/software-development/plan/SKILL.md
++++ b/skills/software-development/plan/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: plan
+ description: "Plan mode: write markdown plan to .hermes/plans/, no exec."
+-version: 1.0.0
++version: 1.1.0
+ author: Hermes Agent
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -9,6 +9,17 @@ metadata:
+   hermes:
+     tags: [planning, plan-mode, implementation, workflow]
+     related_skills: [writing-plans, subagent-driven-development]
++    trigger_conditions:
++      - "/plan"
++      - "plan this out"
++      - "write a plan for"
++      - "create a plan"
++      - "plan mode"
++      - "don't execute yet"
++      - "just plan"
++      - "what's the plan for"
++      - "how would you approach"
++      - "design document for"
+ ---
+ 
+ # Plan Mode
+@@ -25,6 +36,20 @@ For this turn, you are planning only.
+ - You may inspect the repo or other context with read-only commands/tools when needed.
+ - Your deliverable is a markdown plan saved inside the active workspace under `.hermes/plans/`.
+ 
++## When to Use
++
++- User explicitly says "plan this", "don't execute", "just plan", or uses `/plan`
++- Before starting a complex multi-step implementation
++- When the user wants to review the approach before any code is written
++- When the task is ambiguous and needs scoping before execution
++
++## Not For
++
++- **Writing implementation plans with task breakdowns** → use `writing-plans` skill (produces detailed task-by-task plans with code)
++- **Throwaway experiments** → use `spike` skill
++- **Direct execution** — this skill produces a plan document only, no code runs
++- **Quick questions** — if the user just wants a brief answer, don't create a full plan document
++
+ ## Output requirements
+ 
+ Write a markdown plan that is concrete and actionable.
+@@ -56,3 +81,12 @@ If not, create a sensible timestamped filename yourself under `.hermes/plans/`.
+ - If no explicit instruction accompanies `/plan`, infer the task from the current conversation context.
+ - If it is genuinely underspecified, ask a brief clarifying question instead of guessing.
+ - After saving the plan, reply briefly with what you planned and the saved path.
++
++## Pitfalls
++
++- **Executing instead of planning** — this is a READ-ONLY mode. Do not run builds, tests, or mutating commands. Only read files and write the plan document.
++- **Over-planning** — if the task is simple (single file, <10 lines), a plan is overkill. Just note the approach briefly.
++- **Wrong save location** — always save to `.hermes/plans/` relative to the workspace root, not to an arbitrary path.
++- **Missing timestamp** — always include a timestamp in the filename to avoid overwriting previous plans.
++- **Confusing with writing-plans** — `writing-plans` produces detailed implementation plans with bite-sized tasks and complete code. This skill produces higher-level design/approach documents. Use the right one for the job.
++- **Not asking when underspecified** — if the `/plan` command comes with no context and no recent conversation to infer from, ask what to plan rather than guessing.

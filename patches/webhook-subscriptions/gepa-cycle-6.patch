@@ -1,0 +1,71 @@
+diff --git a/skills/devops/webhook-subscriptions/SKILL.md b/skills/devops/webhook-subscriptions/SKILL.md
+index 1f359b1a5..20ed891fc 100644
+--- a/skills/devops/webhook-subscriptions/SKILL.md
++++ b/skills/devops/webhook-subscriptions/SKILL.md
+@@ -1,17 +1,45 @@
+ ---
+ name: webhook-subscriptions
+ description: "Webhook subscriptions: event-driven agent runs."
+-version: 1.1.0
++version: 1.2.0
+ platforms: [linux, macos, windows]
+ metadata:
+   hermes:
+     tags: [webhook, events, automation, integrations, notifications, push]
++    trigger_conditions:
++      - "webhook subscription"
++      - "create a webhook"
++      - "event-driven agent"
++      - "trigger agent from webhook"
++      - "GitHub webhook"
++      - "Stripe webhook"
++      - "CI/CD notification"
++      - "monitoring alert webhook"
++      - "incoming webhook"
++      - "webhook endpoint"
++      - "subscribe to events"
++      - "push notification to agent"
+ ---
+ 
+ # Webhook Subscriptions
+ 
+ Create dynamic webhook subscriptions so external services (GitHub, GitLab, Stripe, CI/CD, IoT sensors, monitoring tools) can trigger Hermes agent runs by POSTing events to a URL.
+ 
++## When to Use
++
++- Setting up GitHub/GitLab webhooks to auto-triage issues or review PRs
++- Receiving Stripe payment events for automated handling
++- Forwarding CI/CD build notifications to chat
++- Creating monitoring/alerting webhooks (Prometheus, Grafana, PagerDuty)
++- Any scenario where an external service needs to trigger an agent run via HTTP POST
++
++## Not For
++
++- **Polling-based integrations** — webhooks are push-based. If you're polling an API, use a cron job instead.
++- **Replacing the gateway** — webhooks run through the Hermes gateway. They don't replace it.
++- **Direct database or file system events** — webhooks receive HTTP POSTs only.
++- **High-frequency event streams** — webhooks are for discrete events, not continuous streams. Use a message queue for high-frequency data.
++
+ ## Setup (Required First)
+ 
+ The webhook platform must be enabled before subscriptions can be created. Check with:
+@@ -192,6 +220,19 @@ Requires `--deliver` to be a real target (telegram, discord, slack, github_comme
+ 3. When a POST arrives matching a route, the adapter formats the prompt and triggers an agent run
+ 4. The agent's response is delivered to the configured target (Telegram, Discord, GitHub comment, etc.)
+ 
++## Pitfalls
++
++- **Gateway not running** — webhooks require the Hermes gateway to be active. If `curl localhost:8644/health` fails, start the gateway first.
++- **Webhook platform not enabled** — running `hermes webhook list` will tell you. Enable via `hermes gateway setup` or manual config.
++- **Wrong HMAC header name** — GitHub sends `X-Hub-Signature-256`, GitLab sends `X-Gitlab-Token`. The adapter handles both, but verify your service's header format matches.
++- **Secret mismatch** — if the secret in your external service doesn't match the one from `hermes webhook list`, all POSTs will be rejected with 401.
++- **Firewall/NAT blocking** — the webhook URL must be reachable from the external service. For local development, use a tunnel (ngrok, cloudflared).
++- **Event type mismatch** — if `--events` filter doesn't match what the service sends, the webhook will be silently ignored. Use `hermes webhook test <name>` to verify.
++- **Prompt template field errors** — if `{field.path}` doesn't exist in the payload, it renders as empty string. Test with real payloads first.
++- **deliver-only without --deliver** — `--deliver-only` requires a real delivery target. `--deliver log` is rejected.
++- **Subscription not persisting** — subscriptions are saved to `~/.hermes/webhook_subscriptions.json`. If this file is deleted or permissions are wrong, subscriptions are lost.
++- **Rate limiting** — high-volume webhooks may hit rate limits. Consider batching or using `--deliver-only` for high-frequency events.
++
+ ## Troubleshooting
+ 
+ If webhooks aren't working:
