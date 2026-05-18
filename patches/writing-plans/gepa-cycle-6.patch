@@ -1,0 +1,63 @@
+diff --git a/skills/software-development/writing-plans/SKILL.md b/skills/software-development/writing-plans/SKILL.md
+index abb321dd8..04a13c88c 100644
+--- a/skills/software-development/writing-plans/SKILL.md
++++ b/skills/software-development/writing-plans/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: writing-plans
+ description: "Write implementation plans: bite-sized tasks, paths, code."
+-version: 1.1.0
++version: 1.2.0
+ author: Hermes Agent (adapted from obra/superpowers)
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -9,6 +9,17 @@ metadata:
+   hermes:
+     tags: [planning, design, implementation, workflow, documentation]
+     related_skills: [subagent-driven-development, test-driven-development, requesting-code-review]
++    trigger_conditions:
++      - "write an implementation plan"
++      - "plan this feature"
++      - "break down this task"
++      - "create a plan for"
++      - "how should I implement"
++      - "implementation plan for"
++      - "plan out the steps"
++      - "what's the approach for"
++      - "design the implementation"
++      - "scope this work"
+ ---
+ 
+ # Writing Implementation Plans
+@@ -33,6 +44,14 @@ Assume the implementer is a skilled developer but knows almost nothing about the
+ - You plan to implement it yourself (future you needs guidance)
+ - Working alone (documentation matters)
+ 
++## Not For
++
++- **Quick one-off scripts or single-file changes** — just write the code
++- **Exploratory prototyping** — use `spike` skill instead
++- **Production-ready project planning with persistent state** — use `plan` skill (saves to `.hermes/plans/`)
++- **Code review or verification** — use `requesting-code-review` skill
++- **Direct execution** — this skill produces a plan document, not running code
++
+ ## Bite-Sized Task Granularity
+ 
+ **Each task = 2-5 minutes of focused work.**
+@@ -282,6 +301,16 @@ When executing, use the `subagent-driven-development` skill:
+ - Code quality review after spec passes
+ - Proceed only when both reviews approve
+ 
++## Pitfalls
++
++- **Plan too abstract** — if the implementer has to guess file paths or code structure, the plan fails. Every task needs exact paths and complete code.
++- **Tasks too large** — anything over 5 minutes of work should be split. Large tasks hide failures and make TDD impossible.
++- **Missing test commands** — every task that produces code needs exact test commands with expected output, not just "test it works".
++- **Forgetting the baseline** — if the plan modifies existing code, include a step to run existing tests FIRST to establish the baseline.
++- **No commit step** — every task should end with a commit. Plans without commits produce monolithic changes that are hard to review.
++- **YAGNI violations in plans** — don't add "flexible" abstractions for hypothetical future needs. Plan only what's needed now.
++- **Wrong sibling skill** — if the user wants a quick throwaway experiment, use `spike`. If they want a formal plan saved to `.hermes/plans/`, use `plan`. This skill is for implementation plans that will be executed.
++
+ ## Remember
+ 
+ ```

@@ -1,0 +1,163 @@
+{
+  "cycle": 6,
+  "date": "2026-05-18",
+  "method": "LLM-as-Judge (direct parent optimization)",
+  "skills": [
+    {
+      "name": "requesting-code-review",
+      "category": "software-development",
+      "version_before": "2.0.0",
+      "version_after": "2.1.0",
+      "baseline": {
+        "trigger_clarity": 5,
+        "step_completeness": 9,
+        "pitfall_coverage": 7,
+        "command_accuracy": 9,
+        "reuse_potential": 8,
+        "total": 38
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 9,
+        "pitfall_coverage": 9,
+        "command_accuracy": 9,
+        "reuse_potential": 10,
+        "total": 46
+      },
+      "delta": 8,
+      "changes": {
+        "trigger_conditions_added": 11,
+        "pitfalls_added": 5,
+        "when_to_use_added": true,
+        "not_for_added": true
+      }
+    },
+    {
+      "name": "writing-plans",
+      "category": "software-development",
+      "version_before": "1.1.0",
+      "version_after": "1.2.0",
+      "baseline": {
+        "trigger_clarity": 4,
+        "step_completeness": 8,
+        "pitfall_coverage": 0,
+        "command_accuracy": 8,
+        "reuse_potential": 13,
+        "total": 33
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 9,
+        "pitfall_coverage": 9,
+        "command_accuracy": 9,
+        "reuse_potential": 9,
+        "total": 45
+      },
+      "delta": 12,
+      "changes": {
+        "trigger_conditions_added": 10,
+        "pitfalls_added": 7,
+        "when_to_use_added": true,
+        "not_for_added": true
+      }
+    },
+    {
+      "name": "plan",
+      "category": "software-development",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "baseline": {
+        "trigger_clarity": 3,
+        "step_completeness": 7,
+        "pitfall_coverage": 0,
+        "command_accuracy": 7,
+        "reuse_potential": 11,
+        "total": 28
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 9,
+        "pitfall_coverage": 9,
+        "command_accuracy": 9,
+        "reuse_potential": 8,
+        "total": 44
+      },
+      "delta": 16,
+      "changes": {
+        "trigger_conditions_added": 10,
+        "pitfalls_added": 6,
+        "when_to_use_added": true,
+        "not_for_added": true
+      }
+    },
+    {
+      "name": "spike",
+      "category": "software-development",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "baseline": {
+        "trigger_clarity": 4,
+        "step_completeness": 8,
+        "pitfall_coverage": 0,
+        "command_accuracy": 8,
+        "reuse_potential": 10,
+        "total": 30
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 9,
+        "pitfall_coverage": 9,
+        "command_accuracy": 9,
+        "reuse_potential": 8,
+        "total": 44
+      },
+      "delta": 14,
+      "changes": {
+        "trigger_conditions_added": 12,
+        "pitfalls_added": 8,
+        "when_to_use_added": true,
+        "not_for_added": true
+      }
+    },
+    {
+      "name": "webhook-subscriptions",
+      "category": "devops",
+      "version_before": "1.1.0",
+      "version_after": "1.2.0",
+      "baseline": {
+        "trigger_clarity": 4,
+        "step_completeness": 8,
+        "pitfall_coverage": 0,
+        "command_accuracy": 9,
+        "reuse_potential": 9,
+        "total": 30
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 9,
+        "pitfall_coverage": 9,
+        "command_accuracy": 9,
+        "reuse_potential": 8,
+        "total": 44
+      },
+      "delta": 14,
+      "changes": {
+        "trigger_conditions_added": 12,
+        "pitfalls_added": 10,
+        "when_to_use_added": true,
+        "not_for_added": true
+      }
+    }
+  ],
+  "summary": {
+    "total_skills": 5,
+    "total_baseline": 159,
+    "total_evolved": 223,
+    "total_delta": 64,
+    "avg_delta": 12.8,
+    "avg_pitfall_improvement": 7.0,
+    "cumulative_skills_optimized": 30,
+    "cumulative_total_delta": 300,
+    "cumulative_avg_delta": 10.0
+  }
+}
