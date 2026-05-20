@@ -1,0 +1,78 @@
+diff --git a/skills/software-development/subagent-driven-development/SKILL.md b/skills/software-development/subagent-driven-development/SKILL.md
+index d2cff3d80..180a29cbd 100644
+--- a/skills/software-development/subagent-driven-development/SKILL.md
++++ b/skills/software-development/subagent-driven-development/SKILL.md
+@@ -1,7 +1,11 @@
+ ---
+ name: subagent-driven-development
+-description: "Execute plans via delegate_task subagents (2-stage review)."
+-version: 1.1.0
++description: >
++  Execute implementation plans by dispatching fresh subagents per task with
++  systematic two-stage review (spec compliance then code quality). Use when
++  you have a plan with independent tasks and need high-quality, fast iteration
++  with automated review between tasks.
++version: 1.2.0
+ author: Hermes Agent (adapted from obra/superpowers)
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -9,6 +13,19 @@ metadata:
+   hermes:
+     tags: [delegation, subagent, implementation, workflow, parallel]
+     related_skills: [writing-plans, requesting-code-review, test-driven-development]
++    trigger_conditions:
++      - "execute this plan"
++      - "implement this plan"
++      - "dispatch subagents for"
++      - "subagent-driven development"
++      - "implement each task in the plan"
++      - "delegate each task to a subagent"
++      - "run the implementation plan"
++      - "execute the implementation plan"
++      - "implement the plan with subagents"
++      - "two-stage review implementation"
++      - "fresh subagent per task"
++      - "automated review between tasks"
+ ---
+ 
+ # Subagent-Driven Development
+@@ -33,6 +50,14 @@ Use this skill when:
+ - Consistent quality checks across all tasks
+ - Subagents can ask questions before starting work
+ 
++## Not For
++
++- Quick one-off scripts or single-file changes (just do it directly)
++- Tasks with heavy interdependencies between subagents (shared mutable state)
++- Exploratory prototyping (use `spike` skill instead)
++- Code review of existing code (use `requesting-code-review` skill instead)
++- Direct execution without a plan (use `writing-plans` first)
++
+ ## The Process
+ 
+ ### 1. Read and Parse Plan
+@@ -282,6 +307,24 @@ If a subagent encounters bugs during implementation:
+ 3. Write regression test
+ 4. Resume implementation
+ 
++## Pitfalls
++
++1. **Subagent timeout on large tasks** — If a task takes >5 min, the subagent may time out. Split into smaller tasks before dispatching. Monitor with `process(action="poll")`.
++
++2. **Context window exhaustion from review loops** — Each review cycle adds messages to the parent session. For plans with 10+ tasks, context can fill up. Mitigation: keep review outputs concise (PASS/FAIL + bullet list), and consider dispatching a "review aggregator" subagent for the final review.
++
++3. **Dispatch conflicts from shared files** — Never dispatch parallel subagents that touch the same files. Even if tasks seem independent, shared imports/configs can cause merge conflicts. Serialize file-touching tasks.
++
++4. **Spec drift across tasks** — As implementation progresses, the original spec may become outdated. If a subagent questions the spec, pause and update the plan before proceeding. Don't let subagents silently deviate.
++
++5. **Review fatigue from trivial issues** — Reviewers may flag minor style issues as "Important." Establish a project style guide upfront and reference it in reviewer context to reduce noise.
++
++6. **Lost subagent output on failure** — If a subagent fails mid-task, its partial work may be lost. Always have subagents commit after each discrete step, not just at the end.
++
++7. **Wrong sibling skill selection** — Don't use this skill for code review (→ requesting-code-review), planning (→ writing-plans), or debugging (→ systematic-debugging). This skill is specifically for *executing* implementation plans with subagents.
++
++8. **Ignoring subagent questions** — When a subagent asks a question, it's because the context was insufficient. Answer fully before letting them proceed. Guessing leads to rework.
++
+ ## Example Workflow
+ 
+ ```

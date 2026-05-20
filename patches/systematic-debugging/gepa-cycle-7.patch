@@ -1,0 +1,77 @@
+diff --git a/skills/software-development/systematic-debugging/SKILL.md b/skills/software-development/systematic-debugging/SKILL.md
+index 635fde794..461e396ee 100644
+--- a/skills/software-development/systematic-debugging/SKILL.md
++++ b/skills/software-development/systematic-debugging/SKILL.md
+@@ -1,7 +1,11 @@
+ ---
+ name: systematic-debugging
+-description: "4-phase root cause debugging: understand bugs before fixing."
+-version: 1.1.0
++description: >
++  4-phase root cause debugging methodology: understand bugs before fixing.
++  Enforces strict investigation before any fix attempt. Use for test failures,
++  production bugs, unexpected behavior, performance issues, build failures,
++  and integration issues.
++version: 1.2.0
+ author: Hermes Agent (adapted from obra/superpowers)
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -9,6 +13,19 @@ metadata:
+   hermes:
+     tags: [debugging, troubleshooting, problem-solving, root-cause, investigation]
+     related_skills: [test-driven-development, writing-plans, subagent-driven-development]
++    trigger_conditions:
++      - "debug this"
++      - "why is this failing"
++      - "test is failing"
++      - "something is broken"
++      - "investigate this bug"
++      - "root cause analysis"
++      - "systematic debugging"
++      - "find the root cause"
++      - "what's causing this error"
++      - "this doesn't work"
++      - "unexpected behavior"
++      - "performance issue"
+ ---
+ 
+ # Systematic Debugging
+@@ -51,6 +68,13 @@ Use for ANY technical issue:
+ - You're in a hurry (rushing guarantees rework)
+ - Someone wants it fixed NOW (systematic is faster than thrashing)
+ 
++## Not For
++
++- Exploratory investigation without a specific bug (use `spike` skill)
++- Code review of working code (use `requesting-code-review` skill)
++- Performance profiling without a specific regression (use profiling tools directly)
++- "How do I use X?" questions (use `web_search` or docs)
++
+ ## The Four Phases
+ 
+ You MUST complete each phase before proceeding to the next.
+@@ -356,6 +380,24 @@ When fixing bugs:
+ 3. Fix the root cause (GREEN)
+ 4. The test proves the fix and prevents regression
+ 
++## Pitfalls
++
++1. **Skipping reproduction** — Attempting to fix a bug you can't reproduce is guessing. Always reproduce first. If you can't reproduce, gather more data (logs, environment info) until you can.
++
++2. **Fixing at the symptom** — The error occurs at line 42, but the bad value was set at line 12. Trace upstream. Fixing at line 42 will create a new bug. Always find where the bad value originates.
++
++3. **Environment assumptions** — "It works on my machine" is not a diagnosis. Check environment variables, dependency versions, file paths, and OS differences. Use `terminal` to verify the actual runtime environment.
++
++4. **Ignoring recent changes** — The bug was introduced by *something*. Check `git log --oneline -10` and `git diff` before forming hypotheses. The answer is usually in recent commits.
++
++5. **Multiple fixes at once** — Changing 3 things and having the bug disappear tells you nothing about which fix worked. One change at a time. If you must batch changes, use git bisect to isolate.
++
++6. **Missing the 3-failure threshold** — After 3 failed fix attempts, you're not dealing with a simple bug. Question the architecture. Continuing to fix symptoms will cost more than a redesign.
++
++7. **No regression test** — A fix without a test will regress. Always write the failing test first, verify it fails, then fix. The test is your safety net.
++
++8. **Wrong sibling skill** — This skill is for *debugging broken things*. For implementing features with TDD → `test-driven-development`. For executing plans → `subagent-driven-development`. For code review → `requesting-code-review`.
++
+ ## Real-World Impact
+ 
+ From debugging sessions:

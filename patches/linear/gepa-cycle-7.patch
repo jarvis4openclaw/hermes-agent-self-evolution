@@ -1,0 +1,62 @@
+diff --git a/skills/productivity/linear/SKILL.md b/skills/productivity/linear/SKILL.md
+index a08a03e43..879cb4e40 100644
+--- a/skills/productivity/linear/SKILL.md
++++ b/skills/productivity/linear/SKILL.md
+@@ -1,7 +1,10 @@
+ ---
+ name: linear
+-description: "Linear: manage issues, projects, teams via GraphQL + curl."
+-version: 1.0.0
++description: >
++  Manage Linear issues, projects, teams, and documents via the GraphQL API.
++  Create, update, search, and filter issues. Manage workflow states, priorities,
++  labels, and project membership. Use for all Linear project management operations.
++version: 1.1.0
+ author: Hermes Agent
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -11,6 +14,19 @@ prerequisites:
+ metadata:
+   hermes:
+     tags: [Linear, Project Management, Issues, GraphQL, API, Productivity]
++    trigger_conditions:
++      - "linear issue"
++      - "create a linear issue"
++      - "update linear issue"
++      - "linear project"
++      - "linear board"
++      - "my linear issues"
++      - "linear status"
++      - "move issue to"
++      - "assign issue in linear"
++      - "linear workflow"
++      - "linear document"
++      - "linear RFC"
+ ---
+ 
+ # Linear — Issue & Project Management
+@@ -371,6 +387,24 @@ Combine filters with `or: [...]` for OR logic (default is AND within a filter ob
+ - Use `first: N` to limit results and reduce complexity cost
+ - Monitor `X-RateLimit-Requests-Remaining` response header
+ 
++## Pitfalls
++
++1. **Using "Bearer" prefix with API keys** — Linear personal API keys use `Authorization: $LINEAR_API_KEY` (no "Bearer" prefix). OAuth tokens use "Bearer". Mixing them up returns 401.
++
++2. **Hardcoded team keys** — Don't assume team keys like "ENG" exist. Always query `teams` first to get actual team keys and UUIDs for the workspace.
++
++3. **Missing `first: N` in queries** — Without a limit, Linear returns the default page size (50). For large workspaces, this wastes rate limit budget. Always specify `first: N`.
++
++4. **Ignoring the `errors` array** — GraphQL returns HTTP 200 even for errors. Always check the `errors` array in the response. A response with `{"data": null, "errors": [...]}` is not a success.
++
++5. **Using `contentData` instead of `contentState`** — The ProseMirror JSON field is `contentState`, not `contentData`. Using `contentData` returns a 400 error. The Markdown body is in `content`.
++
++6. **Assuming `document(id:)` accepts slugIds** — It only accepts UUIDs. To fetch by slugId from a URL, use the `documents(filter: { slugId: { eq: "..." } })` collection filter.
++
++7. **Not checking `success` in mutation responses** — Mutations return `{ success: bool, issue: ... }`. Always check `success` before assuming the mutation worked.
++
++8. **Wrong sibling skill** — This skill is for Linear project management. For GitHub issues/PRs → `github-issues` / `github-pr-workflow`. For Jira → use Jira API directly. For general project planning → `writing-plans`.
++
+ ## Important Notes
+ 
+ - Always use `terminal` tool with `curl` for API calls — do NOT use `web_extract` or `browser`
