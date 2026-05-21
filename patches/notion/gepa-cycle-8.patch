@@ -1,0 +1,82 @@
+diff --git a/skills/productivity/notion/SKILL.md b/skills/productivity/notion/SKILL.md
+index 83222ffd9..bd9d80b13 100644
+--- a/skills/productivity/notion/SKILL.md
++++ b/skills/productivity/notion/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: notion
+ description: "Notion API + ntn CLI: pages, databases, markdown, Workers."
+-version: 2.0.0
++version: 2.1.0
+ author: community
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -11,6 +11,19 @@ metadata:
+   hermes:
+     tags: [Notion, Productivity, Notes, Database, API, CLI, Workers]
+     homepage: https://developers.notion.com
++    trigger_conditions:
++      - "notion page"
++      - "notion database"
++      - "create notion page"
++      - "query notion database"
++      - "notion api"
++      - "ntn cli"
++      - "notion markdown"
++      - "notion worker"
++      - "notion webhook"
++      - "notion sync"
++      - "update notion page"
++      - "notion file upload"
+ ---
+ 
+ # Notion
+@@ -20,6 +33,48 @@ Talk to Notion two ways. Same integration token works for both — pick by what'
+ ◆ **`ntn` CLI** — Notion's official CLI. Shorter syntax, one-line file uploads, required for Workers. macOS + Linux only as of May 2026 (Windows support "coming soon"). **Default when installed.**
+ ◆ **HTTP + curl** — works everywhere including Windows. **Default fallback** when `ntn` isn't installed.
+ 
++## When to Use
++
++- Reading or writing Notion pages, databases, or blocks
++- Creating structured pages from Markdown content
++- Querying databases with filters and sorts
++- Uploading files to Notion
++- Building Notion Workers (syncs, tools, webhooks)
++- Automating Notion workspace management
++
++## Not For
++
++- Real-time collaborative editing — Notion's API is not a replacement for the UI
++- Setting database **view** filters — that's UI-only, the API cannot do it
++- Bulk operations across many pages — script with pagination, the API returns max 100 results per call
++- Replacing a full CMS — Notion's API has rate limits (~3 req/s) and is not designed for high-throughput serving
++
++## Pitfalls
++
++1. **Forgetting to share pages with the integration.** Creating an integration is not enough — you must explicitly share each page/database via `...` → `Connect to` → integration name. Without this, the API returns 404 even though the page exists.
++
++2. **Using `NOTION_API_KEY` instead of `NOTION_API_TOKEN` for `ntn`.** The `ntn` CLI reads `NOTION_API_TOKEN`, not `NOTION_API_KEY`. Set both:
++   ```bash
++   export NOTION_API_TOKEN=$NOTION_API_KEY
++   export NOTION_KEYRING=0   # don't try OS keychain in headless/cron
++   ```
++
++3. **Confusing `database_id` with `data_source_id`.** In API version 2025-09-03, databases have two IDs. Use `database_id` when creating pages (`parent: {"database_id": "..."}`) and `data_source_id` when querying (`POST /v1/data_sources/{id}/query`). Search returns `data_source_id`.
++
++4. **Not passing `Notion-Version` header on curl requests.** Every HTTP request requires `Notion-Version: 2025-09-03`. The `ntn` CLI handles this automatically.
++
++5. **Assuming page/database IDs need dashes.** The API accepts UUIDs with or without dashes. Both `abc123` and `abc-123` work.
++
++6. **Hitting the rate limit (~3 req/s).** Notion enforces ~3 requests/second average. Add small delays in loops or handle 429 responses with exponential backoff.
++
++7. **Using `ntn login` in headless/cron environments.** `ntn login` opens a browser. For headless use, set `NOTION_API_TOKEN` and `NOTION_KEYRING=0` instead.
++
++8. **File uploads via curl require a 3-step flow.** Unlike `ntn files create < file`, the HTTP API requires: (1) create upload, (2) PUT bytes, (3) reference in page. Don't skip step 2.
++
++9. **Notion Workers require Business/Enterprise plan.** The CLI works on all plans, but deploying Workers is gated. Free through August 11, 2026; metered on Notion credits after.
++
++10. **Webhook URLs are secret.** Anyone with the webhook URL can POST events. Always verify signatures using `event.rawBody` and your secret.
++
+ ## Setup
+ 
+ ### 1. Get an integration token (required for both paths)

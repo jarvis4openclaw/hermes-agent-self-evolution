@@ -1,0 +1,90 @@
+diff --git a/skills/mlops/research/dspy/SKILL.md b/skills/mlops/research/dspy/SKILL.md
+index 674cb7e7d..933cd1b22 100644
+--- a/skills/mlops/research/dspy/SKILL.md
++++ b/skills/mlops/research/dspy/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: dspy
+ description: "DSPy: declarative LM programs, auto-optimize prompts, RAG."
+-version: 1.0.0
++version: 1.1.0
+ author: Orchestra Research
+ license: MIT
+ dependencies: [dspy, openai, anthropic]
+@@ -9,7 +9,19 @@ platforms: [linux, macos, windows]
+ metadata:
+   hermes:
+     tags: [Prompt Engineering, DSPy, Declarative Programming, RAG, Agents, Prompt Optimization, LM Programming, Stanford NLP, Automatic Optimization, Modular AI]
+-
++    trigger_conditions:
++      - "dspy"
++      - "prompt optimization"
++      - "declarative lm"
++      - "auto-optimize prompts"
++      - "dspy module"
++      - "dspy signature"
++      - "chain of thought dspy"
++      - "rag pipeline"
++      - "dspy optimizer"
++      - "bootstrap fewshot"
++      - "mipro optimization"
++      - "dspy react agent"
+ ---
+ 
+ # DSPy: Declarative Language Model Programming
+@@ -26,6 +38,40 @@ Use DSPy when you need to:
+ 
+ **GitHub Stars**: 22,000+ | **Created By**: Stanford NLP
+ 
++## Not For
++
++- Quick one-off prompts → use direct LLM calls
++- Simple data extraction → use `instructor` (simpler API, less setup)
++- When you have no training data → DSPy optimizers need examples to work
++- Real-time streaming applications → DSPy is optimized for batch, not streaming
++- When you need fine-grained control over prompt text → DSPy abstracts prompts away
++
++## Pitfalls
++
++1. **Not having training data for optimizers.** DSPy optimizers (BootstrapFewShot, MIPRO, etc.) require a `trainset` of `dspy.Example` objects. Without data, you can define signatures and modules but cannot optimize. Generate synthetic data or use a few representative examples.
++
++2. **Forgetting to call `dspy.settings.configure(lm=lm)`.** Every DSPy program needs a configured LM. Without this, you'll get errors about no LM being set. Do this once at the start of your script.
++
++3. **Using `dspy.Predict` when you need reasoning.** `dspy.Predict` does zero-shot prediction. For tasks requiring step-by-step reasoning, use `dspy.ChainOfThought` — it generates a `rationale` field automatically.
++
++4. **Not setting `with_inputs()` on training examples.** When creating `dspy.Example` objects for the trainset, you must call `.with_inputs("field_name")` to specify which fields are inputs. Without this, the optimizer won't know what to vary.
++
++5. **Over-optimizing on a small dataset.** Optimizers can overfit to a small trainset. Use at least 20-50 examples for meaningful optimization, and always evaluate on a separate test set.
++
++6. **Not saving optimized modules.** Optimized modules lose their state when the process exits. Always save: `optimized.save("model.json")` and load: `loaded.load("model.json")`.
++
++7. **Confusing signatures with modules.** Signatures define the I/O structure (what goes in, what comes out). Modules define the behavior (how to transform inputs to outputs). You need both.
++
++8. **Using `dspy.ReAct` without defining tools properly.** Each tool function must have a clear docstring — DSPy uses the docstring as the tool description. Vague docstrings lead to poor tool selection.
++
++9. **Not using `dspy.Assert` for critical invariants.** DSPy's assertion mechanism can catch and backtrack from invalid outputs. Use it for hard constraints that must be satisfied.
++
++10. **Ignoring the trace.** DSPy stores every LM call in `dspy.settings.trace`. Use it for debugging: `for call in dspy.settings.trace: print(call['prompt'], call['response'])`.
++
++11. **Using `dspy.OllamaLocal` without checking the base URL.** The default is `http://localhost:11434`. If Ollama runs on a different port or host, you must set `base_url` explicitly.
++
++12. **Not setting `max_tokens` appropriately.** DSPy's ChainOfThought generates reasoning steps before the answer. If `max_tokens` is too low, the reasoning gets truncated and the answer is garbage. Use at least 1000 for CoT.
++
+ ## Installation
+ 
+ ```bash
+@@ -519,7 +565,7 @@ class SummarizeArticle(dspy.Signature):
+ ```python
+ # Create diverse training examples
+ trainset = [
+-    dspy.Example(question="factual", answer="...).with_inputs("question"),
++    dspy.Example(question="factual", answer="...").with_inputs("question"),
+     dspy.Example(question="reasoning", answer="...").with_inputs("question"),
+     dspy.Example(question="calculation", answer="...").with_inputs("question"),
+ ]
+@@ -590,5 +636,3 @@ for call in dspy.settings.trace:
+ - `references/modules.md` - Detailed module guide (Predict, ChainOfThought, ReAct, ProgramOfThought)
+ - `references/optimizers.md` - Optimization algorithms (BootstrapFewShot, MIPRO, BootstrapFinetune)
+ - `references/examples.md` - Real-world examples (RAG, agents, classifiers)
+-
+-

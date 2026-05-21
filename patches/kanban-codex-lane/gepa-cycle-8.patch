@@ -1,0 +1,107 @@
+diff --git a/skills/autonomous-ai-agents/kanban-codex-lane/SKILL.md b/skills/autonomous-ai-agents/kanban-codex-lane/SKILL.md
+index bffd20330..3c5c1c277 100644
+--- a/skills/autonomous-ai-agents/kanban-codex-lane/SKILL.md
++++ b/skills/autonomous-ai-agents/kanban-codex-lane/SKILL.md
+@@ -1,13 +1,26 @@
+ ---
+ name: kanban-codex-lane
+ description: Use when a Hermes Kanban worker wants to run Codex CLI as an isolated implementation lane while Hermes keeps ownership of task lifecycle, reconciliation, testing, and handoff.
+-version: 1.0.0
++version: 1.1.0
+ author: Hermes Agent
+ license: MIT
+ metadata:
+   hermes:
+     tags: [kanban, codex, worktrees, autonomous-agents, prediction-market-bot]
+     related_skills: [kanban-worker, codex, hermes-agent]
++    trigger_conditions:
++      - "codex lane"
++      - "kanban codex"
++      - "run codex on kanban task"
++      - "spawn codex for implementation"
++      - "codex worktree"
++      - "codex exec kanban"
++      - "codex goal mode"
++      - "delegate to codex"
++      - "codex implementation lane"
++      - "kanban worker codex"
++      - "isolated codex run"
++      - "codex reconciliation"
+ ---
+ 
+ # Kanban Codex Lane
+@@ -28,14 +41,41 @@ Use the Codex lane when all of these are true:
+ - Hermes can run the relevant tests itself after Codex exits.
+ - The prompt can state all safety constraints and files that must not change.
+ 
+-Do not use the Codex lane when any of these are true:
++## Not For
+ 
+-- The task requires human judgment that is not already captured in the Kanban body.
+-- The worker lacks repo access, Codex auth, or time to reconcile the result.
+-- The change touches secrets, credential stores, private user data, or production order-entry systems.
+-- A small direct edit is faster and safer than spawning another agent.
+-- The task is research-only and should produce a written handoff rather than a diff.
+-- The worker would be tempted to mark Done based only on Codex self-report.
++- Tasks requiring human judgment not captured in the Kanban body
++- Worker lacks repo access, Codex auth, or time to reconcile
++- Changes touching secrets, credential stores, private user data, or production order-entry systems
++- Quick direct edits that are faster/safer than spawning another agent
++- Research-only tasks that should produce a written handoff, not a diff
++- Tasks where you'd be tempted to mark Done based only on Codex self-report
++- Tasks involving safety-critical trading logic without PMB safety constraints in the prompt
++
++## Pitfalls
++
++1. **Treating Codex self-report as verification.** Always inspect the diff and rerun tests from Hermes. Codex output is an untrusted patch until reviewed.
++
++2. **Running Codex in a shared dirty checkout.** Always isolate in a worktree/branch. Never let Codex write to the user's main working directory.
++
++3. **Letting Codex own Kanban.** Codex may summarize progress, but only Hermes writes board state. Codex must never call `kanban_complete`, `kanban_block`, or `kanban_create`.
++
++4. **Forgetting PMB safety invariants in the prompt.** Missing safety text is a lane setup failure. Always include the full PMB safety block for prediction-market-bot work.
++
++5. **Using `/goal` for quick edits.** Prefer `codex exec` for bounded one-shot work. Use `/goal` only for multi-step work needing durable objective tracking.
++
++6. **Killing a stuck lane without recording why.** `rejected_reason` must always explain the decision. An empty reason is a reconciliation failure.
++
++7. **Accepting broad unrelated cleanup because tests pass.** Reject or cherry-pick only the scoped changes. Codex loves to "helpfully" refactor nearby code.
++
++8. **Forgetting to clean up worktrees.** Temporary worktrees accumulate disk usage. Remove them after reconciliation unless kept as artifacts.
++
++9. **Not sending Kanban heartbeats for long lanes.** Lanes longer than 2 minutes should send periodic heartbeats so the dispatcher knows the worker is alive.
++
++10. **Using `--yolo` mode for safety-sensitive repos.** Never use `--yolo` for prediction-market-bot or any repo with live trading behavior. Use `--full-auto` inside an isolated worktree.
++
++11. **Not checking Codex auth before spawning.** Always verify `command -v codex` and `codex --version` first. A missing `OPENAI_API_KEY` doesn't prove auth is unavailable (Codex may use OAuth).
++
++12. **Skipping the reconciliation checklist.** Every Codex result must go through the full checklist before acceptance. Cherry-picking commits without reviewing the full diff is a safety risk.
+ 
+ ## Ownership Rules
+ 
+@@ -142,7 +182,7 @@ For PMB, include these mandatory safety constraints verbatim:
+ 
+ ```text
+ PMB safety constraints:
+-- live-SIM is paper-only; do not add or enable live REST order entry.
++-live-SIM is paper-only; do not add or enable live REST order entry.
+ - Never use market orders.
+ - Do not add execution crossing or bypass price/risk checks.
+ - Do not fake passive fills, fills, PnL, order states, or reconciliation evidence.
+@@ -256,16 +296,6 @@ For tasks that intentionally skip Codex:
+ }
+ ```
+ 
+-## Common Pitfalls
+-
+-1. Treating Codex self-report as verification. Always inspect the diff and rerun tests from Hermes.
+-2. Running Codex in the user's dirty main checkout. Always isolate in a worktree/branch.
+-3. Letting Codex own Kanban. Codex may summarize progress, but Hermes writes board state.
+-4. Forgetting PMB safety invariants in the prompt. Missing safety text is a lane setup failure.
+-5. Using `/goal` for quick edits. Prefer `codex exec` unless durable multi-step continuation is needed.
+-6. Killing a stuck lane without recording why. `rejected_reason` must explain the decision.
+-7. Accepting broad unrelated cleanup because tests pass. Reject or cherry-pick only the scoped changes.
+-
+ ## Verification Checklist
+ 
+ - [ ] Codex was skipped or started only after `command -v codex`, `codex --version`, and optional goals feature checks.
