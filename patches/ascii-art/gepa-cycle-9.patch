@@ -1,0 +1,88 @@
+diff --git a/skills/creative/ascii-art/SKILL.md b/skills/creative/ascii-art/SKILL.md
+index c3b5c7fb2..8f365fac4 100644
+--- a/skills/creative/ascii-art/SKILL.md
++++ b/skills/creative/ascii-art/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: ascii-art
+ description: "ASCII art: pyfiglet, cowsay, boxes, image-to-ascii."
+-version: 4.0.0
++version: 4.1.0
+ author: 0xbyt4, Hermes Agent
+ license: MIT
+ dependencies: []
+@@ -10,13 +10,46 @@ metadata:
+   hermes:
+     tags: [ASCII, Art, Banners, Creative, Unicode, Text-Art, pyfiglet, figlet, cowsay, boxes]
+     related_skills: [excalidraw]
+-
++    trigger_conditions:
++      - "ascii art"
++      - "banner text"
++      - "figlet"
++      - "cowsay"
++      - "make a banner"
++      - "text art"
++      - "image to ascii"
++      - "convert image to text"
++      - "ascii logo"
++      - "ascii banner"
++      - "toilet text"
++      - "qr code ascii"
+ ---
+ 
+ # ASCII Art Skill
+ 
+ Multiple tools for different ASCII art needs. All tools are local CLI programs or free REST APIs — no API keys required.
+ 
++## When to Use
++
++Load this skill when the user asks to:
++- Convert text to large ASCII banners or logos
++- Wrap messages in fun character art (cowsay, boxes)
++- Convert images (PNG, JPEG, GIF, WEBP) to ASCII art
++- Add decorative ASCII borders or frames around text
++- Generate QR codes as ASCII art
++- Create weather or moon phase ASCII graphics
++- Search for pre-made ASCII art of common subjects
++- Add terminal eye candy (rainbow text, metallic effects)
++
++## Not For
++
++- Creating actual images (PNG/JPG) → use `image_gen` or `stable-diffusion`
++- Drawing diagrams, architecture, or flowcharts → use `excalidraw` or `architecture-diagram`
++- Creating pixel art or sprites → use `pixel-art`
++- Formatting code or data tables → use markdown tables or code blocks
++- Animated graphics → ASCII art is static; for animation use `ascii-video`
++- High-fidelity image reproduction → ASCII is a low-resolution approximation
++
+ ## Tool 1: Text Banners (pyfiglet — local)
+ 
+ Render text as large ASCII art banners. 571 built-in fonts.
+@@ -309,6 +342,26 @@ When tools above don't have what's needed, generate ASCII art directly using the
+ - Max height: 15 lines for banners, 25 for scenes
+ - Monospace only: output must render correctly in fixed-width fonts
+ 
++## Pitfalls
++
++1. **pyfiglet `--break-system-packages`.** The skill recommends `pip install pyfiglet --break-system-packages`. On systems where this is forbidden, use a venv: `python3 -m venv /tmp/figlet_venv && /tmp/figlet_venv/bin/pip install pyfiglet`.
++
++2. **Wide banners breaking terminal layouts.** Large fonts like `doom` or `block` produce banners wider than 80 characters, which wrap poorly in chat platforms. Always check width or use `-w 80` for terminal-safe output.
++
++3. **toilet ANSI codes in non-terminal contexts.** The `--gay` and `--metal` filters output ANSI escape codes. These render correctly in terminals but show as raw escape sequences in plain text files, email, or some chat platforms. Strip codes with `sed 's/\x1b\[[0-9;]*m//g'` when needed.
++
++4. **asciified API rate limits.** The asciified REST API is free but not unlimited. For heavy use, prefer local pyfiglet. The API also requires URL-encoded spaces (`+`), not literal spaces.
++
++5. **Image-to-ASCII losing detail.** High-contrast images (silhouettes, text, logos) convert well. Photos with subtle gradients become muddy. Always preview at small dimensions first (`ascii-image-converter -d 40,20`).
++
++6. **Missing system packages.** `cowsay`, `boxes`, `toilet`, and `jp2a` are system packages, not pip-installable. If `apt install` fails (no sudo, wrong distro), the user needs to install them manually or use the pip/Go alternatives.
++
++7. **ascii.co.uk parsing fragility.** The HTML structure of ascii.co.uk may change, breaking the regex extraction. If no `<pre>` tags are found, fall back to LLM-generated custom art.
++
++8. **Combining tools with incompatible widths.** Piping `pyfiglet` output (wide banner) into `boxes -d cat` (narrow frame) causes the frame to wrap or break. Match the box design width to the text width, or use `boxes -a c` to center.
++
++9. **Not checking font availability.** `pyfiglet -f doom` works on any install, but `toilet -f pagga` requires `toilet-fonts` package. If a font is missing, the tool falls back to default silently — verify with `--list_fonts` or `-F list`.
++
+ ## Decision Flow
+ 
+ 1. **Text as a banner** → pyfiglet if installed, otherwise asciified API via curl

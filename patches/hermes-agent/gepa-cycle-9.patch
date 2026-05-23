@@ -1,0 +1,235 @@
+diff --git a/skills/autonomous-ai-agents/hermes-agent/SKILL.md b/skills/autonomous-ai-agents/hermes-agent/SKILL.md
+index 63924c81f..2f0d75008 100644
+--- a/skills/autonomous-ai-agents/hermes-agent/SKILL.md
++++ b/skills/autonomous-ai-agents/hermes-agent/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: hermes-agent
+ description: "Configure, extend, or contribute to Hermes Agent."
+-version: 2.1.0
++version: 2.2.0
+ author: Hermes Agent + Teknium
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -10,6 +10,21 @@ metadata:
+     tags: [hermes, setup, configuration, multi-agent, spawning, cli, gateway, development]
+     homepage: https://github.com/NousResearch/hermes-agent
+     related_skills: [claude-code, codex, opencode]
++    trigger_conditions:
++      - "configure hermes"
++      - "set up hermes"
++      - "install hermes"
++      - "hermes config"
++      - "hermes setup"
++      - "hermes gateway"
++      - "hermes tools"
++      - "hermes model"
++      - "hermes skills"
++      - "hermes cron"
++      - "hermes profiles"
++      - "hermes troubleshoot"
++      - "spawn hermes agent"
++      - "hermes slash command"
+ ---
+ 
+ # Hermes Agent
+@@ -31,6 +46,29 @@ People use Hermes for software development, research, system administration, dat
+ 
+ **Docs:** https://hermes-agent.nousresearch.com/docs/
+ 
++## When to Use
++
++Load this skill whenever the user asks to:
++- Install, configure, or set up Hermes Agent
++- Change models, providers, or API keys
++- Enable/disable toolsets or skills
++- Troubleshoot gateway, voice, or platform issues
++- Set up cron jobs, webhooks, or profiles
++- Spawn additional Hermes instances for parallel work
++- Configure security/privacy toggles (secret redaction, PII, approvals)
++- Understand slash commands or CLI reference
++- Set up MCP servers or plugins
++- Configure memory backends (Mnemosyne, etc.)
++
++## Not For
++
++- Writing code, debugging code, or PR workflows → use `github-pr-workflow`, `code-review`, `systematic-debugging`
++- Configuring other AI agents (Claude Code, Codex, OpenCode) → use `claude-code`, `codex`, or `opencode`
++- Managing OpenClaw plugins or gateway → use `openclaw-plugin-management`
++- Managing OpenRouter models → use `openrouter-model-management`
++- Proxmox or system administration → use `proxmox-host-management`
++- Writing or editing skills → use `hermes-agent-skill-authoring`
++
+ ## Quick Start
+ 
+ ```bash
+@@ -680,25 +718,19 @@ User docs: https://hermes-agent.nousresearch.com/docs/user-guide/features/curato
+ 
+ Durable SQLite board for multi-profile / multi-worker collaboration.
+ Users drive it via `hermes kanban <verb>`; dispatcher-spawned workers
+-see a focused `kanban_*` toolset gated by `HERMES_KANBAN_TASK`, and
+-orchestrator profiles can opt into the broader `kanban` toolset. Normal
+-sessions still have zero `kanban_*` schema footprint unless configured.
++see a focused `kanban_*` toolset gated by `HERMES_KANBAN_TASK` so the
++schema footprint is zero outside worker processes.
+ 
+ - **CLI verbs (common):** `init`, `create`, `list` (alias `ls`),
+   `show`, `assign`, `link`, `unlink`, `comment`, `complete`, `block`,
+   `unblock`, `archive`, `tail`. Less common: `watch`, `stats`, `runs`,
+   `log`, `dispatch`, `daemon`, `gc`.
+-- **Worker/orchestrator toolset:** `kanban_show`, `kanban_complete`,
+-  `kanban_block`, `kanban_heartbeat`, `kanban_comment`, `kanban_create`,
+-  `kanban_link`; profiles that explicitly enable the `kanban` toolset
+-  outside a dispatcher-spawned task also get `kanban_list` and
+-  `kanban_unblock` for board routing.
++- **Worker toolset:** `kanban_show`, `kanban_complete`, `kanban_block`,
++  `kanban_heartbeat`, `kanban_comment`, `kanban_create`, `kanban_link`.
+ - **Dispatcher** runs inside the gateway by default
+   (`kanban.dispatch_in_gateway: true`) — reclaims stale claims,
+   promotes ready tasks, atomically claims, spawns assigned profiles.
+-  Auto-blocks a task after `failure_limit` consecutive spawn failures
+-  (default 2; configurable via `kanban.failure_limit` or per-task
+-  `max_retries`).
++  Auto-blocks a task after ~5 consecutive spawn failures.
+ - **Isolation:** board is the hard boundary (workers get
+   `HERMES_KANBAN_BOARD` pinned in env); tenant is a soft namespace
+   within a board for workspace-path + memory-key isolation.
+@@ -797,6 +829,32 @@ and logs — avoids shell-escaping backslashes in bash.
+ 
+ ---
+ 
++## Pitfalls
++
++1. **Config changes don't take effect mid-session.** Tools, skills, and config are loaded at session start. After `hermes config set`, use `/reset` (chat) or restart the CLI/gateway. Tools/skills changes specifically need `/reset` — config changes need a process restart.
++
++2. **`hermes tools` changes are per-platform.** Enabling a toolset in the CLI doesn't enable it for Telegram or Discord. Run `hermes tools` and toggle per-platform, or use `hermes tools enable NAME` for global.
++
++3. **Gateway dies on SSH logout without linger.** If the gateway is a user systemd service, `loginctl enable-linger $USER` is required. Without it, the user slice terminates when the last session closes.
++
++4. **API key in `.env` may be masked by credential manager.** If `ANTHROPIC_API_KEY` shows as `***` or empty string when read by a script, it's stored in a credential manager, not as plaintext. Store a plaintext key in `~/.hermes/evolution-creds.env` for cron jobs that need it.
++
++5. **OAuth providers need periodic re-auth.** Nous Portal and OpenAI Codex tokens expire. If the gateway silently stops responding, check `hermes auth list` — exhausted pools block all requests.
++
++6. **Copilot `gh auth login` tokens don't work for Copilot API.** The GitHub CLI OAuth token is for git operations only. Use `hermes model` → GitHub Copilot for the device-code OAuth flow that provisions a Copilot-specific token.
++
++7. **Windows: Alt+Enter doesn't insert newlines.** Windows Terminal intercepts Alt+Enter for fullscreen. Use Ctrl+Enter instead.
++
++8. **Tmux spawning needs sleep delays.** When spawning Hermes in tmux, prompt_toolkit takes ~5-8 seconds to initialize. Sending keys immediately after `tmux new-session` results in lost input. Always `sleep 8` before `tmux send-keys`.
++
++9. **`delegate_task` children don't survive parent interruption.** If the parent session is stopped (`/stop`, `/new`, or crash), all child subagents are cancelled. For durable work, use `cronjob` or `terminal(background=True, notify_on_complete=True)`.
++
++10. **Skills installed via hub may not auto-load.** Hub-installed skills need `hermes skills config` to be enabled per-platform. If a skill isn't loading, check both `hermes skills list` (installed) and `hermes skills config` (enabled).
++
++11. **Auxiliary model failures are silent.** If vision, compression, or session_search fails, the `auto` provider can't find a backend. Configure explicitly: `hermes config set auxiliary.vision.provider <provider>`.
++
++12. **Memory backend disabled = no cross-session persistence.** If `memory.memory_enabled: false`, skills and preferences won't persist across sessions. Enable with `hermes config set memory.memory_enabled true`.
++
+ ## Troubleshooting
+ 
+ ### Voice not working
+@@ -836,18 +894,104 @@ Common gateway problems:
+ - **Gateway dies on WSL2 close**: WSL2 requires `systemd=true` in `/etc/wsl.conf` for systemd services to work. Without it, gateway falls back to `nohup` (dies when session closes).
+ - **Gateway crash loop**: Reset the failed state: `systemctl --user reset-failed hermes-gateway`
+ 
++### Mnemosyne Memory Dashboard
++
++Hermes can use Mnemosyne as its persistent memory backend, with an optional web dashboard for browsing memories. The dashboard runs as a standalone Python HTTP server and can be managed as a user-level systemd service.
++
++**Plugin setup (mnemosyne + LCM):**
++- Mnemosyne plugin: `~/.hermes/plugins/mnemosyne/`
++- LCM (Long-term Context Management) plugin: `~/.hermes/plugins/hermes-lcm/`
++- Dashboard plugin: `~/.hermes/plugins/mnemosyne-dashboard/`
++- Config: `~/.hermes/plugin-data/mnemosyne-dashboard/config.json`
++- DB: `~/.hermes/mnemosyne/data/mnemosyne.db`
++
++**Dashboard systemd service:**
++
++Create `~/.config/systemd/user/mnemosyne-dashboard.service`:
++```ini
++[Unit]
++Description=Mnemosyne Memory Dashboard
++After=network.target
++
++[Service]
++Type=simple
++WorkingDirectory=/home/wahid/.hermes/plugins/mnemosyne-dashboard
++ExecStart=/usr/bin/python3 -m server
++Restart=on-failure
++RestartSec=5
++Environment=HERMES_HOME=/home/wahid/.hermes
++
++[Install]
++WantedBy=default.target
++```
++
++Enable and start:
++```bash
++systemctl --user daemon-reload
++systemctl --user enable mnemosyne-dashboard
++systemctl --user start mnemosyne-dashboard
++```
++
++The dashboard reads its bind host/port from the plugin config. Default: `0.0.0.0:8765`. No auth by default — set `auth_enabled: true` and a password in the config if exposing on LAN.
++
++**Adding dashboard links to other services:** When adding external dashboard links to Next.js sidebar navs, use explicit type annotations instead of `as const` when items have optional fields like `external`. See `references/systemd-user-service-dashboard.md` for the systemd service template.
++
++```typescript
++const NAV_ITEMS: { id: string; label: string; href: string; icon: ComponentType<{ className?: string }>; external?: boolean }[] = [
++  // ...
++  { id: 'mnemosyne', label: 'Mnemosyne', href: 'http://192.168.100.52:8765', icon: Brain, external: true },
++];
++```
++
++Handle external links with `<a target="_blank">` and internal links with Next.js `<Link>` — don't mix them.
++
+ ### Platform-specific issues
+ - **Discord bot silent**: Must enable **Message Content Intent** in Bot → Privileged Gateway Intents.
+ - **Slack bot only works in DMs**: Must subscribe to `message.channels` event. Without it, the bot ignores public channels.
+ - **Windows-specific issues** (`Alt+Enter` newline, WinError 10106, UTF-8 BOM config, test suite, line endings): see the dedicated **Windows-Specific Quirks** section above.
+-
+ ### Auxiliary models not working
++
+ If `auxiliary` tasks (vision, compression, session_search) fail silently, the `auto` provider can't find a backend. Either set `OPENROUTER_API_KEY` or `GOOGLE_API_KEY`, or explicitly configure each auxiliary task's provider:
+ ```bash
+ hermes config set auxiliary.vision.provider <your_provider>
+ hermes config set auxiliary.vision.model <model_name>
+ ```
+ 
++#### Auxiliary compression provider unavailable (openrouter)
++
++If you see:
++```
++Configured auxiliary compression provider 'openrouter' is unavailable — context compression will drop middle turns without a summary. Check auxiliary.compression in config.yaml and reauthenticate that provider
++```
++
++1. Verify your OpenRouter API key is present in the environment:
++   ```bash
++   echo $OPENROUTER_API_KEY
++   ```
++   If empty, set it:
++   ```bash
++   export OPENROUTER_API_KEY="sk-or-..."  # your actual key
++   ```
++   To make it permanent, add the export to `~/.bashrc` or `~/.zshrc`.
++
++2. Ensure the key is also stored in Hermes credential pool:
++   ```bash
++   hermes auth list openrouter
++   ```
++   If missing or marked exhausted, reset it:
++   ```bash
++   hermes auth reset openrouter
++   ```
++
++3. Restart Hermes Agent (or the gateway service) so it picks up the key:
++   ```bash
++   # If running via systemd
++   sudo systemctl restart hermes-gateway
++   # Or if you launched manually, exit and relaunch.
++   ```
++
++After restart, the error should disappear and context compression will summarize middle turns instead of dropping them.
++
+ ---
+ 
+ ## Where to Find Things

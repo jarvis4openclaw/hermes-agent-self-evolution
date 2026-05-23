@@ -1,0 +1,91 @@
+diff --git a/skills/social-media/xurl/SKILL.md b/skills/social-media/xurl/SKILL.md
+index 2fe23ef85..3b62a63d2 100644
+--- a/skills/social-media/xurl/SKILL.md
++++ b/skills/social-media/xurl/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: xurl
+ description: "X/Twitter via xurl CLI: post, search, DM, media, v2 API."
+-version: 1.1.1
++version: 1.2.0
+ author: xdevplatform + openclaw + Hermes Agent
+ license: MIT
+ platforms: [linux, macos]
+@@ -12,6 +12,19 @@ metadata:
+     tags: [twitter, x, social-media, xurl, official-api]
+     homepage: https://github.com/xdevplatform/xurl
+     upstream_skill: https://github.com/openclaw/openclaw/blob/main/skills/xurl/SKILL.md
++    trigger_conditions:
++      - "post to twitter"
++      - "post to x"
++      - "xurl"
++      - "tweet something"
++      - "search twitter"
++      - "x api"
++      - "twitter api"
++      - "xurl auth"
++      - "send dm on twitter"
++      - "upload media to x"
++      - "x timeline"
++      - "x mentions"
+ ---
+ 
+ # xurl — X (Twitter) API via the Official CLI
+@@ -30,6 +43,28 @@ Use this skill for:
+ 
+ This skill replaces the older `xitter` skill (which wrapped a third-party Python CLI). `xurl` is maintained by the X developer platform team, supports OAuth 2.0 PKCE with auto-refresh, and covers a substantially larger API surface.
+ 
++## When to Use
++
++Load this skill when the user wants to:
++- Post, reply to, quote, or delete posts on X/Twitter
++- Search posts, timelines, or mentions
++- Like, repost, bookmark, follow, or block users
++- Send or read direct messages
++- Upload images or videos
++- Check their X account status or lookup users
++- Use raw X API v2 endpoints
++- Manage multiple X apps or accounts
++- Troubleshoot xurl authentication issues
++
++## Not For
++
++- General web browsing or scraping → use `browser`, `web_search`, or `web_extract`
++- Third-party Twitter clients (TweetDeck, Hootsuite, etc.) → use their own APIs or UIs
++- Reading X without an account → unauthenticated access is heavily rate-limited; most queries need auth
++- Bulk data extraction or research → X API rate limits make this impractical for large datasets
++- Sentiment analysis or NLP on tweets → extract text first, then use ML tools separately
++- Managing other social platforms (Bluesky, Mastodon, LinkedIn) → use platform-specific tools
++
+ ---
+ 
+ ## Secret Safety (MANDATORY)
+@@ -368,6 +403,28 @@ xurl --app staging /2/users/me             # one-off against staging
+ 
+ ---
+ 
++## Pitfalls
++
++1. **Auth errors after "successful" OAuth flow.** The #1 xurl setup mistake: running `xurl auth oauth2` without `--app my-app` saves tokens to the empty `default` profile. The fix is `xurl auth oauth2 --app my-app` then `xurl auth default my-app`.
++
++2. **Verbose mode leaks tokens.** Never use `-v` / `--verbose` in agent sessions — it prints auth headers to stdout, which enters the LLM context. The skill explicitly forbids this, but subagents or new skills may not know.
++
++3. **Media processing delays.** Video uploads need server-side processing before posting. A post with a fresh video upload may fail silently. Always check `xurl media status MEDIA_ID` and wait for `succeeded` before posting.
++
++4. **Rate limits on write endpoints.** Posting, liking, following have tight rate limits. A 429 doesn't mean the command was wrong — it means "wait." Implement retry with exponential backoff or space out write operations.
++
++5. **Multiple apps without defaults.** If the user has 2+ apps registered but no default set, commands may use the wrong credentials. Always verify with `xurl auth status` which app has the `▸` marker.
++
++6. **Wrong redirect URI.** The OAuth callback must be exactly `http://localhost:8080/callback`. A trailing slash or different port breaks the PKCE flow. Dashboard → User Authentication Settings → Callback URL.
++
++7. **`UsernameNotFound` after OAuth.** X's `/2/users/me` endpoint is flaky for some accounts. Fix: pass the username explicitly during OAuth: `xurl auth oauth2 --app my-app YOUR_USERNAME`.
++
++8. **Posting without confirming intent.** Write actions (post, reply, like, DM, follow, block) are destructive or public. Always confirm the exact text/target with the user before executing.
++
++9. **Using full tweet URLs as post IDs.** `xurl read https://x.com/user/status/1234567890` works, but `xurl reply https://...` may not. Extract the numeric ID from the URL for write operations.
++
++10. **Forgetting `--app` on per-request overrides.** `xurl --app staging /2/users/me` works for one-off calls, but `xurl post "test"` with `--app staging` may fail if staging has no default user set.
++
+ ## Agent Workflow
+ 
+ 1. Verify prerequisites: `xurl --help` and `xurl auth status`.
