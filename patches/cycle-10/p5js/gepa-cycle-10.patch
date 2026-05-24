@@ -1,0 +1,93 @@
+diff --git a/skills/creative/p5js/SKILL.md b/skills/creative/p5js/SKILL.md
+index 819259c56..217c58b53 100644
+--- a/skills/creative/p5js/SKILL.md
++++ b/skills/creative/p5js/SKILL.md
+@@ -1,19 +1,53 @@
+ ---
+ name: p5js
+ description: "p5.js sketches: gen art, shaders, interactive, 3D."
+-version: 1.0.0
++version: 1.1.0
++author: Hermes Agent
++license: MIT
+ platforms: [linux, macos, windows]
+ metadata:
+   hermes:
+     tags: [creative-coding, generative-art, p5js, canvas, interactive, visualization, webgl, shaders, animation]
+-    related_skills: [ascii-video, manim-video, excalidraw]
++    related_skills: [ascii-video, manim-video, excalidraw, sketch, pixel-art]
++    trigger_conditions:
++      - "p5.js sketch"
++      - "generative art"
++      - "creative coding"
++      - "canvas animation"
++      - "interactive visualization"
++      - "particle system"
++      - "shader effect"
++      - "visual art"
++      - "data visualization in browser"
++      - "webgl scene"
++      - "kinetic typography"
++      - "browser-based animation"
++      - "noise art"
+ ---
+ 
+ # p5.js Production Pipeline
+ 
+-## When to use
++## When to Use
+ 
+-Use when users request: p5.js sketches, creative coding, generative art, interactive visualizations, canvas animations, browser-based visual art, data viz, shader effects, or any p5.js project.
++Use this skill when:
++- Creating generative art, algorithmic visual compositions, or procedural aesthetics
++- Building interactive browser-based visualizations with mouse/keyboard/touch
++- Making data visualizations that require custom rendering logic
++- Developing animations and motion graphics in HTML/Canvas
++- Creating WebGL-based 3D scenes with custom shaders
++- Building audio-reactive visuals driven by sound or mic input
++- Producing browser-based kinetic typography experiments
++- Generating custom particle systems, flow fields, or physics simulations
++- Exporting generative art as PNG, GIF, or MP4
++
++## Not For
++
++- **Static SVG diagrams for documentation** → use `excalidraw` instead
++- **ASCII art for terminal output** → use `ascii-art` instead
++- **Video animations with narration and mathematical precision** → use `manim-video` instead
++- **3D modeling, rigging, or photorealistic rendering** → use Blender or other dedicated 3D tools
++- **Production dashboard or enterprise chart libraries** (Recharts, Chart.js) → use standard JS charting libraries
++- **Large-scale data visualization (>100K points)** → use D3.js or specialized data-viz tools instead of p5.js
+ 
+ ## What's inside
+ 
+@@ -554,3 +588,30 @@ Take a known generative pattern (flow field, particle system, L-system, cellular
+    - Medium (interesting): one fish in a school swimming the wrong way, a phone with no notifications, the gap between subway cars
+    - Far (abstract): prime numbers, asymptotic curves, the color of 3am
+ 3. Develop the medium-distance associations — they're specific enough to visualize but unexpected enough to be interesting
++
++## Pitfalls
++
++1. **Forgetting `p5.disableFriendlyErrors = true`** — The Friendly Error System adds up to 10x overhead in `draw()`. Every production sketch must disable it before `setup()`. Place `<script>p5.disableFriendlyErrors = true;</script>` in HTML before loading p5.js.
++
++2. **`noLoop()` without `_p5Ready` signal for headless capture** — Headless frame capture via Puppeteer races ahead if `draw()` loops freely. Always call `noLoop()` in setup and set `window._p5Ready = true`. The capture script detects `_p5Ready` and calls `redraw()` once per frame.
++
++3. **Using `console.log()` inside `draw()`** — Logging every frame (60fps) floods the browser console and can crash dev tools. Use `console.log()` only in `setup()`, event handlers, or wrap in `if (frameCount % 60 === 0)` to log once per second.
++
++4. **Wrong coordinate system in WEBGL mode** — WEBGL uses center-origin with positive Y going UP. `createCanvas(w, h, WEBGL)` followed by `translate(50, 50)` places the origin at the center + 50 up. Use `translate(-width/2, -height/2)` to get P2D-like top-left coordinates.
++
++5. **Forgetting `pixelDensity(1)` on retina screens** — Default `pixelDensity` is 2–4x on retina displays, multiplying the effective canvas size 2–16x (memory). `pixelDensity(1)` in `setup()` prevents overdraw while preserving performance.
++
++6. **Raw `noise(x)` instead of FBM** — Raw Perlin `noise(x)` looks like smooth blobs. Always use multi-octave noise (FBM) with at least 3 octaves for natural-looking organic textures.
++
++7. **Missing `randomSeed()` and `noiseSeed()`** — Generative art MUST be reproducible. Same seed = same output. Call both seeds in `setup()` with a known seed. Use `floor(random(99999))` for exploration seeds.
++
++8. **Not using `createGraphics()` for trails and layers** — Single-pass rendering looks flat. For any sketch with background particles + foreground elements + trails, create at least 2 offscreen buffers via `createGraphics()`. Composite with `image(layer, 0, 0)`.
++
++9. **Missing `push()`/`pop()` around transforms in WEBGL** — Matrix stack overflows silently in WebGL mode. Every `translate()`, `rotate()`, `scale()` must be wrapped in `push()`/`pop()`. Without it, transforms accumulate and objects fly offscreen.
++
++10. **Wrong `saveCanvas()` timing** — `saveCanvas()` inside `draw()` saves EVERY frame, generating thousands of PNGs. Call it in `keyPressed()` (or `mousePressed()`), not `draw()`. Export intentionally.
++
++11. **Browser font loading race** — `loadFont()` in `preload()` is async but p5.js 1.x does NOT wait for fonts. If text renders in system default instead of the loaded font, the font hasn't loaded yet. Use a timeout or preload Promise wrapper for critical font-dependent sketches.
++
++12. **Wrong `colorMode` for palette math** — Default RGB mode makes procedural palette math unintuitive. Set `colorMode(HSB, 360, 100, 100, 100)` in `setup()` for predictable hue rotation, saturation/brightness scaling, and palette derivation.
++

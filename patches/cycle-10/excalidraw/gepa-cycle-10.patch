@@ -1,0 +1,90 @@
+diff --git a/skills/creative/excalidraw/SKILL.md b/skills/creative/excalidraw/SKILL.md
+index 0474391a4..dc103e360 100644
+--- a/skills/creative/excalidraw/SKILL.md
++++ b/skills/creative/excalidraw/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: excalidraw
+ description: "Hand-drawn Excalidraw JSON diagrams (arch, flow, seq)."
+-version: 1.0.0
++version: 1.1.0
+ author: Hermes Agent
+ license: MIT
+ dependencies: []
+@@ -9,7 +9,21 @@ platforms: [linux, macos, windows]
+ metadata:
+   hermes:
+     tags: [Excalidraw, Diagrams, Flowcharts, Architecture, Visualization, JSON]
+-    related_skills: []
++    related_skills: [architecture-diagram, ascii-art, p5js, manim-video]
++  trigger_conditions:
++    - "create an excalidraw diagram"
++    - "draw a flowchart"
++    - "make an architecture diagram"
++    - "excalidraw json"
++    - "hand-drawn diagram"
++    - "sequence diagram"
++    - "system architecture"
++    - "visualize the system"
++    - "diagram the components"
++    - "create a concept map"
++    - "flow chart of"
++    - "visualize the pipeline"
++    - "diagram as excalidraw"
+ 
+ ---
+ 
+@@ -17,9 +31,24 @@ metadata:
+ 
+ Create diagrams by writing standard Excalidraw element JSON and saving as `.excalidraw` files. These files can be drag-and-dropped onto [excalidraw.com](https://excalidraw.com) for viewing and editing. No accounts, no API keys, no rendering libraries -- just JSON.
+ 
+-## When to use
++## When to Use
+ 
+-Generate `.excalidraw` files for architecture diagrams, flowcharts, sequence diagrams, concept maps, and more. Files can be opened at excalidraw.com or uploaded for shareable links.
++Use this skill when:
++- Creating architecture diagrams showing system components and their connections
++- Drawing flowcharts for processes, algorithms, or decision trees
++- Building sequence diagrams to show interaction flows between services
++- Making concept maps for brainstorming or knowledge organization
++- Creating any hand-drawn style diagram suitable for documentation
++- Generating diagrams that need a collaborative, approachable visual style
++
++## Not For
++
++- **Dark-themed SVG diagrams for documentation** → use `architecture-diagram` instead
++- **ASCII art diagrams for terminal output** → use `ascii-art` instead
++- **Precise UML or formal diagrams** (Mermaid, PlantUML) → use `terminal` with `mmdc` or `plantuml`
++- **Data-driven charts and graphs** (bar, line, pie) → use `p5js` or Python `matplotlib`
++- **Interactive canvas visualizations** → use `p5js` instead
++- **Video animations** → use `manim-video` instead
+ 
+ ## Workflow
+ 
+@@ -196,4 +225,26 @@ See `references/colors.md` for full color tables. Quick reference:
+ - For dark mode diagrams, see `references/dark-mode.md`
+ - For larger examples, see `references/examples.md`
+ 
++## Pitfalls
++
++1. **Labels using `"label"` property on shapes** — This is NOT a valid Excalidraw property and will produce blank shapes. Always use the container binding approach: `boundElements` on the shape + `containerId` on the text element.
++
++2. **Text contrast on light backgrounds** — Light gray text on white backgrounds is illegible in Excalidraw. Minimum text color: `#757575`. Test on a white canvas before shipping.
++
++3. **Emoji in text elements** — Excalidraw's Virgil font does not render emoji. They appear as blank squares. Use text descriptions instead.
++
++4. **`textAlign` positioning** — Do NOT rely on `textAlign` or `width` for standalone text positioning. Compute `x` manually: `x = centerX - (text.length * fontSize * 0.5) / 2`. The `x` value is always the left edge.
++
++5. **Drawing order (z-order)** — Array order IS z-order. Placing all rectangles first, then all texts, then all arrows produces broken diagrams. Use: shape → its bound text → its arrows, for each element sequentially.
++
++6. **Missing `fontFamily: 1`** — Text without `fontFamily: 1` renders in system sans-serif instead of Virgil hand-drawn, breaking visual consistency. Always include `fontFamily: 1` on every text element.
++
++7. **WebGL coordinate confusion** — In WEBGL mode: origin is center, Y-axis goes up. In P2D: origin is top-left, Y-axis goes down. Know which mode you're in.
++
++8. **Minimum font sizes** — Text smaller than `fontSize: 14` is unreadable at standard zoom levels. Minimums: 20 for titles, 16 for body, 14 for secondary annotations only.
++
++9. **Missing `originalText` or `autoResize`** — Text elements bound to containers must include both `originalText` (matching `text`) and `autoResize: true`. Omitting either causes rendering glitches on Excalidraw.com.
++
++10. **Arrow `points` relative to element origin** — Arrow `points` arrays use offsets from the element's `x`/`y` position, not absolute coordinates. `[[0,0],[200,0]]` at `x:100, y:200` draws from (100,200) to (300,200).
++
+ 

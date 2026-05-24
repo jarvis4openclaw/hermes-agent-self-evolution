@@ -1,0 +1,100 @@
+diff --git a/skills/research/research-paper-writing/SKILL.md b/skills/research/research-paper-writing/SKILL.md
+index 4175b93a7..a87f1aedb 100644
+--- a/skills/research/research-paper-writing/SKILL.md
++++ b/skills/research/research-paper-writing/SKILL.md
+@@ -2,7 +2,7 @@
+ name: research-paper-writing
+ title: Research Paper Writing Pipeline
+ description: "Write ML papers for NeurIPS/ICML/ICLR: design→submit."
+-version: 1.1.0
++version: 1.2.0
+ author: Orchestra Research
+ license: MIT
+ dependencies: [semanticscholar, arxiv, habanero, requests, scipy, numpy, matplotlib, SciencePlots]
+@@ -12,6 +12,20 @@ metadata:
+     tags: [Research, Paper Writing, Experiments, ML, AI, NeurIPS, ICML, ICLR, ACL, AAAI, COLM, LaTeX, Citations, Statistical Analysis]
+     category: research
+     related_skills: [arxiv, ml-paper-writing, subagent-driven-development, plan]
++  trigger_conditions:
++    - "write a research paper"
++    - "ML paper writing"
++    - "NeurIPS submission"
++    - "ICML paper"
++    - "ICLR paper"
++    - "experiment design"
++    - "literature review"
++    - "paper writing pipeline"
++    - "LaTeX paper"
++    - "paper revision"
++    - "reviewer response"
++    - "write a ML paper"
++    - "academic paper"
+     requires_toolsets: [terminal, files]
+ 
+ ---
+@@ -59,6 +73,16 @@ Use this skill when:
+ - **Designing human evaluations** for NLP, HCI, or alignment research
+ - **Preparing post-acceptance deliverables** — posters, talks, code releases
+ 
++## Not For
++
++- **Writing non-ML papers** (physics, biology, humanities) → use `ml-paper-writing` or general writing skills instead; the template conventions here are ML-specific
++- **Creating presentation slides** (PowerPoint, Beamer) → use `powerpoint` instead
++- **General LaTeX document creation** (not papers) → use standard LaTeX references; this skill is paper-pipeline focused
++- **Quick literature surveys without writing** → use `arxiv` skill directly
++- **Running experiments without paper writing** → use `subagent-driven-development` or task-specific skills
++- **Data analysis and visualization only** → use Python directly with matplotlib/seaborn; this skill assumes paper context
++- **Journal paper formatting** (most conferences use their own templates) → this covers NeurIPS/ICML/ICLR/ACL/AAAI/COLM specifically
++
+ ## Core Philosophy
+ 
+ 1. **Be proactive.** Deliver complete drafts, not questions. Scientists are busy — produce something concrete they can react to, then iterate.
+@@ -2324,24 +2348,31 @@ See [references/reviewer-guidelines.md](references/reviewer-guidelines.md) for d
+ 
+ ---
+ 
+-## Common Issues and Solutions
+-
+-| Issue | Solution |
+-|-------|----------|
+-| Abstract too generic | Delete first sentence if it could prepend any ML paper. Start with your specific contribution. |
+-| Introduction exceeds 1.5 pages | Split background into Related Work. Front-load contribution bullets. |
+-| Experiments lack explicit claims | Add: "This experiment tests whether [specific claim]..." before each one. |
+-| Reviewers find paper hard to follow | Add signposting, use consistent terminology, make figure captions self-contained. |
+-| Missing statistical significance | Add error bars, number of runs, statistical tests, confidence intervals. |
+-| Scope creep in experiments | Every experiment must map to a specific claim. Cut experiments that don't. |
+-| Paper rejected, need to resubmit | See Conference Resubmission in Phase 7. Address reviewer concerns without referencing reviews. |
+-| Missing broader impact statement | See Step 5.10. Most venues require it. "No negative impacts" is almost never credible. |
+-| Human eval criticized as weak | See Step 2.5 and [references/human-evaluation.md](references/human-evaluation.md). Report agreement metrics, annotator details, compensation. |
+-| Reviewers question reproducibility | Release code (Step 7.9), document all hyperparameters, include seeds and compute details. |
+-| Theory paper lacks intuition | Add proof sketches with plain-language explanations before formal proofs. See [references/paper-types.md](references/paper-types.md). |
+-| Results are negative/null | See Phase 4.3 on handling negative results. Consider workshops, TMLR, or reframing as analysis. |
++## Pitfalls
+ 
+----
++1. **Hallucinating citations** — AI-generated citations have a ~40% error rate. Never fabricate BibTeX from memory. Always fetch programmatically via DOI or Semantic Scholar. Mark unverified citations as `[CITATION NEEDED]`.
++
++2. **Experiment without claim mapping** — Every experiment must explicitly state which paper claim it supports. Running experiments without a claim→experiment mapping table is scope creep. If it doesn't support a claim, cut it.
++
++3. **Abstract reads like a boilerplate** — Delete the first sentence if it could prepend any ML paper. "Deep learning has achieved great success in..." is dead weight. Start with the specific contribution.
++
++4. **Missing statistical significance reporting** — Reviewers check for error bars, number of runs, statistical tests, and confidence intervals. "Mean accuracy 92.3%" without variance or p-value is unpublishable. Report standard deviation, sample size, and test name.
++
++5. **Baselines too weak** — Naive baselines are insufficient. Include strong baselines, compute-matched baselines, and at least one ablation. If reviewers ask "why not X?" and X is a known method, the paper may be rejected.
++
++6. **Human evaluation without agreement metrics** — Reporting "3 annotators rated quality" without inter-annotator agreement (Krippendorff's alpha, Cohen's kappa) is a red flag. Also report compensation, annotation time, and qualification procedures.
++
++7. **Negative results buried** — Negative or null results must be discussed honestly, not hidden. Workshops and TMLR accept well-analyzed negative results. Burying them risks post-publication retraction when others fail to replicate.
++
++8. **Overleaf vs Git merge conflicts** — Multiple authors editing Overleaf simultaneously without section ownership creates merge disasters. Assign primary authors per section, use `\method{}` macros early, and agree on British vs American spelling before anyone writes.
++
++9. **Budget underestimation by 2x** — Compute budgets typically require 30-50% contingency. Pilot experiments (1-2 seeds) before full sweeps. Track actual spend in a JSONL file, not mental estimates.
++
++10. **Review response contradicts reviews** — In resubmission, address reviewer concerns without referencing reviews directly. "Reviewer 2 said..." is forbidden. Reframe as "To clarify the comparison with X..." or "We now include...".
++
++11. **Broader impact statement is generic** — "No negative impacts" is almost never credible. Specific negative impacts show maturity. Address dual-use, environmental cost, and societal risks concretely.
++
++12. **Forgetting to seed experiments** — Non-deterministic results across runs destroy reproducibility. Fix seeds for PyTorch, NumPy, Python random, and CUDA. Document all seeds in the appendix.
+ 
+ ## Reference Documents
+ 
