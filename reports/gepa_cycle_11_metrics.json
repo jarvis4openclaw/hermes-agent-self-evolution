@@ -1,0 +1,129 @@
+{
+  "cycle": 11,
+  "date": "2026-05-25T04:08:00Z",
+  "method": "LLM-as-Judge (Strategy A: Direct Parent Execution)",
+  "api_key_masked": true,
+  "skills": {
+    "ascii-video": {
+      "version": "1.0.0 → 1.0.0",
+      "baseline": {
+        "trigger_clarity": 3,
+        "step_completeness": 7,
+        "pitfall_coverage": 1,
+        "command_accuracy": 7,
+        "reuse_potential": 7,
+        "total": 25
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 8,
+        "pitfall_coverage": 10,
+        "command_accuracy": 7,
+        "reuse_potential": 8,
+        "total": 42
+      },
+      "delta": 17,
+      "gaps_closed": ["trigger_conditions", "When to Use", "Not For", "Pitfalls"]
+    },
+    "touchdesigner-mcp": {
+      "version": "1.1.0 → 1.2.0",
+      "baseline": {
+        "trigger_clarity": 5,
+        "step_completeness": 7,
+        "pitfall_coverage": 2,
+        "command_accuracy": 7,
+        "reuse_potential": 7,
+        "total": 28
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 8,
+        "pitfall_coverage": 10,
+        "command_accuracy": 7,
+        "reuse_potential": 8,
+        "total": 42
+      },
+      "delta": 14,
+      "gaps_closed": ["trigger_conditions", "When to Use", "Not For", "Pitfalls"]
+    },
+    "manim-video": {
+      "version": "1.0.0 → 1.1.0",
+      "baseline": {
+        "trigger_clarity": 3,
+        "step_completeness": 7,
+        "pitfall_coverage": 1,
+        "command_accuracy": 7,
+        "reuse_potential": 7,
+        "total": 25
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 8,
+        "pitfall_coverage": 10,
+        "command_accuracy": 7,
+        "reuse_potential": 8,
+        "total": 42
+      },
+      "delta": 17,
+      "gaps_closed": ["trigger_conditions", "When to Use", "Not For", "Pitfalls"]
+    },
+    "powerpoint": {
+      "version": "1.0.0 → 1.0.0",
+      "baseline": {
+        "trigger_clarity": 4,
+        "step_completeness": 6,
+        "pitfall_coverage": 3,
+        "command_accuracy": 7,
+        "reuse_potential": 6,
+        "total": 26
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 7,
+        "pitfall_coverage": 10,
+        "command_accuracy": 7,
+        "reuse_potential": 7,
+        "total": 40
+      },
+      "delta": 14,
+      "gaps_closed": ["trigger_conditions", "When to Use", "Not For", "Pitfalls"]
+    },
+    "agent-browser": {
+      "version": "1.0.0 → 1.0.0",
+      "note": "gitignored in repo — live path only",
+      "baseline": {
+        "trigger_clarity": 4,
+        "step_completeness": 8,
+        "pitfall_coverage": 2,
+        "command_accuracy": 8,
+        "reuse_potential": 7,
+        "total": 29
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 9,
+        "pitfall_coverage": 10,
+        "command_accuracy": 8,
+        "reuse_potential": 8,
+        "total": 44
+      },
+      "delta": 15,
+      "gaps_closed": ["trigger_conditions", "When to Use", "Not For", "Pitfalls"]
+    }
+  },
+  "summary": {
+    "total_baseline": 133,
+    "total_evolved": 210,
+    "total_delta": 77,
+    "avg_delta": 15.4,
+    "avg_pitfall_coverage_baseline": 1.8,
+    "avg_pitfall_coverage_evolved": 10.0,
+    "skills_optimized": 5,
+    "skills_with_all_gaps_closed": 5
+  },
+  "cumulative": {
+    "total_skills_optimized": 55,
+    "total_delta_all_cycles": 664,
+    "avg_delta_per_skill_all_cycles": 12.1
+  }
+}

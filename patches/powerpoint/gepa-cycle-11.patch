@@ -1,0 +1,89 @@
+diff --git a/skills/productivity/powerpoint/SKILL.md b/skills/productivity/powerpoint/SKILL.md
+index c9bd8588a..06dd8608f 100644
+--- a/skills/productivity/powerpoint/SKILL.md
++++ b/skills/productivity/powerpoint/SKILL.md
+@@ -1,15 +1,49 @@
+ ---
+ name: powerpoint
+ description: "Create, read, edit .pptx decks, slides, notes, templates."
++version: 1.0.0
+ license: Proprietary. LICENSE.txt has complete terms
+ platforms: [linux, macos, windows]
++metadata:
++  hermes:
++    tags: [powerpoint, pptx, slides, presentation, deck, pitch-deck, templates]
++    trigger_conditions:
++      - "create a presentation"
++      - "make slides"
++      - "edit a .pptx"
++      - "powerpoint deck"
++      - "pitch deck"
++      - "slide deck"
++      - "presentation template"
++      - "extract text from pptx"
++      - "read a powerpoint"
++      - "combine slide files"
++      - "speaker notes"
++      - "pptx layout"
++      - "presentation design"
+ ---
+ 
+ # Powerpoint Skill
+ 
+-## When to use
++## When to Use
+ 
+-Use this skill any time a .pptx file is involved in any way — as input, output, or both. This includes: creating slide decks, pitch decks, or presentations; reading, parsing, or extracting text from any .pptx file (even if the extracted content will be used elsewhere, like in an email or summary); editing, modifying, or updating existing presentations; combining or splitting slide files; working with templates, layouts, speaker notes, or comments. Trigger whenever the user mentions "deck," "slides," "presentation," or references a .pptx filename, regardless of what they plan to do with the content afterward. If a .pptx file needs to be opened, created, or touched, use this skill.
++Use this skill any time a .pptx file is involved:
++- Creating slide decks, pitch decks, or presentations
++- Reading, parsing, or extracting text from any .pptx file
++- Editing, modifying, or updating existing presentations
++- Combining or splitting slide files
++- Working with templates, layouts, speaker notes, or comments
++- Converting presentations to images or PDF for visual QA
++- Trigger whenever the user mentions "deck," "slides," "presentation," or references a .pptx filename
++
++## Not For
++
++- **Document creation or editing** → use `google-workspace` (Docs) instead
++- **Spreadsheet data analysis** → use `google-workspace` (Sheets) or `notion` instead
++- **Interactive web prototypes or landing pages** → use `claude-design` or `sketch` instead
++- **Static site deployment** → use `cloudflare-pages-deploy` or `render-deploy` instead
++- **PDF text extraction or OCR** → use `ocr-and-documents` instead
++- **Note-taking or knowledge management** → use `notion` or `obsidian` instead
+ 
+ ## Quick Reference
+ 
+@@ -143,6 +177,32 @@ Choose colors that match your topic — don't default to generic blue. Use these
+ 
+ ---
+ 
++## Pitfalls
++
++1. **Placeholder text in output** — Templates often contain "Lorem ipsum" or "XXXX" placeholders. Always grep the output with `python -m markitdown output.pptx | grep -iE "xxxx|lorem|ipsum|this.*(page|slide).*layout"` before declaring success.
++
++2. **Text overflow at box boundaries** — Text boxes with narrow widths cause excessive wrapping or cut-off text. Verify with visual QA (convert to images) before delivery.
++
++3. **Overlapping elements** — Decorative lines positioned for single-line titles break when titles wrap to two lines. Always check for elements that cross text boundaries.
++
++4. **Accent lines under titles** — Horizontal accent lines under slide titles are a hallmark of AI-generated slides. Use whitespace or background color blocks instead.
++
++5. **Low-contrast text and icons** — Light gray text on cream backgrounds or dark icons on dark backgrounds without contrasting circles are unreadable. Test contrast ratios for every element.
++
++6. **Inconsistent spacing** — Mixing 0.3" and 0.5" gaps randomly across slides looks unprofessional. Pick one spacing system and apply it consistently.
++
++7. **Leftover template content after editing** — When editing existing decks, old footers, source citations, or date fields from the original often collide with new content. Audit every slide for orphaned template elements.
++
++8. **Forgetting text box padding** — When aligning lines or shapes with text edges, the text box has internal padding that offsets the apparent edge. Set `margin: 0` on the text box or offset the shape to account for padding.
++
++9. **Same layout on every slide** — Repeating identical two-column or bullet layouts across all slides is visually boring. Vary layouts: two-column, icon rows, 2×2 grid, half-bleed image, stat callouts.
++
++10. **Centered body text** — Center-aligning paragraphs and lists reduces readability. Left-align body text; center only slide titles.
++
++11. **Missing font on target machine** — Using niche fonts (e.g., "Palatino", "Garamond") causes fallback to Calibri on machines without them. Stick to universally available fonts or embed fonts in the .pptx.
++
++12. **QA without image conversion** — You cannot reliably judge slide layout from the code alone. Always convert to images (`soffice --convert-to pdf` then `pdftoppm`) and visually inspect before declaring success.
++
+ ## QA (Required)
+ 
+ **Assume there are problems. Your job is to find them.**

@@ -1,0 +1,92 @@
+diff --git a/skills/creative/touchdesigner-mcp/SKILL.md b/skills/creative/touchdesigner-mcp/SKILL.md
+index 745e9ac83..bfa95c9d2 100644
+--- a/skills/creative/touchdesigner-mcp/SKILL.md
++++ b/skills/creative/touchdesigner-mcp/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: touchdesigner-mcp
+ description: "Control a running TouchDesigner instance via twozero MCP — create operators, set parameters, wire connections, execute Python, build real-time visuals. 36 native tools."
+-version: 1.1.0
++version: 1.2.0
+ author: kshitijk4poor
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -9,11 +9,44 @@ metadata:
+   hermes:
+     tags: [TouchDesigner, MCP, twozero, creative-coding, real-time-visuals, generative-art, audio-reactive, VJ, installation, GLSL]
+     related_skills: [native-mcp, ascii-video, manim-video, hermes-video]
+-
++    trigger_conditions:
++      - "TouchDesigner"
++      - "twozero MCP"
++      - "real-time visuals"
++      - "audio-reactive shader"
++      - "TD operator"
++      - "GLSL in TouchDesigner"
++      - "build a VJ setup"
++      - " TouchDesigner projection mapping"
++      - "TD python scripting"
++      - "noiseTOP or glslTOP"
++      - "TouchDesigner network"
++      - "MCP for TouchDesigner"
++      - "generative art in TD"
+ ---
+ 
+ # TouchDesigner Integration (twozero MCP)
+ 
++## When to Use
++
++- Building real-time generative visuals or VJ setups in TouchDesigner
++- Creating audio-reactive shaders and GLSL effects
++- Automating TouchDesigner operator creation and parameter setting via MCP
++- Projection mapping, multi-window output, or installation art
++- Needing to discover TD operator parameters programmatically (avoid guessing)
++- Building feedback loops, particle systems, or 3D scenes in TD
++- Recording TD output to video (ProRes/MJPEG) via MovieFileOut
++- Connecting external data (MIDI, OSC, WebSocket, HTTP) to TD parameters
++
++## Not For
++
++- **Image generation from text prompts** → use `stable-diffusion-image-generation` or `comfyui` instead
++- **3D mathematical animations or equation derivations** → use `manim-video` instead
++- **ASCII or text-based video output** → use `ascii-video` instead
++- **Configuring generic MCP servers** → use `native-mcp` instead
++- **Web scraping or browser automation** → use `agent-browser` or `pinchtab` instead
++- **Building interactive web demos** → use `p5js` instead
++
+ ## CRITICAL RULES
+ 
+ 1. **NEVER guess parameter names.** Call `td_get_par_info` for the op type FIRST. Your training data is wrong for TD 2025.32.
+@@ -324,6 +357,32 @@ See `references/network-patterns.md` for complete build scripts + shader code.
+ - `setup.sh` downloads twozero.tox from the official 404zero.com URL. Verify the download if concerned.
+ - The skill never sends data outside localhost. All MCP communication is local.
+ 
++## Pitfalls
++
++1. **Guessing parameter names** — Training data is wrong for TD 2025.32. Always call `td_get_par_info` for the operator type FIRST before setting any parameter.
++
++2. **`tdAttributeError` on script continue** — If `tdAttributeError` fires, STOP immediately. Call `td_get_operator_info` on the failing node before continuing. Scripting past the error corrupts the network state.
++
++3. **Hardcoded absolute paths in callbacks** — Using absolute paths in `scriptOp` callbacks breaks when the project moves. Always use `me.parent()` / `scriptOp.parent()` for relative references.
++
++4. **Destroy and recreate in same script** — Destroying and recreating same-named nodes in one `td_execute_python` call causes "Invalid OP object" errors. Split cleanup and creation into SEPARATE MCP calls.
++
++5. **`uTDCurrentTime` in GLSL TOP** — `uTDCurrentTime` does not exist in GLSL TOP uniforms. Use the Values page (`value0name = "uTime"`) and set expressions via `td_set_operator_pars` or `td_execute_python`.
++
++6. **8-bit texture freezing shaders** — Using `rgba8` format in Constant TOP clamps GLSL uniforms to 0-1, freezing time-based shaders. Always use `rgba32float` for uniform inputs.
++
++7. **Feedback TOP wiring wrong** — Feedback TOP requires the `top` parameter reference, not a direct input wire. "Not enough sources" resolves after first cook; "Cook dependency loop" warning is expected and harmless.
++
++8. **Non-Commercial codec restrictions** — H.264/H.265/AV1 require a Commercial TD license. On Non-Commercial, use `prores` (macOS) or `mjpa` as fallback, and cap resolution at 1280×1280.
++
++9. **Lag/Filter CHOP on spectrum data** — Lag CHOP and Filter CHOP expand AudioSpectrum output from 256 samples to 2400+ in timeslice mode, averaging to near-zero. Do NOT use them for spectrum smoothing — do it in GLSL.
++
++10. **AudioSpectrum timeslice OFF** — Turning TimeSlice OFF on AudioSpectrum processes the entire audio file at once (22050+ samples), causing CHOP-to-TOP overflow and killing the reactive pipeline.
++
++11. **Missing `outlength` on AudioSpectrum** — Default AudioSpectrum outputs 22050 samples. Always set `outputmenu='setmanually'` and `outlength=256` before connecting to CHOP-to-TOP.
++
++12. **Vertex access with `.x/.y/.z`** — In TD 2025.32 GLSL/SOP, vertex positions use `point.P[0]`, `point.P[1]`, `point.P[2]` — NOT `.x`, `.y`, `.z`. Using the dot syntax silently returns wrong values.
++
+ ## References
+ 
+ | File | What |
