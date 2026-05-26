@@ -1,0 +1,104 @@
+diff --git a/skills/productivity/google-workspace/SKILL.md b/skills/productivity/google-workspace/SKILL.md
+index 5668d80f2..5758e3259 100644
+--- a/skills/productivity/google-workspace/SKILL.md
++++ b/skills/productivity/google-workspace/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: google-workspace
+ description: "Gmail, Calendar, Drive, Docs, Sheets via gws CLI or Python."
+-version: 1.1.0
++version: 1.2.0
+ author: Nous Research
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -14,13 +14,46 @@ metadata:
+   hermes:
+     tags: [Google, Gmail, Calendar, Drive, Sheets, Docs, Contacts, Email, OAuth]
+     homepage: https://github.com/NousResearch/hermes-agent
+-    related_skills: [himalaya]
++    related_skills: [himalaya, ocr-and-documents, teams-meeting-pipeline]
++    trigger_conditions:
++      - "send an email through Gmail"
++      - "Google Calendar event"
++      - "upload to Google Drive"
++      - "read Google Sheets"
++      - "Google Docs"
++      - "gws setup"
++      - "Google OAuth"
++      - "Gmail search"
++      - "Google Workspace"
++      - "contacts list"
++      - "Drive share file"
++      - "schedule a meeting"
++      - "Google App Password"
+ ---
+ 
+ # Google Workspace
+ 
+ Gmail, Calendar, Drive, Contacts, Sheets, and Docs — through Hermes-managed OAuth and a thin CLI wrapper. When `gws` is installed, the skill uses it as the execution backend for broader Google Workspace coverage; otherwise it falls back to the bundled Python client implementation.
+ 
++## When to Use
++
++- **Email automation** — sending, searching, reading, replying to Gmail messages
++- **Calendar management** — creating, listing, deleting events with timezone-aware scheduling
++- **Drive operations** — uploading, downloading, sharing, organizing files and folders
++- **Spreadsheet interaction** — reading ranges, writing data, creating new Sheets
++- **Document editing** — reading Docs, creating new documents, appending text
++- **Contact lookups** — listing contacts with email and phone information
++- **Multi-service workflows** — any task needing 2+ Google services in sequence (e.g. read Gmail → save attachment to Drive → notify in Calendar)
++
++## Not For
++
++- **SMTP/IMAP-only email** → use `himalaya` instead (simpler, no OAuth needed)
++- **Microsoft 365** → use `teams-meeting-pipeline` or manual Microsoft Graph API calls
++- **Real-time calendar sync** → this skill is request/response, not a persistent sync service
++- **Bulk Drive migration** → use `rclone` or Drive API directly for >100 files
++- **Enterprise admin tasks** (user provisioning, org policies) → use Google Admin SDK directly
++- **Read-only document analysis** → use `ocr-and-documents` for PDF/scanned document extraction
++
+ ## References
+ 
+ - `references/gmail-search-syntax.md` — Gmail search operators (is:unread, from:, newer_than:, etc.)
+@@ -316,19 +349,31 @@ All commands return JSON. Parse with `jq` or read directly. Key fields:
+ 4. **Calendar times must include timezone** — always use ISO 8601 with offset (e.g., `2026-03-01T10:00:00-06:00`) or UTC (`Z`).
+ 5. **Respect rate limits** — avoid rapid-fire sequential API calls. Batch reads when possible.
+ 
+-## Troubleshooting
++## Pitfalls
++
++1. **Token expires silently** — `REFRESH_FAILED` means the OAuth refresh token expired or was revoked. The fix is not just re-running `--auth-code`; first run `$GSETUP --revoke`, then complete Steps 3-5 again. Skipping the revoke step often reuses the stale session and fails again.
++
++2. **Partial authentication on new write operations** — `AUTHENTICATED (partial)` appears when you added new scopes (e.g. Drive write after only having email read). The stored token is missing those scopes. You must `$GSETUP --revoke` then re-authorize with the full scope set in Step 3.
++
++3. **403 Access Not Configured** — This means the specific Google API (Drive, Sheets, etc.) is not enabled in the Google Cloud project. Direct the user to `https://console.cloud.google.com/apis/library`, search for the API named in the error, and click Enable. It takes 1-2 minutes to propagate.
++
++4. **Forgetting timezone in Calendar times** — If you pass `2026-03-01T10:00:00` without a timezone offset or `Z`, events land in an ambiguous or wrong timezone. Always use ISO 8601 with offset (`-06:00`) or UTC (`Z`). The skill enforces this in its Rules section for a reason.
++
++5. **Drive delete without --permanent creates false sense of security** — `$GAPI drive delete` defaults to trash (reversible), but trashed files still count against quota and are visible in Trash for 30 days. If the user asks to "permanently delete," always add `--permanent` and confirm with them first.
++
++6. **Gmail search with raw HTML in --body** — When sending email with `--body`, if you pass raw HTML without `--html`, the recipient sees raw tags. Conversely, if you pass plain text with `--html`, the text is wrapped in a `<pre>` and looks odd. Match the flag to the content type.
++
++7. **Advanced Protection blocking OAuth** — If the user has Advanced Protection enabled (hardware security keys), the OAuth consent screen will show `Error 403: org_internal` or silently fail. The user's Workspace admin must add the OAuth client ID to the allowed apps list. This is a hard blocker — no workaround in the agent.
++
++8. **Rapid-fire API calls hitting rate limits** — Google Workspace APIs have per-user rate limits (~100 requests per 100 seconds for Gmail). If you search, read, label, and reply in quick succession, you may hit `429` or `User rate limit exceeded`. Batch reads when possible and insert small delays between write operations.
++
++9. **Sheets range format confusion** — `$GAPI sheets get SHEET_ID "Sheet1!A1:D10"` requires the sheet name and range. If the sheet is renamed to "Data" but you pass "Sheet1", the call fails with a 400. Always verify the actual sheet tab name via `$GAPI sheets get SHEET_ID` first or use the default "Sheet1" on newly created spreadsheets.
++
++10. **ModuleNotFoundError after upgrading Python** — The tokenizers and google-auth libraries may break across Python minor versions. Run `$GSETUP --install-deps` after any Python upgrade to reinstall dependencies in the current environment.
+ 
+-| Problem | Fix |
+-|---------|-----|
+-| `NOT_AUTHENTICATED` | Run setup Steps 2-5 above |
+-| `REFRESH_FAILED` | Token revoked or expired — redo Steps 3-5 |
+-| `HttpError 403: Insufficient Permission` | Missing API scope — `$GSETUP --revoke` then redo Steps 3-5 |
+-| `AUTHENTICATED (partial)` or "Token missing scopes" | New write capabilities (Drive write/delete, Docs create/edit) require re-authorization. `$GSETUP --revoke` then redo Steps 3-5 to grant the upgraded scopes. |
+-| `HttpError 403: Access Not Configured` | API not enabled — user needs to enable it in Google Cloud Console |
+-| `ModuleNotFoundError` | Run `$GSETUP --install-deps` |
+-| Advanced Protection blocks auth | Workspace admin must allowlist the OAuth client ID |
++11. **Sharing without --notify leaves recipients unaware** — `$GAPI drive share` without `--notify` grants access but sends no email. The recipient won't know the file exists unless they check their Shared with me folder. Use `--notify` for external recipients who need an explicit heads-up.
+ 
+-## Revoking Access
++12. **Replying to a Gmail thread without setting --from** — If the authenticated account has multiple send aliases, omitting `--from` may send from the wrong alias. Always specify `--from` with the exact display name and email when the user has multiple identities configured in Gmail settings.
+ 
+ ```bash
+ $GSETUP --revoke

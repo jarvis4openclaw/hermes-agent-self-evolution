@@ -1,0 +1,106 @@
+diff --git a/skills/creative/songwriting-and-ai-music/SKILL.md b/skills/creative/songwriting-and-ai-music/SKILL.md
+index 806eb8742..54be55eac 100644
+--- a/skills/creative/songwriting-and-ai-music/SKILL.md
++++ b/skills/creative/songwriting-and-ai-music/SKILL.md
+@@ -1,16 +1,28 @@
+ ---
+ name: songwriting-and-ai-music
+-description: "Songwriting craft and Suno AI music prompts."
+-tags: [songwriting, music, suno, parody, lyrics, creative]
++description: "Use when writing song lyrics, creating AI music with Suno, adapting existing songs into parodies, or engineering music prompts for generative audio models."
++version: 1.0.0
++author: Hermes Agent
++license: MIT
+ platforms: [linux, macos, windows]
+-triggers:
+-  - writing a song
+-  - song lyrics
+-  - music prompt
+-  - suno prompt
+-  - parody song
+-  - adapting a song
+-  - AI music generation
++metadata:
++  hermes:
++    tags: [songwriting, music, suno, parody, lyrics, creative, ai-music, metatags, style-prompts]
++    related_skills: [heartmula, audiocraft, baoyu-comic]
++    trigger_conditions:
++      - "write a song"
++      - "song lyrics"
++      - "music prompt"
++      - "suno prompt"
++      - "parody song"
++      - "adapting a song"
++      - "AI music generation"
++      - "generate music"
++      - "Suno AI"
++      - "write me a song"
++      - "song structure"
++      - "rhyme scheme"
++      - "music style description"
+ ---
+ 
+ # Songwriting & AI Music Generation
+@@ -18,6 +30,25 @@ triggers:
+ Everything here is a GUIDELINE, not a rule. Art breaks rules on purpose.
+ Use what serves the song. Ignore what doesn't.
+ 
++## When to Use
++
++- **Original songwriting** — writing lyrics from scratch with structure, rhyme, and emotional arc
++- **Parody creation** — rewriting existing songs with new subject matter while preserving meter and stress patterns
++- **AI music generation** — engineering prompts for Suno, Udio, or similar text-to-music models
++- **Metatag design** — adding performance directions ([Whispered], [Belted], [Orchestral swell]) to guide AI singers
++- **Phonetic optimization** — respelling words for AI pronunciation, extending vowels, guiding pauses
++- **Style description** — building rich genre/mood/instrument/production descriptions for AI models
++- **Song revision** — tightening meter, improving rhyme variety, strengthening hooks in draft lyrics
++
++## Not For
++
++- **Audio mixing/mastering** → this skill covers composition and generation, not post-production engineering
++- **Music theory analysis** (chord progressions, modes, counterpoint) → use general reasoning or a dedicated music theory resource
++- **Live performance coaching** → the skill is about writing and generating, not stage performance
++- **Copyright clearance** → AI music platforms have their own terms; this skill does not provide legal guidance
++- **Instrumental composition without lyrics** → the skill assumes vocal/lyrical content; purely instrumental prompts are better handled by `audiocraft` or `heartmula`
++- **Video soundtrack scoring** → use `audiocraft` for sound effects and background music generation
++
+ ---
+ 
+ ## 1. Song Structure (Pick One or Invent Your Own)
+@@ -268,7 +299,35 @@ Style can drift in extensions — restate genre/mood when extending.
+ 
+ ---
+ 
+-## 9. Lessons Learned
++## 9. Pitfalls
++
++1. **Artist name references in Suno prompts** — Suno strictly forbids artist names and trademarked descriptors like "Nirvana-style" or "James Bond theme." These get filtered or produce generic output. Always describe the sound: "90s grunge with heavy distortion" or "1960s Cold War spy thriller brass."
++
++2. **Too many metatags per section** — Packing 12+ tags into one section ([Verse] [Female Vocals] [Melancholic] [Breathy] [Staccato] [Legato] [Dreamy] [Dark Atmosphere] [High Energy] [Building Energy] [Whispered] [Belted]) confuses the AI and produces mush. Keep to 5–8 tags per section and avoid contradictions.
++
++3. **Forgetting structural tags in Custom Mode** — Suno defaults to flat verse/chorus/verse without emotional arc if you don't add [Intro], [Verse], [Pre-Chorus], [Chorus], [Bridge], [Outro]. The skill's structure section is there for a reason — always map the structure.
++
++4. **Over-perfect rhymes sounding like nursery rhymes** — Using exclusively perfect rhymes (lean/mean, love/dove) creates a sing-song quality that cheapens serious lyrics. Mix in slant rhymes, assonance, and consonance for mature writing.
++
++5. **Writing the style description as a genre list only** — "sad rock song" gives the AI almost nothing. The style field should describe the dynamic journey: "Begins as a haunting whisper over sparse piano, gradually layers muted brass, builds through chorus with full orchestra, strips back to lone piano and fragile whisper in outro."
++
++6. **Neglecting meter stress patterns in parody** — When adapting an existing song, matching total syllable count is not enough. The stressed syllables must land on the same beats as the original. Sing your new words over the original — if you stumble, the meter is wrong.
++
++7. **Leaving original hook lines unchanged in parody** — Keeping some original lines adds recognizability, but leaving the hook/title verbatim defeats the purpose of the parody. Transform the hook most aggressively while preserving the syllable count.
++
++8. **All-caps shouting everything** — ALL CAPS in lyrics means louder/more intense delivery to Suno. If you put entire verses in caps, the AI will belt/scream the whole section. Reserve caps for 1-2 emphasis words or the climactic line.
++
++9. **Proper noun pronunciation failures** — AI vocalists mispronounce proper nouns at the highest rate. "Nous" becomes "nous" (rhymes with house). Respell: "Noose." Test all proper nouns in a 30-second clip before committing to a full generation.
++
++10. **Style drift during Extend/Continue** — When extending a promising Suno generation, the genre, mood, and instrumentation can drift. Always restate the full style description and key metatags in the extension prompt to maintain consistency.
++
++11. **Flat emotional energy across all sections** — A song that starts at energy 7 and stays there is exhausting. Use the energy mapping: Intro 2-3 → Verse 5-6 → Pre-Chorus 7 → Chorus 8-9 → Bridge varies → Final Chorus 9-10. Contrast is the primary dynamic tool.
++
++12. **Treating the first draft as sacred** — The skill explicitly warns against this, yet it is the most common failure mode. Expect 3-5 generations per good result. The first prompt rarely hits. Revision is creation, not correction.
++
++---
++
++## 10. Lessons Learned
+ 
+ - Describing the dynamic ARC in the style field matters way more
+   than just listing genres. "Whisper to roar to whisper" gives
