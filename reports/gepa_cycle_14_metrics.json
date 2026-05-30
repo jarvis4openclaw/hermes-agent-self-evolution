@@ -1,0 +1,72 @@
+{
+  "cycle": 14,
+  "date": "2026-05-30",
+  "method": "llm-as-judge-strategy-a",
+  "api_status": "masked",
+  "branch": "gepa/phase1-skill-optimization-cycle-14",
+  "summary": {
+    "skills_optimized": 5,
+    "total_delta": 87,
+    "avg_delta_per_skill": 17.4,
+    "cumulative_skills": 70,
+    "cumulative_delta": 921,
+    "cumulative_avg": 13.2
+  },
+  "skills": [
+    {
+      "name": "claude-code",
+      "path": "autonomous-ai-agents/claude-code",
+      "version": {"from": "2.2.0", "to": "2.3.0"},
+      "delta": 16,
+      "baseline": {"trigger_clarity": 2, "step_completeness": 5, "pitfall_coverage": 7, "command_accuracy": 8, "reuse_potential": 6},
+      "evolved": {"trigger_clarity": 10, "step_completeness": 8, "pitfall_coverage": 8, "command_accuracy": 8, "reuse_potential": 7},
+      "changes": ["trigger_conditions (13)", "When to Use (8 items)", "Not For (6 items)"]
+    },
+    {
+      "name": "llm-wiki",
+      "path": "research/llm-wiki",
+      "version": {"from": "2.1.0", "to": "2.2.0"},
+      "delta": 19,
+      "baseline": {"trigger_clarity": 2, "step_completeness": 6, "pitfall_coverage": 5, "command_accuracy": 7, "reuse_potential": 6},
+      "evolved": {"trigger_clarity": 10, "step_completeness": 8, "pitfall_coverage": 9, "command_accuracy": 7, "reuse_potential": 7},
+      "changes": ["trigger_conditions (13)", "Not For (7 items)", "11->12 numbered pitfalls", "sha256 pitfall added"]
+    },
+    {
+      "name": "parallel-cli",
+      "path": "research/parallel-cli",
+      "version": {"from": "1.1.0", "to": "1.2.0"},
+      "delta": 18,
+      "baseline": {"trigger_clarity": 2, "step_completeness": 6, "pitfall_coverage": 4, "command_accuracy": 7, "reuse_potential": 5},
+      "evolved": {"trigger_clarity": 10, "step_completeness": 8, "pitfall_coverage": 9, "command_accuracy": 7, "reuse_potential": 6},
+      "changes": ["trigger_conditions (13)", "Not For (6 items)", "7->12 numbered pitfalls", "new exit code/processor/auth pitfalls"],
+      "repo_note": "new file — existed in live path but not in hermes-agent repo"
+    },
+    {
+      "name": "hermes-s6-container-supervision",
+      "path": "software-development/hermes-s6-container-supervision",
+      "version": {"from": "1.0.0", "to": "1.1.0"},
+      "delta": 17,
+      "baseline": {"trigger_clarity": 2, "step_completeness": 6, "pitfall_coverage": 5, "command_accuracy": 7, "reuse_potential": 5},
+      "evolved": {"trigger_clarity": 10, "step_completeness": 8, "pitfall_coverage": 9, "command_accuracy": 7, "reuse_potential": 6},
+      "changes": ["trigger_conditions (13)", "Not For (7 items)", "6->12 numbered pitfalls", "tmpfs/service persistence pitfalls"]
+    },
+    {
+      "name": "airtable",
+      "path": "productivity/airtable",
+      "version": {"from": "1.1.0", "to": "1.2.0"},
+      "delta": 17,
+      "baseline": {"trigger_clarity": 2, "step_completeness": 5, "pitfall_coverage": 3, "command_accuracy": 7, "reuse_potential": 5},
+      "evolved": {"trigger_clarity": 10, "step_completeness": 8, "pitfall_coverage": 9, "command_accuracy": 7, "reuse_potential": 6},
+      "changes": ["trigger_conditions (13)", "When to Use (8 items)", "Not For (7 items)", "6->12 numbered pitfalls"]
+    }
+  ],
+  "dimension_totals": {
+    "trigger_clarity": {"baseline": 10, "evolved": 50, "improvement": 40},
+    "step_completeness": {"baseline": 25, "evolved": 44, "improvement": 19},
+    "pitfall_coverage": {"baseline": 14, "evolved": 48, "improvement": 34},
+    "command_accuracy": {"baseline": 33, "evolved": 33, "improvement": 0},
+    "reuse_potential": {"baseline": 26, "evolved": 31, "improvement": 5}
+  },
+  "push_status": "403 — NousResearch org write access blocked",
+  "top_blocker": "GitHub push access for NousResearch org"
+}

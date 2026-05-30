@@ -1,0 +1,61 @@
+diff --git a/skills/autonomous-ai-agents/claude-code/SKILL.md b/skills/autonomous-ai-agents/claude-code/SKILL.md
+index 57f5147b7..ad9ed1654 100644
+--- a/skills/autonomous-ai-agents/claude-code/SKILL.md
++++ b/skills/autonomous-ai-agents/claude-code/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: claude-code
+ description: "Delegate coding to Claude Code CLI (features, PRs)."
+-version: 2.2.0
++version: 2.3.0
+ author: Hermes Agent + Teknium
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -9,12 +9,47 @@ metadata:
+   hermes:
+     tags: [Coding-Agent, Claude, Anthropic, Code-Review, Refactoring, PTY, Automation]
+     related_skills: [codex, hermes-agent, opencode]
++    trigger_conditions:
++      - "claude code"
++      - "delegate coding to claude"
++      - "claude cli"
++      - "run claude on this codebase"
++      - "claude code review"
++      - "claude print mode"
++      - "interactive claude session"
++      - "claude worktree"
++      - "claude PR review"
++      - "parallel claude instances"
++      - "claude code orchestration"
++      - "anthropic coding agent"
++      - "claude tmux session"
+ ---
+ 
+ # Claude Code — Hermes Orchestration Guide
+ 
+ Delegate coding tasks to [Claude Code](https://code.claude.com/docs/en/cli-reference) (Anthropic's autonomous coding agent CLI) via the Hermes terminal. Claude Code v2.x can read files, write code, run shell commands, spawn subagents, and manage git workflows autonomously.
+ 
++## When to Use
++
++Use this skill when the user needs Claude Code orchestrated through Hermes:
++- Delegating a coding task (bug fix, feature, refactor) to Claude Code
++- Running Claude Code in print mode for one-shot analysis or code generation
++- Setting up interactive tmux-based Claude Code sessions for multi-turn work
++- Orchestrating parallel Claude Code instances across worktrees
++- Reviewing PRs with Claude Code's diff analysis capabilities
++- Configuring Claude Code permissions, MCP servers, or settings
++- Debugging Claude Code session issues (dialog handling, context windows)
++- Managing Claude Code authentication, model selection, or cost controls
++
++## Not For
++
++- General Anthropic/Claude API usage → use `hermes-agent` skill or direct API calls instead
++- Delegating tasks to other AI coding agents → use `codex` for OpenAI Codex, `opencode` for OpenCode instead
++- Local LLM inference → use `llama-cpp` or `serving-llms-vllm` instead
++- Simple one-shot LLM queries → use direct terminal calls to `claude -p` without this skill's orchestration patterns
++- Hermes Agent configuration → use `hermes-agent` skill instead
++- MCP server management outside Claude Code → use `native-mcp` or `mcporter` instead
++
+ ## Prerequisites
+ 
+ - **Install:** `npm install -g @anthropic-ai/claude-code`

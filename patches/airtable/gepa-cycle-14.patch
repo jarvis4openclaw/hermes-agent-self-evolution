@@ -1,0 +1,98 @@
+diff --git a/skills/productivity/airtable/SKILL.md b/skills/productivity/airtable/SKILL.md
+index 547e2a14b..ad5572b40 100644
+--- a/skills/productivity/airtable/SKILL.md
++++ b/skills/productivity/airtable/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: airtable
+ description: Airtable REST API via curl. Records CRUD, filters, upserts.
+-version: 1.1.0
++version: 1.2.0
+ author: community
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -12,12 +12,48 @@ metadata:
+   hermes:
+     tags: [Airtable, Productivity, Database, API]
+     homepage: https://airtable.com/developers/web/api/introduction
++    trigger_conditions:
++      - "airtable api"
++      - "airtable curl"
++      - "query airtable"
++      - "create airtable record"
++      - "update airtable record"
++      - "delete airtable record"
++      - "airtable upsert"
++      - "airtable filter by formula"
++      - "list airtable bases"
++      - "airtable schema"
++      - "airtable pagination"
++      - "airtable base id"
++      - "airtable personal access token"
+ ---
+ 
+ # Airtable — Bases, Tables & Records
+ 
+ Work with Airtable's REST API directly via `curl` using the `terminal` tool. No MCP server, no OAuth flow, no Python SDK — just `curl` and a personal access token.
+ 
++## When to Use
++
++Use this skill when the user needs to interact with Airtable via the REST API:
++- Listing bases, tables, or schema metadata for a base
++- Querying records with filters, sorting, and field selection
++- Creating single or batch records (up to 10 per call)
++- Updating records with PATCH (merge) or upsert by merge field
++- Deleting individual or batch records
++- Paginating through large result sets
++- Diagnosing Airtable API errors (403 scope issues, 429 rate limits, invalid field types)
++- Setting up or troubleshooting Airtable personal access tokens
++
++## Not For
++
++- Interactive Airtable UI operations → use a browser instead, the REST API is for programmatic access only
++- Large-scale data syncs or ETL → use Airtable's Sync integrations or a dedicated ETL tool
++- Real-time collaboration features → Airtable's REST API is request-response, not real-time
++- Notion database operations → use `notion` skill instead
++- Google Sheets operations → use `google-workspace` skill instead
++- Building a custom Airtable client/SDK → this skill uses raw `curl`, not a client library
++- OAuth-based Airtable integrations → use the Airtable OAuth flow directly, this skill uses PATs only
++
+ ## Prerequisites
+ 
+ 1. Create a **Personal Access Token (PAT)** at https://airtable.com/create/tokens (tokens start with `pat...`).
+@@ -212,12 +248,29 @@ done
+ 
+ ## Pitfalls
+ 
+-- **`filterByFormula` MUST be URL-encoded.** Field names with spaces or non-ASCII also need encoding (`{My Field}` → `%7BMy%20Field%7D`). Use Python stdlib (pattern above) — never hand-escape.
+-- **Empty fields are omitted from responses.** A missing `"Assignee"` key doesn't mean the field doesn't exist — it means this record's value is empty. Check the schema (step 3) before concluding a field is missing.
+-- **PATCH vs PUT.** `PATCH` merges supplied fields into the record. `PUT` replaces the record entirely and clears any field you didn't include. Default to `PATCH`.
+-- **Single-select options must exist.** Writing `"Status": "Shipping"` when `Shipping` isn't in the field's option list errors with `INVALID_MULTIPLE_CHOICE_OPTIONS` unless you pass `"typecast": true` (which auto-creates the option).
+-- **Per-base token scoping.** A `403` on one base while another works means the token's Access list doesn't include that base — not a scope or auth issue. Send the user to https://airtable.com/create/tokens to grant it.
+-- **Rate limits are per base, not per token.** 5 req/sec on `baseA` and 5 req/sec on `baseB` is fine; 6 req/sec on `baseA` alone will throttle. Monitor the `Retry-After` header on `429`.
++1. **`filterByFormula` MUST be URL-encoded** — Field names with spaces or non-ASCII also need encoding (`{My Field}` → `%7BMy%20Field%7D`). Use Python stdlib (`urllib.parse.quote`) — never hand-escape. Incorrect encoding silently returns empty results instead of errors.
++
++2. **Empty fields are omitted from API responses** — A missing `"Assignee"` key doesn't mean the field doesn't exist — it means this record's value is empty. Check the schema (`GET /v0/meta/bases/$BASE_ID/tables`) before concluding a field is missing from the base.
++
++3. **PATCH vs PUT** — `PATCH` merges supplied fields into the record (preserves unchanged fields). `PUT` replaces the record entirely and clears any field you didn't include. Default to `PATCH` unless you need a full replacement.
++
++4. **Single-select options must exist** — Writing `"Status": "Shipping"` when `Shipping` isn't in the field's option list errors with `INVALID_MULTIPLE_CHOICE_OPTIONS` unless you pass `"typecast": true` (which auto-creates the option). Check schema options before writing to select fields.
++
++5. **Per-base token scoping** — A `403` on one base while another works means the token's Access list doesn't include that base — not a scope or auth issue. Send the user to https://airtable.com/create/tokens to grant it. The error code is `INVALID_PERMISSIONS`.
++
++6. **Rate limits are per base, not per token** — 5 req/sec on `baseA` and 5 req/sec on `baseB` is fine; 6 req/sec on `baseA` alone will throttle. Monitor the `Retry-After` header on `429` responses. For batch operations, add `sleep 0.3` between calls.
++
++7. **Use `python3 -m json.tool` for pretty-printing, not `jq`** — `python3 -m json.tool` is always present on any Python installation. Only reach for `jq` when you need complex filtering or projection that would be painful in Python.
++
++8. **Pagination is per-page, not global** — Airtable's 100-record cap is a hard limit per page; there is no way to bump it. Loop with `offset` until the field is absent from the response. Pages are independent — sorting within a page doesn't guarantee global sort order.
++
++9. **Read the `errors` array on non-2xx responses** — Airtable returns structured error codes like `AUTHENTICATION_REQUIRED`, `INVALID_PERMISSIONS`, `MODEL_ID_NOT_FOUND`, `INVALID_MULTIPLE_CHOICE_OPTIONS` that tell you exactly what's wrong. Always parse the error body before guessing.
++
++10. **Batch endpoints cap at 10 records** — Creating or deleting more than 10 records requires multiple API calls. Loop in batches of 10 with a short sleep to respect the 5 req/sec/base limit. The error for exceeding 10 is `INVALID_REQUEST_UNKNOWN`.
++
++11. **URL-encode square brackets in query params** — `sort[0][field]` must be encoded as `sort%5B0%5D%5Bfield%5D`. Most `curl` implementations don't auto-encode brackets. Use Python or a pre-encoded URL string. Unencoded brackets may work with some shells but fail silently with others.
++
++12. **PATs require base-level access grants** — Creating a PAT with the right scopes isn't enough. In the token management UI, you must explicitly add each base you want the token to access. A valid token on the wrong base returns `403` with `INVALID_PERMISSIONS`, not `AUTHENTICATION_REQUIRED`.
+ 
+ ## Important Notes for Hermes
+ 

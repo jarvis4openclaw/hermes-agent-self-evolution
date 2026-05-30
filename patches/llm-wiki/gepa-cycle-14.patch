@@ -1,0 +1,101 @@
+diff --git a/skills/research/llm-wiki/SKILL.md b/skills/research/llm-wiki/SKILL.md
+index 839c2f682..7cc74986e 100644
+--- a/skills/research/llm-wiki/SKILL.md
++++ b/skills/research/llm-wiki/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: llm-wiki
+ description: "Karpathy's LLM Wiki: build/query interlinked markdown KB."
+-version: 2.1.0
++version: 2.2.0
+ author: Hermes Agent
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -10,6 +10,20 @@ metadata:
+     tags: [wiki, knowledge-base, research, notes, markdown, rag-alternative]
+     category: research
+     related_skills: [obsidian, arxiv]
++    trigger_conditions:
++      - "create a wiki"
++      - "build a knowledge base"
++      - "ingest into wiki"
++      - "query my wiki"
++      - "lint the wiki"
++      - "check wiki health"
++      - "karpathy wiki"
++      - "llm wiki"
++      - "add source to wiki"
++      - "wiki search"
++      - "wiki cross-reference"
++      - "archive wiki page"
++      - "obsidian wiki sync"
+ ---
+ 
+ # Karpathy's LLM Wiki
+@@ -33,6 +47,16 @@ Use this skill when the user:
+ - Asks to lint, audit, or health-check their wiki
+ - References their wiki, knowledge base, or "notes" in a research context
+ 
++## Not For
++
++- Quick fact lookups or one-off research → use `web_search` or `arxiv` instead
++- Personal note-taking with no cross-referencing needs → use `obsidian` directly instead
++- Structured database queries → use `airtable` or `notion` instead
++- Building a vector-search RAG system → use `chroma`, `qdrant-vector-search`, or `faiss` instead
++- Paper-specific research management → use `arxiv` with `papers/` ingest instead
++- Blog/tweet/URL monitoring → use `blogwatcher` instead
++- Large-scale document search → use `lightrag` for knowledge-graph retrieval instead
++
+ ## Wiki Location
+ 
+ **Location:** Set via `WIKI_PATH` environment variable (e.g. in `~/.hermes/.env`).
+@@ -476,26 +500,29 @@ vault in Obsidian on your laptop/phone — changes appear within seconds.
+ 
+ ## Pitfalls
+ 
+-- **Never modify files in `raw/`** — sources are immutable. Corrections go in wiki pages.
+-- **Always orient first** — read SCHEMA + index + recent log before any operation in a new session.
+-  Skipping this causes duplicates and missed cross-references.
+-- **Always update index.md and log.md** — skipping this makes the wiki degrade. These are the
+-  navigational backbone.
+-- **Don't create pages for passing mentions** — follow the Page Thresholds in SCHEMA.md. A name
+-  appearing once in a footnote doesn't warrant an entity page.
+-- **Don't create pages without cross-references** — isolated pages are invisible. Every page must
+-  link to at least 2 other pages.
+-- **Frontmatter is required** — it enables search, filtering, and staleness detection.
+-- **Tags must come from the taxonomy** — freeform tags decay into noise. Add new tags to SCHEMA.md
+-  first, then use them.
+-- **Keep pages scannable** — a wiki page should be readable in 30 seconds. Split pages over
+-  200 lines. Move detailed analysis to dedicated deep-dive pages.
+-- **Ask before mass-updating** — if an ingest would touch 10+ existing pages, confirm
+-  the scope with the user first.
+-- **Rotate the log** — when log.md exceeds 500 entries, rename it `log-YYYY.md` and start fresh.
+-  The agent should check log size during lint.
+-- **Handle contradictions explicitly** — don't silently overwrite. Note both claims with dates,
+-  mark in frontmatter, flag for user review.
++1. **Never modify files in `raw/`** — Sources are immutable by design. Corrections and updates go in wiki pages that reference the raw source, not in the source files themselves.
++
++2. **Always orient first** — Read SCHEMA + index + recent log before any operation in a new session. Skipping this causes duplicates, missed cross-references, and contradictions that could have been avoided.
++
++3. **Always update index.md and log.md** — These are the navigational backbone of the wiki. Skipping index updates makes pages undiscoverable; skipping log entries loses the audit trail of what changed and when.
++
++4. **Don't create pages for passing mentions** — Follow the Page Thresholds in SCHEMA.md. A name appearing once in a footnote doesn't warrant an entity page. This prevents wiki bloat.
++
++5. **Don't create pages without cross-references** — Isolated pages are invisible. Every page must link to at least 2 other pages via [[wikilinks]]. Orphan pages silently rot.
++
++6. **Frontmatter is required on every page** — It enables search, filtering, staleness detection, and automatic linting. Pages without frontmatter fail lint checks and can't be indexed properly.
++
++7. **Tags must come from the taxonomy in SCHEMA.md** — Freeform tags decay into noise. Add new tags to SCHEMA.md first, then use them. The lint step catches rogue tags.
++
++8. **Keep pages scannable** — A wiki page should be readable in ~30 seconds. Split pages over 200 lines into sub-topics with cross-links. Move detailed analysis to dedicated deep-dive pages.
++
++9. **Ask before mass-updating** — If an ingest would touch 10+ existing pages, confirm the scope with the user first. Mass updates without confirmation risk overwriting carefully curated content.
++
++10. **Rotate the log** — When log.md exceeds 500 entries, rename it `log-YYYY.md` and start fresh. The agent should check log size during lint and rotate automatically if needed.
++
++11. **Handle contradictions explicitly** — Don't silently overwrite conflicting information. Note both claims with dates, mark `contested: true` in frontmatter, and flag for user review. The lint step surfaces all contested pages.
++
++12. **Don't skip `sha256` on raw sources** — The checksum is what enables drift detection on re-ingest. Without it, every re-ingest of the same URL reprocesses the entire source, wasting API calls and potentially creating duplicate wiki pages.
+ 
+ ## Related Tools
+ 
