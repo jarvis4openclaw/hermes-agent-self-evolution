@@ -80,7 +80,8 @@ All 5 skills had zero 4-gap template coverage before this cycle.
 
 ## Push Status
 
-Failed (403) — NousResearch org push access still blocked for all accounts (jarvis4openclaw, wahidsaleemi, friday-openclaw[bot]).
+Pushed to `jarvis4openclaw/hermes-agent-self-evolution` — 12 branches synced.
+Skills backed up to `jarvis4openclaw/hermes-skills` — 70 evolved skills, 855 files.
 
 ## Files
 
@@ -91,6 +92,5 @@ Failed (403) — NousResearch org push access still blocked for all accounts (ja
 ## Next Actions
 
 1. **API key fix** — store plaintext key in `~/.hermes/evolution-creds.env` to enable live DSPy+GEPA optimization.
-2. **GitHub push access** — grant write access to `jarvis4openclaw` or `wahidsaleemi` on the NousResearch org.
-3. **Live-vs-repo drift audit** — sync all skills from `~/.hermes/skills/` to `~/.hermes/hermes-agent/skills/` to prevent "new file" diffs on skills that already exist in the live path.
-4. **Next cycle candidates** — remaining ~15 low-score thin skills (macos-computer-use, lightrag, domain-intel, etc.) for Cycle 15.
+2. **Live-vs-repo drift audit** — sync all skills from `~/.hermes/skills/` to `~/.hermes/hermes-agent/skills/` to prevent "new file" diffs on skills that already exist in the live path.
+3. **Next cycle candidates** — remaining ~15 low-score thin skills (macos-computer-use, lightrag, domain-intel, etc.) for Cycle 15.
