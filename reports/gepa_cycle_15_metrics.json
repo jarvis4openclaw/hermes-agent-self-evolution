@@ -1,0 +1,73 @@
+{
+  "cycle": 15,
+  "method": "LLM-as-Judge Strategy A (direct parent execution)",
+  "api_status": "masked",
+  "date": "2026-05-31",
+  "skills_optimized": 5,
+  "total_delta": 73,
+  "avg_delta": 14.6,
+  "cumulative_skills": 75,
+  "cumulative_delta": 994,
+  "cumulative_avg": 13.3,
+  "dimensions": {
+    "trigger_clarity": {"baseline": 11, "evolved": 40, "delta": 29},
+    "step_completeness": {"baseline": 30, "evolved": 32, "delta": 2},
+    "pitfall_coverage": {"baseline": 8, "evolved": 48, "delta": 40},
+    "command_accuracy": {"baseline": 29, "evolved": 29, "delta": 0},
+    "reuse_potential": {"baseline": 23, "evolved": 29, "delta": 6}
+  },
+  "skills": [
+    {
+      "name": "popular-web-designs",
+      "category": "creative",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "baseline_score": 19,
+      "evolved_score": 35,
+      "delta": 16,
+      "gaps_filled": ["trigger_conditions", "When to Use", "Not For", "Pitfalls"]
+    },
+    {
+      "name": "sketch",
+      "category": "creative",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "baseline_score": 21,
+      "evolved_score": 36,
+      "delta": 15,
+      "gaps_filled": ["trigger_conditions", "When to Use", "Not For", "Pitfalls"]
+    },
+    {
+      "name": "himalaya",
+      "category": "email",
+      "version_before": "1.1.0",
+      "version_after": "1.2.0",
+      "baseline_score": 21,
+      "evolved_score": 36,
+      "delta": 15,
+      "gaps_filled": ["trigger_conditions", "When to Use", "Not For", "Pitfalls"]
+    },
+    {
+      "name": "spotify",
+      "category": "media",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "baseline_score": 23,
+      "evolved_score": 35,
+      "delta": 12,
+      "gaps_filled": ["trigger_conditions", "When to Use", "Not For", "Pitfalls"]
+    },
+    {
+      "name": "dogfood",
+      "category": "dogfood",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "baseline_score": 18,
+      "evolved_score": 33,
+      "delta": 15,
+      "gaps_filled": ["trigger_conditions", "When to Use", "Not For", "Pitfalls"]
+    }
+  ],
+  "patches_total_lines": 522,
+  "push_target": "jarvis4openclaw"
+}
