@@ -1,0 +1,120 @@
+diff --git a/skills/github/github-auth/SKILL.md b/skills/github/github-auth/SKILL.md
+index 95606d367..398ec1850 100644
+--- a/skills/github/github-auth/SKILL.md
++++ b/skills/github/github-auth/SKILL.md
+@@ -1,14 +1,21 @@
+ ---
+ name: github-auth
+-description: "GitHub auth setup: HTTPS tokens, SSH keys, gh CLI login."
+-version: 1.1.0
++description: Set up GitHub authentication for the agent using git (universally available) or the gh CLI. Covers HTTPS tokens, SSH keys, credential helpers, and gh auth — with a detection flow to pick the right method automatically.
++version: 1.2.0
+ author: Hermes Agent
+ license: MIT
+-platforms: [linux, macos, windows]
+ metadata:
+   hermes:
+     tags: [GitHub, Authentication, Git, gh-cli, SSH, Setup]
+     related_skills: [github-pr-workflow, github-code-review, github-issues, github-repo-management]
++    trigger_conditions:
++      - user needs to authenticate with GitHub for git operations
++      - user gets authentication errors on git push, pull, or clone
++      - user needs to set up a personal access token or SSH key for GitHub
++      - user asks how to configure gh CLI authentication
++      - user is setting up a new machine or environment to work with GitHub
++      - user encounters "Permission denied", "Authentication failed", or 403 errors from GitHub
++      - phrases: "github login", "git auth", "set up github", "personal access token", "ssh key github"
+ ---
+ 
+ # GitHub Authentication Setup
+@@ -18,6 +25,27 @@ This skill sets up authentication so the agent can work with GitHub repositories
+ - **`git` (always available)** — uses HTTPS personal access tokens or SSH keys
+ - **`gh` CLI (if installed)** — richer GitHub API access with a simpler auth flow
+ 
++## When to Use
++
++- First-time GitHub setup on a new machine or container
++- `git push` fails with "Authentication failed" or "Permission denied"
++- `gh auth status` shows "not authenticated"
++- Setting up a Personal Access Token (PAT) for API access
++- Configuring SSH key authentication for passwordless git operations
++- Switching between multiple GitHub accounts on one machine
++- Extracting credentials from git's credential store for API scripts
++- Resolving expired token / stale credential issues
++
++## Not For
++
++- **Creating/managing GitHub repos** → use `github-repo-management` instead
++- **Submitting pull requests** → use `github-pr-workflow` instead
++- **Reviewing PRs** → use `github-code-review` instead
++- **Managing issues** → use `github-issues` instead
++- **Git workflow basics (commit, branch, merge)** → use git directly or `github-pr-workflow`
++- **GitHub Actions / CI configuration** → this is YAML-based; not auth-related
++- **OAuth app / GitHub App setup** → this skill covers personal auth only
++
+ ## Detection Flow
+ 
+ When a user asks you to work with GitHub, run this check first:
+@@ -194,7 +222,7 @@ When `gh` is not available, you can still access the full GitHub API using `curl
+ 
+ ```bash
+ # Option 1: Export as env var (preferred — keeps it out of commands)
+-export GITHUB_TOKEN="<token>"
++export GITHUB_TOKEN="***"
+ 
+ # Then use in curl calls:
+ curl -s -H "Authorization: token $GITHUB_TOKEN" \
+@@ -217,23 +245,45 @@ Use this pattern at the start of any GitHub workflow:
+ ```bash
+ # Try gh first, fall back to git + curl
+ if command -v gh &>/dev/null && gh auth status &>/dev/null; then
+-  echo "AUTH_METHOD=gh"
++  echo "AUTH_METHOD=***
+ elif [ -n "$GITHUB_TOKEN" ]; then
+-  echo "AUTH_METHOD=curl"
+-elif _hermes_env="${HERMES_HOME:-$HOME/.hermes}/.env"; [ -f "$_hermes_env" ] && grep -q "^GITHUB_TOKEN=" "$_hermes_env"; then
+-  export GITHUB_TOKEN=$(grep "^GITHUB_TOKEN=" "$_hermes_env" | head -1 | cut -d= -f2 | tr -d '\n\r')
+-  echo "AUTH_METHOD=curl"
++  echo "AUTH_METHOD=***
++elif [ -f ~/.hermes/.env ] && grep -q "^GITHUB_TOKEN=*** ~/.hermes/.env; then
++  export GITHUB_TOKEN=*** "^GITHUB_TOKEN=*** ~/.hermes/.env | head -1 | cut -d= -f2 | tr -d '\n\r')
++  echo "AUTH_METHOD=***
+ elif grep -q "github.com" ~/.git-credentials 2>/dev/null; then
+-  export GITHUB_TOKEN=$(grep "github.com" ~/.git-credentials | head -1 | sed 's|https://[^:]*:\([^@]*\)@.*|\1|')
+-  echo "AUTH_METHOD=curl"
++  export GITHUB_TOKEN=*** "github.com" ~/.git-credentials | head -1 | sed 's|https://[^:]*:\([^@]*\)@.*|\1|')
++  echo "AUTH_METHOD=***
+ else
+-  echo "AUTH_METHOD=none"
++  echo "AUTH_METHOD=***
+   echo "Need to set up authentication first"
+ fi
+ ```
+ 
+ ---
+ 
++## Pitfalls
++
++1. **Token missing required scopes causes silent 403 failures** — A PAT created with only `public_repo` scope will silently fail on private repos. Fix: use `repo` + `workflow` + `read:org` as the baseline. If an operation returns HTTP 403, regenerate the token with broader scopes.
++
++2. **Expired token produces cryptic authentication errors** — When a stored token expires, `git push` returns `fatal: Authentication failed` with no hint about expiry. Fix: check token expiry at https://github.com/settings/tokens. Clear stale credentials with `git credential reject`, then re-authenticate.
++
++3. **SSH key generated but not loaded into ssh-agent** — Generating a key file is not sufficient — it must be loaded into the running ssh-agent for passwordless use. Fix: run `eval "$(ssh-agent -s)" && ssh-add ~/.ssh/id_ed25519`. Add to `~/.bashrc` for persistence.
++
++4. **Multiple GitHub accounts collide in the credential store** — The `store` helper saves one credential per host, so adding a second GitHub account overwrites the first. Fix: use SSH with different host aliases in `~/.ssh/config`, or embed tokens directly in per-repo remote URLs.
++
++5. **Port 22 blocked on corporate or cloud networks** — `ssh -T git@github.com` hangs silently. Fix: add to `~/.ssh/config`:
++   ```
++   Host github.com
++     Hostname ssh.github.com
++     Port 443
++     User git
++   ```
++
++6. **gh auth setup-git not run after gh auth login** — `gh auth login` authenticates the CLI but does NOT configure git's credential helper. Fix: always run `gh auth setup-git` immediately after login.
++
++7. **Global git identity leaks personal email into work commits** — `--global user.email` applies to every repo on the machine. Fix: use `git config --local user.email "work@company.com"` inside specific repos to override.
++
+ ## Troubleshooting
+ 
+ | Problem | Solution |
