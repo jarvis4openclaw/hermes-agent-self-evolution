@@ -1,0 +1,98 @@
+{
+  "cycle": 26,
+  "date": "2026-06-13",
+  "branch": "gepa/phase1-skill-optimization-cycle-26",
+  "selection_method": "word_count_fallback",
+  "delta_candidates_found": 6,
+  "delta_actionable": 0,
+  "delta_already_evolved": 6,
+  "fallback_candidates_scanned": 23,
+  "skills_evolved": 5,
+  "skills": [
+    {
+      "name": "nostrx",
+      "path": "nostrx/SKILL.md",
+      "category": "devops/social",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "gaps_filled": ["trigger_conditions", "when_to_use", "not_for", "pitfalls"],
+      "trigger_conditions_added": 13,
+      "when_to_use_added": 7,
+      "not_for_added": 6,
+      "pitfalls_before": 5,
+      "pitfalls_after": 10,
+      "estimated_improvement": 12
+    },
+    {
+      "name": "yuanbao",
+      "path": "yuanbao/SKILL.md",
+      "category": "social",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "gaps_filled": ["trigger_conditions", "when_to_use", "not_for", "pitfalls"],
+      "trigger_conditions_added": 13,
+      "when_to_use_added": 6,
+      "not_for_added": 6,
+      "pitfalls_before": 0,
+      "pitfalls_after": 10,
+      "estimated_improvement": 16
+    },
+    {
+      "name": "exa-web-search-free",
+      "path": "openclaw-imports/exa-web-search-free/SKILL.md",
+      "category": "research/search",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "gaps_filled": ["trigger_conditions", "when_to_use", "not_for", "pitfalls"],
+      "trigger_conditions_added": 13,
+      "when_to_use_added": 7,
+      "not_for_added": 6,
+      "pitfalls_before": 0,
+      "pitfalls_after": 10,
+      "estimated_improvement": 14
+    },
+    {
+      "name": "mcporter",
+      "path": "mcp/mcporter/SKILL.md",
+      "category": "mcp/integrations",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "gaps_filled": ["trigger_conditions", "when_to_use", "not_for", "pitfalls"],
+      "trigger_conditions_added": 13,
+      "when_to_use_added": 7,
+      "not_for_added": 6,
+      "pitfalls_before": 0,
+      "pitfalls_after": 10,
+      "estimated_improvement": 14
+    },
+    {
+      "name": "code-review",
+      "path": "software-development/code-review/SKILL.md",
+      "category": "software-dev/quality",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "gaps_filled": ["trigger_conditions", "when_to_use", "not_for", "pitfalls"],
+      "trigger_conditions_added": 13,
+      "when_to_use_added": 7,
+      "not_for_added": 6,
+      "pitfalls_before": 0,
+      "pitfalls_after": 12,
+      "estimated_improvement": 18
+    }
+  ],
+  "avg_improvement": 14.8,
+  "total_pitfalls_added": 52,
+  "total_trigger_conditions_added": 65,
+  "method": "llm_as_judge_strategy_a",
+  "commits": {
+    "hermes_agent": "8fde138084f8104aed635caa2c620bfa2c9bfb48",
+    "hermes_skills": "261c4cef62e7251c4032845bde945e0819dcc9e9"
+  },
+  "patches": {
+    "nostrx": 159,
+    "yuanbao": 76,
+    "exa-web-search-free": 144,
+    "mcporter": 183,
+    "code-review": 150
+  }
+}
