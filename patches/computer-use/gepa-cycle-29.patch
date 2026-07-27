@@ -1,0 +1,86 @@
+diff --git a/skills/computer-use/SKILL.md b/skills/computer-use/SKILL.md
+index 85c73dfa5..152ccbabc 100644
+--- a/skills/computer-use/SKILL.md
++++ b/skills/computer-use/SKILL.md
+@@ -6,15 +6,51 @@ description: |
+   or switching virtual desktops / Spaces. Cross-platform: macOS,
+   Windows, Linux. Works with any tool-capable model. Load this skill
+   whenever the `computer_use` tool is available.
+-version: 2.0.0
++version: 2.1.0
+ platforms: [macos, windows, linux]
+ metadata:
+   hermes:
+     tags: [computer-use, desktop, automation, gui, cross-platform]
+     category: desktop
+     related_skills: [browser]
++    trigger_conditions:
++      - "click something on screen / click an element"
++      - "find a button and click it"
++      - "type into a text field on screen"
++      - "drive the desktop / automate the UI"
++      - "control the mouse / press keys on desktop"
++      - "take a screenshot of the desktop"
++      - "find what's on the screen"
++      - "use computer-use / use computer_use"
++      - "scroll on the page / scroll down"
++      - "drag and drop on screen"
++      - "list open apps / what apps are running"
++      - "switch apps / focus an app"
++      - "press keyboard shortcut"
++      - "interact with a native app (Finder, Mail, Outlook)"
+ ---
+ 
++## When to Use
++
++- **Automating native desktop apps** — Finder/Explorer, Mail/Outlook/Thunderbird, Figma, Logic, native chat clients, IDEs, terminal emulators
++- **Interacting with web UIs that the browser tool can't handle** — CAPTCHAs, Electron consent dialogs, browser-based SSO flows, WebAuthn prompts
++- **Dragging and dropping files between app windows** — the browser tools have no cross-app drag capability
++- **Extracting information from non-web sources** — desktop-only tools, legacy enterprise apps, native settings panels
++- **Performing multi-app workflows** — copy data from a web app, paste into a native spreadsheet, save and attach to an email
++- **Verifying visual UI state** — capture a screenshot of an app to check that an operation completed (e.g., file saved, dialog dismissed)
++- **Testing desktop app behavior** — click through UI flows in CI or smoke-test environments
++
++## Not For
++
++- **Simple web automation** → use `browser_*` tools (headless Chromium, more reliable)
++- **File editing** → use `read_file` / `write_file` / `patch`, not GUI `type` into an editor
++- **Shell commands** → use `terminal`, not `type` into Terminal.app / Windows Terminal
++- **Password entry or payment UI interaction** → hard rule; never touch these surfaces
++- **Private personal apps without user approval** (banking, email, messaging) → ask first
++- **Permission dialogs, 2FA challenges, or anything asking for secrets** → never
++- **Pure CLI operations** → the terminal tool is faster and more precise
++- **Large-scale repetitive input** → use scripts, not desktop automation
++
+ # Computer Use (universal, any-model, cross-platform)
+ 
+ You have a `computer_use` tool that drives the user's desktop in the
+@@ -248,7 +284,27 @@ in your conversation context.
+   moves) is YOUR run's cursor. It's a visual cue for the user that
+   YOU are acting. The real OS cursor never moves.
+ 
+-## Failure modes — what to do when things go sideways
++## Pitfalls
++
++1. **Element index goes stale after every capture** — SOM indices are only valid until the next `capture`. Always re-capture before clicking. The wrapper carries opaque `element_token`s for stale-detection; you will see an explicit error rather than a wrong click.
++
++2. **Escalating to foreground as a prediction instead of a reaction** — Do not default to `delivery_mode="foreground"` because the app is Electron/Chromium/GTK. Different controls in the same app behave differently. Only escalate when the structured verdict tells you to (`escalation.recommended == "foreground"` or `code:"background_unavailable"`).
++
++3. **Silently retrying the same rung** — If a background click returns `effect:"suspected_noop"`, do not retry the same action with the same mode. Read the verdict, determine the next rung (px click → foreground), and climb. Repeating the same unsuccessful approach is wasted effort.
++
++4. **Capturing without scoping to an app** — A full-desktop capture returns hundreds of elements from every open window. Always pass `app="<app name>"` to scope the capture — fewer elements, less noise, better performance, and does not leak other windows the user has open.
++
++5. **Trying to drive a pure CLI operation with `type`** — If the task is a shell command, use the `terminal` tool. Using `computer_use` to type into a terminal emulator is slower, less reliable, and the tool explicitly blocks it for certain dangerous command patterns.
++
++6. **Raising the window unnecessarily** — Keep `raise_window=false` unless the user explicitly asked you to bring a window to front. The whole point of background delivery is that the user can keep working without losing focus.
++
++7. **Typing passwords, API keys, or secrets** — Hard-blocked by the tool. Never attempt to type secret material into any UI. If the workflow needs authentication, ask the user to handle that step.
++
++8. **Assuming every click needs a coordinate** — Element-based clicks (`click(element=N)`) are far more reliable than pixel coordinates, especially for models not trained on coordinate output. Use pixel clicks only when the capture returned empty element lists or the verdict explicitly recommends `px` mode.
++
++9. **Not verifying after a state-changing action** — A click that returns `effect:"unverifiable"` means the driver delivered the click but could not confirm the result. Always re-capture after such a response to verify the expected state change occurred.
++
++10. **Concluding "cua-driver can't drive this app" too early** — Read the full structured verdict before giving up. The `escalation` field tells you exactly what to try next. If `delivery_mode="foreground"` returns `code:"foreground_unsupported"`, the driver version is too old — tell the user to update cua-driver rather than abandoning the approach.
+ 
+ | Symptom | Likely cause + remedy |
+ |---|---|

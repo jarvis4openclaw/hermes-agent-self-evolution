@@ -1,0 +1,284 @@
+diff --git a/skills/openrouter-expert/SKILL.md b/skills/openrouter-expert/SKILL.md
+new file mode 100644
+index 000000000..7c1646a43
+--- /dev/null
++++ b/skills/openrouter-expert/SKILL.md
+@@ -0,0 +1,277 @@
++---
++name: openrouter-expert
++description: >
++  Resolve OpenRouter implementation questions for AI building. Use this skill when building chatbots, agents, coding assistants, RAG, model routing, tool calling, structured outputs, multimodal, observability, SDK integration, model comparison, cost/latency optimization, or API key management on OpenRouter — even if the user doesn't explicitly name OpenRouter. Always verify live docs or API before answering.
++version: 2.0.0
++category: devrel
++metadata:
++  hermes:
++    tags: [openrouter, llm, routing, models, api, sdk]
++    trigger_conditions:
++      - "how do I use OpenRouter / OpenRouter setup"
++      - "model routing / model fallback on OpenRouter"
++      - "OpenRouter tool calling / OpenRouter structured outputs"
++      - "OpenRouter SDK / @openrouter/sdk / @openrouter/agent"
++      - "cost optimization on OpenRouter / cheapest model"
++      - "OpenRouter API key / OpenRouter auth"
++      - "which model should I use on OpenRouter"
++      - "OpenRouter streaming / OpenRouter chat completions"
++      - "OpenRouter multimodal / image input / PDF on OpenRouter"
++      - "OpenRouter embeddings / OpenRouter guardrails"
++      - "OpenRouter variants / :free / :nitro / :thinking"
++      - "OpenRouter BYOK / zero data retention"
++      - "OpenRouter vs OpenAI / OpenRouter comparison"
++      - "OpenRouter MCP / OpenRouter Claude Code"
++---
++
++## When to Use
++
++- **Building any AI-powered feature** that OpenRouter supports — chatbots, coding assistants, agents, RAG pipelines, embeddings
++- **Comparing models by cost, latency, or capability** — use the models API to get real-time pricing and performance data
++- **Setting up model routing, fallbacks, or provider redundancy** — OpenRouter's auto router, fallbacks, and provider selection
++- **Implementing structured outputs or tool calling** — OpenRouter's response healing and JSON schema enforcement
++- **Working with multimodal inputs** — image, PDF, audio, and video across multiple models
++- **Managing API keys, workspaces, guardrails, or usage accounting** — OpenRouter's administration features
++- **Integrating with SDKs** — `@openrouter/sdk`, `@openrouter/agent`, OpenAI SDK (base URL override), Vercel AI SDK, LangChain, PydanticAI
++
++## Not For
++
++- **Questions about specific models' internals** (training data, architecture, fine-tuning details) → check the model provider's own docs, not OpenRouter
++- **On-premise or self-hosted model deployment** — OpenRouter is a cloud routing service, not a deployment platform → use Ollama, vLLM, or TGI
++- **Low-level networking or infrastructure** (load balancers, ingress controllers) — OpenRouter handles the infrastructure
++- **Custom model training or fine-tuning** — OpenRouter does not offer training APIs; use Hugging Face, Axolotl, or Unsloth
++- **Non-OpenRouter hosting** (AWS Bedrock, GCP Vertex AI) — those are separate platforms with their own APIs and docs
++- **Questions about closed beta features not yet in public docs** — check the docs index first; if it is not there, it is not ready for production use
++
++Load this skill when the user:
++- Explicitly mentions OpenRouter, `@openrouter`, or OpenRouter SDKs
++- Asks to build any AI-powered feature that OpenRouter supports
++- References model routing, variants, server tools, tool calling, structured outputs, embeddings, multimodal, observability, or API administration
++
++**Scope covers**:
++- chatbots, assistants, autonomous agents, coding agents
++- RAG, search, embeddings, retrieval
++- model comparison, selection, fallbacks, latency, cost, provider routing
++- structured outputs, JSON schema, response healing
++- image/PDF/audio/video inputs, TTS, image/video generation
++- logging, evals, prompt caching, OAuth, BYOK, workspaces, guardrails, key management
++- integrations with `@openrouter/sdk`, `@openrouter/agent`, OpenAI SDK, Vercel AI SDK, LangChain, PydanticAI, LiveKit, Anthropic Agent SDK, MCP
++
++**Before answering, you must**:
++- Refresh `https://openrouter.ai/docs/llms.txt` and use `llms-full.txt` only when full page details are needed
++- Fetch `https://openrouter.ai/api/v1/models` when model IDs, capabilities, or pricing matter
++- Verify all docs URLs against `llms.txt` before linking
++- Prefer verified current state over memory
++
++---
++
++### B. Pre-Answer Ritual
++
++Before providing any answer about OpenRouter:
++
++1. **Refresh docs index**: `curl -sS https://openrouter.ai/docs/llms.txt`
++2. **Fetch models list**: `curl -sS https://openrouter.ai/api/v1/models` if models, capabilities, or pricing are relevant
++3. **Verify URLs**: Confirm every linked docs URL appears in the current `llms.txt`
++4. **Prefer live**: Use API results and current docs over any stored claims
++
++Never invent model IDs, claim features, or quote prices without live verification.
++
++---
++
++### C. Core API Surface
++
++- **Base URL**: `https://openrouter.ai/api/v1`
++- **Auth**: `Authorization: Bearer $OPENROUTER_API_KEY`
++- **App Attribution**: Include `HTTP-Referer` and `X-Title` headers when appropriate
++- **Key Endpoints**:
++  - Chat completions: `/chat/completions`
++  - Embeddings: `/embeddings`
++  - Model listing: `/models`
++  - Token usage & credits: `/credits`
++  - Generation metadata: `/generations`
++  - Workspaces: `/workspaces`
++  - Guardrails: `/guardrails`
++  - Responses API (Beta): `/beta/responses`
++
++Always verify endpoints against current docs.
++
++---
++
++### D. SDK Decision Framework
++
++| Use Case | Recommended SDK | Rationale |
++|----------|-----------------|-----------|
++| Direct API access, custom orchestration | `@openrouter/sdk` (TS), Python SDK, Go SDK | Typed access to full OpenRouter API, low-level control |
++| **Agent loops, tools, stop conditions, state persistence** | `@openrouter/agent` (TS) | Built for multi-turn agents with tool execution, approval gates, context injection (`nextTurnParams`) |
++| Drop-in OpenAI replacement | OpenAI SDK with base URL override | Uses OpenRouter’s OpenAI-compatible endpoint (`/openai`) |
++| Vercel AI SDK | `@vercel/ai` + OpenRouter endpoint | Stream with OpenRouter backend |
++| LangChain integration | LangChain OpenRouter wrapper | Seamless integration with existing chains |
++| Anthropic Agent SDK | `@anthropic/ai` + OpenRouter via MCP | Use MCP server to connect to OpenRouter |
++
++**Rules**:
++- Do not default to `@openrouter/agent`. Use it only when multi-turn logic, tools, or state are needed.
++- The Agent SDK is TypeScript-first. Prefer TS examples unless user specifies otherwise.
++- For direct calls or embeddings, use Inference SDK or REST/OpenAI API.
++- Always link to current SDK docs from `llms.txt`, never guess paths.
++
++---
++
++### E. Task-to-Docs Routing Table
++
++| Task | Docs URL | Verification |
++|------|---------|------------|
++| Quickstart & Auth | [Quickstart](https://openrouter.ai/docs/quickstart.md) | ✅ in index |
++| Model Listing & Selection | [Models](https://openrouter.ai/docs/guides/overview/models.md) | ✅ in index |
++| Chat Completions & Streaming | [Chat Completions](https://openrouter.ai/docs/api_reference/responses/overview.md) | ✅ in index |
++| Embeddings | [Embeddings](https://openrouter.ai/docs/api_reference/embeddings.md) | ✅ in index |
++| Tool/Function Calling | [Tool Calling](https://openrouter.ai/docs/api_reference/responses/tool-calling.md) | ✅ in index |
++| Server Tools (web search, datetime, image gen) | [Server Tools](https://openrouter.ai/docs/guides/features/server-tools.md) | ✅ in index |
++| Structured Outputs | [Structured Outputs](https://openrouter.ai/docs/guides/features/structured-outputs.md) | ✅ in index |
++| Response Healing | [Response Healing](https://openrouter.ai/docs/guides/features/plugins/response-healing.md) | ✅ in index |
++| Multimodal: Image Input | [Image Inputs](https://openrouter.ai/docs/guides/overview/multimodal/image-understanding.md) | ✅ in index |
++| PDF Inputs | [PDF Inputs](https://openrouter.ai/docs/guides/overview/multimodal/pdfs.md) | ✅ in index |
++| Audio: STT & TTS | [Speech-to-Text](https://openrouter.ai/docs/guides/overview/multimodal/stt.md), [TTS](https://openrouter.ai/docs/guides/overview/multimodal/tts.md) | ✅ in index |
++| Video Generation | [Video Generation](https://openrouter.ai/docs/guides/overview/multimodal/video-generation.md) | ✅ in index |
++| Video Inputs | [Video Inputs](https://openrouter.ai/docs/guides/overview/multimodal/videos.md) | ✅ in index |
++| Auto Router | [Auto Router](https://openrouter.ai/docs/guides/routing/routers/auto-router.md) | ✅ in index |
++| Fallbacks & Provider Routing | [Model Fallbacks](https://openrouter.ai/docs/guides/routing/model-fallbacks.md), [Provider Selection](https://openrouter.ai/docs/guides/routing/provider-selection.md) | ✅ in index |
++| Variants (:free, :nitro, :thinking, :extended, :exacto, :online) | [Model Variants](https://openrouter.ai/docs/guides/routing/model-variants/) | ✅ in index |
++| Prompt Caching | [Prompt Caching](https://openrouter.ai/docs/guides/best-practices/prompt-caching.md) | ✅ in index |
++| Data Compliance (ZDR, BYOK) | [Zero Data Retention](https://openrouter.ai/docs/guides/features/zdr.md), [BYOK](https://openrouter.ai/docs/guides/overview/auth/byok.md) | ✅ in index |
++| Workspaces & Key Management | [Workspaces](https://openrouter.ai/docs/guides/features/workspaces.md), [Management API Keys](https://openrouter.ai/docs/guides/overview/auth/management-api-keys.md) | ✅ in index |
++| Usage Accounting & Guardrails | [Usage Accounting](https://openrouter.ai/docs/cookbook/administration/usage-accounting.md), [Guardrails](https://openrouter.ai/docs/guides/features/guardrails.md) | ✅ in index |
++| Observability (Logging, Broadcast) | [Input & Output Logging](https://openrouter.ai/docs/guides/features/input-output-logging.md), [Broadcast](https://openrouter.ai/docs/guides/features/broadcast.md) | ✅ in index |
++| SDKs (TypeScript, Python, Go, Agent) | [TypeScript SDK](https://openrouter.ai/docs/client-sdks/typescript/overview.md), [Python SDK](https://openrouter.ai/docs/client-sdks/python/overview.md), [Go SDK](https://openrouter.ai/docs/client-sdks/go/overview.md), [Agent SDK](https://openrouter.ai/docs/agent-sdk/overview.md) | ✅ in index |
++| Framework Integrations | [Frameworks and Integrations Overview](https://openrouter.ai/docs/guides/community/frameworks-and-integrations-overview.md) | ✅ in index |
++| Coding Agent Integration (Claude Code, Cursor, MCP) | [Claude Code](https://openrouter.ai/docs/cookbook/coding-agents/claude-code-integration.md), [Using MCP Servers](https://openrouter.ai/docs/cookbook/coding-agents/mcp-servers.md) | ✅ in index |
++
++**Verification note**: All URLs above were confirmed in `https://openrouter.ai/docs/llms.txt` at skill creation.
++
++---
++
++### F. Model Selection Framework
++
++- **Use Auto Router** when you want OpenRouter to pick the best model for the prompt (`"model": "openrouter/auto"`).
++- **Use specific models** when you need predictable behavior, benchmarks, or compliance.
++- **Use variants only if the exact ID exists in `/api/v1/models`**:
++  - `:free` → free inference
++  - `:nitro` → low-latency
++  - `:extended` → longer context
++  - `:thinking` → extended reasoning
++  - `:exacto` → quality-first tool calling
++  - `:online` → real-time web search
++- **Do not assume base model capabilities carry to variants** — verify in API response.
++- **Use fallbacks** for resilience: specify multiple models in `model` array.
++- **Always check `/api/v1/models`** before coding — model list, pricing, and capabilities change.
++
++---
++
++### G. Tool Calling & Structured Output Framework
++
++#### Definitions
++- **Native Tool Calling**: Application executes tools locally.
++- **OpenRouter Server Tools**: Tools executed by OpenRouter during request (e.g., `web_search`, `datetime`, `image_generation`).
++- **Structured Outputs**: Enforced JSON schema in model responses using `response_format`.
++- **Tool Calls**: Function invocation semantics with parameters, executed server-side or client-side.
++
++#### Gotchas
++- Model support varies — check `supported_parameters` in `/api/v1/models`.
++- Server tools require explicit enablement (via `tools` array).
++- Structured outputs and tool calling are distinct — `response_format` ≠ `tools`.
++- Schema failures may cause retries or fallbacks — handle gracefully.
++- Streaming responses require special handling for partial tool calls.
++
++---
++
++### H. Common Gotchas
++
++- **Never invent model IDs** — only use IDs from `/api/v1/models`.
++- **Never construct variant IDs** — only use exact IDs (e.g., `openai/gpt-5.6-sol:thinking` only if listed).
++- **Verify capability assumptions** — variants may differ in context, tools, pricing.
++- **Do not assume SDK features exist** — consult current docs.
++- **Do not mix client-side and server tools** — they have different execution semantics.
++- **Do not link to unverified docs URLs** — check `llms.txt`.
++- **Do not treat structured outputs and tool calling as interchangeable**.
++- **Avoid stale examples** — always reference current docs.
++- **Do not make unverified claims** about pricing, availability, or performance.
++
++---
++
++## Pitfalls
++
++1. **Assuming model IDs are stable** — OpenRouter's model catalog changes frequently. Models are added, removed, and deprecated. Never hardcode model IDs — always check `/api/v1/models` at runtime or at least verify the ID before using it in production.
++
++2. **Constructing variant IDs manually** — Variants like `:free`, `:nitro`, `:thinking` only work if the exact base model ID with that variant is listed in `/api/v1/models`. Never append a variant to a model ID and assume it works — verify the combined ID exists.
++
++3. **Linking to stale docs URLs** — The OpenRouter docs are reorganized periodically. A URL that worked last week may 404 this week. Always verify every linked URL against the current `llms.txt` index before including it in a response.
++
++4. **Confusing structured outputs with tool calling** — `response_format` (JSON schema enforcement) and `tools` (function calling) are distinct APIs with different parameter requirements, support matrices, and error modes. Mixing them up produces silent failures.
++
++5. **Trusting memory over live API data** — Pricing, model capabilities, and supported parameters change without notice. Never answer a pricing, capability, or availability question from memory — always hit the `/api/v1/models` endpoint.
++
++6. **Using `@openrouter/agent` when a simple chat completion would do** — The Agent SDK has overhead for multi-turn state, tool execution, and approval gates. For a single-turn chat or a direct API call, use the Inference SDK or raw REST. The Agent SDK is for agent loops, not one-offs.
++
++7. **Not setting `HTTP-Referer` and `X-Title` headers** — OpenRouter uses these for app attribution. Without them, requests are tracked under "Unknown app" in the dashboard, making debugging and usage accounting harder.
++
++8. **Assuming all models support the same parameters** — `supported_parameters` in the models API varies by model. A parameter that works on `gpt-4o` may silently fail on `claude-sonnet-4`. Always check the capability flags before sending parameters.
++
++9. **Mixing client-side and server-side tools** — Native tool calling (executed by the application) and OpenRouter server tools (executed by OpenRouter during the request) have different execution semantics. They cannot be interchanged without changing the request structure.
++
++10. **Missing fallback handling for rate limits** — Free models and certain providers are rate-limited. A request that works at 2 AM may return 429 at 2 PM. Always implement retry logic with fallback models, especially for user-facing features.
++
++Before finalizing any response or code:
++
++- [x] Docs index refreshed (`llms.txt`)
++- [x] Models API checked if relevant (`/api/v1/models`)
++- [x] All linked URLs verified in `llms.txt`
++- [x] SDK choice justified and current
++- [x] Examples match current docs
++- [x] No unverified claims about pricing, support, or availability
++- [x] No invented model IDs or variant constructions
++- [x] Live sources preferred over memory
++
++Fail closed — if any check fails, do not proceed.
++
++---
++
++### J. Optional Bundled Helpers
++
++#### `scripts/pull-docs-index.sh`
++```bash
++#!/bin/sh
++# Fetch and cache the OpenRouter docs index
++set -e
++mkdir -p ~/.hermes/skills/openrouter-expert/cache
++curl -sS https://openrouter.ai/docs/llms.txt -o ~/.hermes/skills/openrouter-expert/cache/llms.txt.tmp && \
++  mv ~/.hermes/skills/openrouter-expert/cache/llms.txt.tmp ~/.hermes/skills/openrouter-expert/cache/llms.txt
++```
++Use: Fetch latest `llms.txt` for local diff/inspection.
++
++#### `scripts/check-doc-url.sh`
++```bash
++#!/bin/sh
++# Check if a URL is in the cached docs index
++set -e
++if [ -z "$1" ]; then
++  echo "Usage: $0 <url>" >&2
++  exit 1
++fi
++url="$1"
++cache=~/.hermes/skills/openrouter-expert/cache/llms.txt
++if [ ! -f "$cache" ]; then
++  echo "Cache not found. Run pull-docs-index.sh first." >&2
++  exit 1
++fi
++grep -Fq "$url" "$cache" && exit 0 || exit 1
++```
++Use: `check-doc-url.sh https://openrouter.ai/docs/quickstart.md` returns 0 if valid.
++
++#### `scripts/list-models.sh`
++```bash
++#!/bin/sh
++# Fetch current model list from OpenRouter API
++curl -sS https://openrouter.ai/api/v1/models | python3 -m json.tool
++```
++Use: Inspect real-time model capabilities, pricing, and variants.
++
++All scripts use standard tools (`curl`, `grep`, `python3`). No dependencies.
+\ No newline at end of file
