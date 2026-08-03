@@ -1,0 +1,105 @@
+diff --git a/skills/research/grounded-citations/SKILL.md b/skills/research/grounded-citations/SKILL.md
+index fe703d1df9..542a0d171b 100644
+--- a/skills/research/grounded-citations/SKILL.md
++++ b/skills/research/grounded-citations/SKILL.md
+@@ -10,6 +10,19 @@ metadata:
+     tags: [Research, Citations, Grounding, Sources, Web, Reports]
+     category: research
+     related_skills: [research-paper-writing, arxiv, ocr-and-documents]
++    trigger_conditions:
++      - "cite your sources"
++      - "with sources"
++      - "grounded answer"
++      - "fact-check this"
++      - "verify the sources"
++      - "research report with citations"
++      - "where did you get that"
++      - "provide references"
++      - "sources list"
++      - "evidence-based answer"
++      - "perplexity-style answer"
++      - "attribution for claims"
+ ---
+ 
+ # Grounded Citations
+@@ -29,10 +42,16 @@ slides), and research reports. It does not cover academic BibTeX pipelines —
+ for conference papers use the `research-paper-writing` skill, which this skill
+ feeds (see `references/citation-formats.md`).
+ 
++## Not For
++
++- **Academic BibTeX / conference paper pipelines** — use \`research-paper-writing\` instead (this skill feeds it; see \`references/citation-formats.md\`).
++- **Casual chat with no external facts** — skip inline citations when the retrieval is incidental (quick syntax lookup mid-coding, creative writing). Mention a URL only if the user would plausibly want the link.
++- **Generating bibliographies from memory** — this skill requires ledger-registered sources; if you have no fetched sources, a plain reference list (or none) is honest.
++- **Over-engineering short answers** — for a two-sentence reply with one source, inline the link rather than running the full ledger pipeline.
++
+ ## When to Use
+ 
+-Use whenever an answer or artifact rests on information you fetched rather than
+-knew:
++Use whenever an answer or artifact rests on information you fetched rather than knew:
+ 
+ - Research, comparisons, news summaries, "what is the current state of X"
+ - Any deliverable you write to disk that quotes, paraphrases, or reports
+@@ -190,34 +209,39 @@ and read the `info: stats:` line to see the counts before picking a number.
+ 
+ ## Pitfalls
+ 
+-- **Registering after writing.** The ledger must be populated from tool output,
++1. **Registering after writing** — The ledger must be populated from tool output,
+   not reconstructed from the draft — that reintroduces exactly the hallucinated
+-  -URL risk the numbering removes.
+-- **Renumbering mid-task.** Never hand-edit ids in a draft. Ids are ledger
++  -URL risk the numbering removes. Recovery: reset and re-run retrieval → `add` → draft.
++2. **Renumbering mid-task** — Never hand-edit ids in a draft. Ids are ledger
+   identities; if a draft cites `[4]`, `[4]` must stay that source. Run `reset`
+-  only between tasks.
+-- **Retyping URLs into the Sources block.** Always `render`. A hand-typed URL
+-  is an unverified claim.
+-- **Citing a search snippet as if you read the page.** A `web_search`
++  only between tasks. Recovery: if ids drift, rebuild from the ledger rather than patching the draft.
++3. **Retyping URLs into the Sources block** — Always `render`. A hand-typed URL
++  is an unverified claim. Recovery: use `sources.py render --replace-in <draft>` and re-verify.
++4. **Citing a search snippet as if you read the page** — A `web_search`
+   description supports only what it literally says. Cite the extracted page
+-  when the claim needs the body — `web_extract` it first.
+-- **Over-citing.** Three ids on a sentence is the ceiling; a citation on every
+-  clause makes text unreadable and hides which source carries the load.
+-- **Citing the ledger in code/config artifacts.** Source comments belong in
+-  prose deliverables and doc headers, not inside generated code.
+-- **Parallel subagents.** Each subagent has its own working directory; point
++  when the claim needs the body — `web_extract` it first. Recovery: extract the page, add it, re-cite.
++5. **Over-citing** — Three ids on a sentence is the ceiling; a citation on every
++  clause makes text unreadable and hides which source carries the load. Recovery: merge ids per sentence, keep max 3.
++6. **Citing the ledger in code/config artifacts** — Source comments belong in
++  prose deliverables and doc headers, not inside generated code. Recovery: strip citations from code blocks before shipping.
++7. **Parallel subagents** — Each subagent has its own working directory; point
+   them all at one ledger with `--ledger` (or `HERMES_CITATION_LEDGER`) if their
+-  outputs get merged, otherwise their ids will collide.
+-- **Quoting from a snippet instead of the page.** Evidence quotes must come
++  outputs get merged, otherwise their ids will collide. Recovery: pass `--ledger` explicitly to every subagent.
++8. **Quoting from a snippet instead of the page** — Evidence quotes must come
+   from the extracted page text, not a search-result description — `web_extract`
+-  first, save the text, then `quote --from` that file.
+-- **Paraphrasing into `quote --text`.** The verbatim check will reject it; the
+-  fix is to find the actual sentence, not to reword until something matches.
+-- **Using `[unverified]` as an escape hatch.** It marks the rare claim that
++  first, save the text, then `quote --from` that file. Recovery: extract, save, re-quote from the file.
++9. **Paraphrasing into `quote --text`** — The verbatim check will reject it; the
++  fix is to find the actual sentence, not to reword until something matches. Recovery: copy-paste the exact sentence from the fetched text.
++10. **Using `[unverified]` as an escape hatch** — It marks the rare claim that
+   genuinely cannot be sourced; if most sentences carry it, the task needed more
+-  retrieval, not more markers.
+-- **Hand-editing the Sources block.** Use `render --replace-in <draft>`; slicing
+-  the file yourself risks a stale or duplicated block that `verify` then flags.
++  retrieval, not more markers. Recovery: run additional retrieval for unverified claims before delivery.
++11. **Hand-editing the Sources block** — Use `render --replace-in <draft>`; slicing
++  the file yourself risks a stale or duplicated block that `verify` then flags. Recovery: re-render with `--replace-in` (idempotent) and re-run verify.
++12. **Quoting markdown markup instead of visible prose** — web_extract returns
++  inline links like `_[ERAP1](https://…)` and escaped asterisks (`HLA-B\*27`).
++  Quote the sentence as the reader sees it — the matcher canonicalizes links to
++  their label and drops emphasis/code/escapes on both sides, so reproducing the
++  markup is both unnecessary and fragile. Recovery: paste the plain prose sentence.
+ 
+ ## Verification
+ 
