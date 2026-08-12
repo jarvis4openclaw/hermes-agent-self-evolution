@@ -1,0 +1,49 @@
+diff --git a/skills/devops/sdlc-review/SKILL.md b/skills/devops/sdlc-review/SKILL.md
+index c9d3450361..7e5a8e269d 100644
+--- a/skills/devops/sdlc-review/SKILL.md
++++ b/skills/devops/sdlc-review/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: sdlc-review
+ description: Review Kanban handoffs and route verified outcomes.
+-version: 1.1.0
++version: 1.2.0
+ author: Jakub Wolniewicz (@frizikk) + Hermes Agent
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -10,6 +10,20 @@ metadata:
+     tags: [kanban, review, quality, verification]
+     category: devops
+     requires_toolsets: [kanban]
++    trigger_conditions:
++      - "review a Kanban handoff"
++      - "review requested"
++      - "code review task"
++      - "verify implementation"
++      - "quality check"
++      - "acceptance verification"
++      - "review this PR"
++      - "review deliverable"
++      - "approve or reject work"
++      - "sdlc review"
++      - "independent review needed"
++      - "review lane spawned"
++      - "third-party review"
+ environments:
+   - kanban
+ ---
+@@ -28,6 +42,14 @@ Use this skill when all of the following are true:
+ 
+ Do not use it for a separate downstream review card. A downstream card is ordinary implementation work with a review-oriented specification and completes through its own lifecycle.
+ 
++## Not For
++
++- **Performing the implementation yourself** — review verifies, it does not build. Never edit deliverable files while acting as reviewer.
++- **Substituting for automated CI checks** — trust the CI pipeline for lint, type checks, and unit tests. Review focuses on design, correctness, and completeness.
++- **Debugging or fixing code** — if you find a bug while reviewing, request changes — do not patch it yourself.
++- **Running the task from scratch** — reviewers start with the implementer's handoff, not from the original spec. If the handoff is missing, escalate.
++- **Approving without evidence** — every verdict must name concrete checks or artifacts inspected. "Looks good" is not a verdict.
++
+ ## Prerequisites
+ 
+ - A Kanban worker context with the current task and run identifiers.
