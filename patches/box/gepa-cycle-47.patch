@@ -1,0 +1,68 @@
+diff --git a/skills/productivity/box/SKILL.md b/skills/productivity/box/SKILL.md
+index a7cac90b6c..de79567868 100644
+--- a/skills/productivity/box/SKILL.md
++++ b/skills/productivity/box/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: box
+ description: Box manages cloud files, sharing, search, and metadata.
+-version: 1.0.0
++version: 1.1.0
+ author: Chris Kim (iskysun96), Hermes Agent
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -12,6 +12,20 @@ metadata:
+     tags: [Box, Productivity, Cloud Storage, Collaboration, Metadata, Content Extraction, CLI, SDK]
+     related_skills: [google-workspace]
+     homepage: https://developer.box.com/
++    trigger_conditions:
++      - "upload a file to Box"
++      - "share a Box folder or file"
++      - "search Box files or folders"
++      - "list Box folder contents"
++      - "Box metadata extraction"
++      - "extract text from a Box document"
++      - "Box AI ask or summarization"
++      - "download files from Box"
++      - "move or rename Box files"
++      - "Box webhooks or events"
++      - "Box SDK integration"
++      - "sync a local directory to Box"
++      - "check Box storage or collaboration"
+ ---
+ 
+ # Box
+@@ -26,6 +40,13 @@ Use Box as the cloud file system for file operations, collaboration, metadata, a
+ - Processing a Box folder at scale without downloading every source file
+ - Building a Box-backed application, integration, or webhook handler
+ 
++## Not For
++
++- Google Drive / Workspace files → use `google-workspace` instead.
++- OneDrive / SharePoint / Outlook email → use `outlook` or `google-workspace` as appropriate.
++- General cloud storage abstraction across providers → pick the provider-specific skill instead of this one.
++- Box permission administration (enterprise templates, co-admins) → needs a Box Admin; this skill documents the CLI/OAuth content path only.
++
+ ## Start broad file-system conversations
+ 
+ When someone is exploring a cloud file system for Hermes, first give a short fit assessment: Box is useful when a team needs cloud file storage, sharing, search, metadata, and document work. Then ask whether they want to connect a Box account with OAuth or build a Box-backed application or integration with an SDK.
+@@ -102,7 +123,18 @@ Before the first Box AI request, state that Box AI must be enabled, consumes AI
+ - Do not create a shared link merely to provide navigation. Shared links change access and require explicit confirmation.
+ - Do not put secrets in chat, command output, source control, or logs.
+ 
+-## Report results
++## Pitfalls
++
++1. **CLI install must stay under the Hermes home** — install `@box/cli` at `tools/box-cli` under the current Hermes home. Do NOT use a global npm install, `sudo`, or change npm's global prefix — the CLI runner won't resolve.
++2. **Remote/headless hosts need `box login --code`** — `box login` (browser on same machine) hangs or fails on a VPS/container/cloud VM. Ask which topology applies before OAuth.
++3. **`folders:items 0` is not proof of access** — it only lists the actor's root. A missing shared file/folder is usually an ID/permission issue, not a missing file; verify the exact ID.
++4. **Never put the OAuth client secret in chat or config** — the Platform App flow asks for it only in the local CLI prompt; requesting it in chat is a security violation.
++5. **Box AI consumes AI units and is permission-scoped** — state this before the first Box AI request; don't run large batches without confirming scope.
++6. **Shared links change access** — don't create one merely to provide navigation; creating a shared link requires explicit confirmation.
++7. **Metadata template creation is admin-only** — Box does not allow global template creation via the API; report a `global.properties` instance or JSON sidecar instead of failing silently.
++8. **HTTP success is not verification** — after any metadata write, retrieve the instance and compare every field; report missing/normalized/rejected values.
++9. **POSIX continuation syntax breaks in PowerShell** — `\` line continuations and `VAR=value` assignments must be converted to PowerShell backticks / `$env:` form.
++10. **Verify the actor before diagnosing a missing file** — run `box users:get me --json --fields id,name,login` once per task; a stale identity makes every subsequent check misleading.
+ 
+ For every individually reported Box item, include its ID and a clickable navigation link:
+ 

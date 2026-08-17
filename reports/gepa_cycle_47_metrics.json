@@ -1,0 +1,82 @@
+{
+  "cycle": 47,
+  "date": "2026-08-17T02:20:00-05:00",
+  "branch": "gepa/phase1-skill-optimization-cycle-20260817-20260817",
+  "method": "Strategy A (LLM-as-Judge, direct parent execution)",
+  "model": "deepseek/deepseek-v4-flash",
+  "fast_path": false,
+  "fast_path_reason": "Cycle 46 evolved 5 skills (not SILENT); user sessions + x-thread-recovery modification on Aug 16",
+  "dojo_targets": [],
+  "dojo_status": "empty (healthy; failures in core tools only)",
+  "selection": {
+    "delta_found": 11,
+    "delta_actionable": 0,
+    "delta_already_evolved": 10,
+    "delta_deferred_user_modified": 1,
+    "delta_deferred_skills": ["research/x-thread-recovery"],
+    "word_count_slate": [
+      "productivity/box",
+      "data-science/jupyter-live-kernel",
+      "devops/update-lightning-wallets-site",
+      "mlops/training/axolotl",
+      "devops/mission-control-openclaw-websocket-401-troubleshooting"
+    ],
+    "skipped_duplicates": ["openhue (root, dup of smart-home/openhue)", "sonoscli (third-party clawdbot)"]
+  },
+  "skills": {
+    "productivity/box": {
+      "version": "1.0.0 -> 1.1.0",
+      "triggers_added": 13,
+      "pitfalls": "0 -> 10",
+      "baseline_scores": {"trigger_clarity": 5, "step_completeness": 7, "pitfall_coverage": 2, "command_accuracy": 7, "reuse_potential": 7},
+      "evolved_scores": {"trigger_clarity": 8, "step_completeness": 8, "pitfall_coverage": 8, "command_accuracy": 8, "reuse_potential": 8},
+      "delta": 6
+    },
+    "data-science/jupyter-live-kernel": {
+      "version": "1.0.0 -> 1.1.0",
+      "triggers_added": 12,
+      "pitfalls": "8 tips -> 10 numbered",
+      "baseline_scores": {"trigger_clarity": 5, "step_completeness": 7, "pitfall_coverage": 3, "command_accuracy": 8, "reuse_potential": 6},
+      "evolved_scores": {"trigger_clarity": 8, "step_completeness": 8, "pitfall_coverage": 8, "command_accuracy": 8, "reuse_potential": 8},
+      "delta": 6
+    },
+    "devops/update-lightning-wallets-site": {
+      "version": "1.0.0 -> 1.1.0",
+      "triggers_added": 10,
+      "pitfalls": "6 bullets -> 10 numbered",
+      "baseline_scores": {"trigger_clarity": 4, "step_completeness": 7, "pitfall_coverage": 3, "command_accuracy": 7, "reuse_potential": 6},
+      "evolved_scores": {"trigger_clarity": 8, "step_completeness": 8, "pitfall_coverage": 8, "command_accuracy": 8, "reuse_potential": 8},
+      "delta": 9
+    },
+    "mlops/training/axolotl": {
+      "version": "1.0.0 -> 1.1.0",
+      "triggers_added": 10,
+      "pitfalls": "0 -> 10",
+      "baseline_scores": {"trigger_clarity": 4, "step_completeness": 6, "pitfall_coverage": 2, "command_accuracy": 7, "reuse_potential": 6},
+      "evolved_scores": {"trigger_clarity": 8, "step_completeness": 7, "pitfall_coverage": 8, "command_accuracy": 7, "reuse_potential": 7},
+      "delta": 8
+    },
+    "devops/mission-control-openclaw-websocket-401-troubleshooting": {
+      "version": "1.0.0 -> 1.1.0",
+      "triggers_added": 10,
+      "pitfalls": "4 bullets -> 10 numbered",
+      "baseline_scores": {"trigger_clarity": 5, "step_completeness": 7, "pitfall_coverage": 3, "command_accuracy": 8, "reuse_potential": 6},
+      "evolved_scores": {"trigger_clarity": 8, "step_completeness": 8, "pitfall_coverage": 8, "command_accuracy": 8, "reuse_potential": 8},
+      "delta": 8
+    }
+  },
+  "average_delta": 7.4,
+  "verification": {
+    "yaml_frontmatter": "valid on all 5 (yaml.safe_load)",
+    "triggers_per_skill": [13, 12, 10, 10, 10],
+    "numbered_pitfalls_per_skill": [10, 10, 10, 10, 10],
+    "live_repo_parity": "byte-verified MATCH on all 5 (pitfall #48)",
+    "worktree_commit": "bce84d5d1c"
+  },
+  "patches": {
+    "dir": "~/hermes-agent-self-evolution/patches/<skill>/gepa-cycle-47.patch",
+    "total_lines": 767
+  },
+  "hotspots": ["research/x-thread-recovery (user-modified Aug 16; 2-gap; defer one cycle)"],
+  "pushed": false
+}
