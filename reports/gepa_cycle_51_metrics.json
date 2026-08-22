@@ -1,0 +1,54 @@
+{
+  "cycle": 51,
+  "date": "2026-08-21",
+  "method": "Strategy A (LLM-as-Judge, direct parent execution)",
+  "model": "deepseek/deepseek-v4-flash",
+  "fast_path": false,
+  "fast_path_reason": "curator activity since last cycle (nostrx archive)",
+  "dojo_targets": 0,
+  "selection": {
+    "dojo": 0,
+    "delta_found": 1,
+    "delta_actionable": 0,
+    "delta_already_evolved": 1,
+    "word_count_selected": 5
+  },
+  "skills": {
+    "hermes-config-post-audit-recovery": {
+      "version": "1.0.0 -> 1.1.0",
+      "baseline_scores": {"trigger_clarity": 4, "step_completeness": 6, "pitfall_coverage": 1, "command_accuracy": 7, "reuse_potential": 6},
+      "evolved_scores": {"trigger_clarity": 8, "step_completeness": 8, "pitfall_coverage": 9, "command_accuracy": 7, "reuse_potential": 7},
+      "delta": 14
+    },
+    "venice-key-watchdog": {
+      "version": "1.0.0 -> 1.1.0",
+      "baseline_scores": {"trigger_clarity": 3, "step_completeness": 6, "pitfall_coverage": 5, "command_accuracy": 6, "reuse_potential": 6},
+      "evolved_scores": {"trigger_clarity": 8, "step_completeness": 8, "pitfall_coverage": 9, "command_accuracy": 6, "reuse_potential": 7},
+      "delta": 13
+    },
+    "signal-scheduler-backup": {
+      "version": "(none) -> 1.1.0",
+      "baseline_scores": {"trigger_clarity": 2, "step_completeness": 6, "pitfall_coverage": 3, "command_accuracy": 7, "reuse_potential": 5},
+      "evolved_scores": {"trigger_clarity": 8, "step_completeness": 8, "pitfall_coverage": 10, "command_accuracy": 7, "reuse_potential": 7},
+      "delta": 14
+    },
+    "f5-tts-setup": {
+      "version": "(none) -> 1.1.0",
+      "baseline_scores": {"trigger_clarity": 3, "step_completeness": 7, "pitfall_coverage": 4, "command_accuracy": 7, "reuse_potential": 5},
+      "evolved_scores": {"trigger_clarity": 8, "step_completeness": 8, "pitfall_coverage": 9, "command_accuracy": 7, "reuse_potential": 7},
+      "delta": 13
+    },
+    "notcrawl-search": {
+      "version": "1.0.0 -> 1.1.0",
+      "baseline_scores": {"trigger_clarity": 3, "step_completeness": 7, "pitfall_coverage": 4, "command_accuracy": 7, "reuse_potential": 6},
+      "evolved_scores": {"trigger_clarity": 8, "step_completeness": 8, "pitfall_coverage": 9, "command_accuracy": 7, "reuse_potential": 7},
+      "delta": 13
+    }
+  },
+  "avg_delta": 13.4,
+  "total_patch_lines": 553,
+  "hermes_agent_commit": "efc95920eb",
+  "hermes_agent_pushed": false,
+  "hermes_skills_commit": "e66b578",
+  "hermes_skills_pushed": true
+}
