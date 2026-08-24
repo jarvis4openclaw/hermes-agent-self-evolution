@@ -1,0 +1,91 @@
+diff --git a/skills/productivity/xlsx/SKILL.md b/skills/productivity/xlsx/SKILL.md
+index f9e3544dca..b0b18e131e 100644
+--- a/skills/productivity/xlsx/SKILL.md
++++ b/skills/productivity/xlsx/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: xlsx
+ description: Create, read, edit Excel .xlsx workbooks and CSVs.
+-version: 1.1.0
++version: 1.2.0
+ author: Nous Research
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -10,6 +10,17 @@ metadata:
+     tags: [excel, spreadsheet, xlsx, csv, openpyxl, productivity]
+     category: productivity
+     related_skills: [docx, pdf, powerpoint]
++    trigger_conditions:
++      - "create an excel file"
++      - "make a spreadsheet"
++      - "xlsx"
++      - "xls"
++      - "csv"
++      - "convert csv to excel"
++      - "edit an excel workbook"
++      - "excel formula"
++      - "spreadsheet report"
++      - "openpyxl"
+ ---
+ 
+ # Xlsx Skill
+@@ -36,6 +47,13 @@ scripts are argparse CLIs that print JSON and use explicit UTF-8 I/O.
+ - Not for the legacy .xls binary format (use LibreOffice to convert
+   first: `soffice --headless --convert-to xlsx old.xls`).
+ 
++## Not For
++
++- The legacy .xls binary format — convert first with LibreOffice (`soffice --headless --convert-to xlsx old.xls`), then work in .xlsx → use `pdf` for PDF output instead
++- PDF creation, merging, filling, or securing — that's a different file format and toolchain → use `pdf` instead
++- Google Sheets collaboration or import/export — this skill is local-file only → use `notion-calendar` or `notion-cli` for Notion exports if that's the actual source
++- Building charts for a web dashboard — xlsx charts are static Excel objects; if the target is a page, generate the chart in the app or use a charting skill
++
+ ## Prerequisites
+ 
+ - Python 3.10+ with `openpyxl` (`pip install openpyxl`). No other
+@@ -154,34 +172,18 @@ LibreOffice or hand the file to the user unconverted.
+ 
+ ## Pitfalls
+ 
+-- **openpyxl does not calculate.** Formula results are available only
+-  via `load_workbook(path, data_only=True)` and only when the file was
+-  previously saved by Excel/LibreOffice. Otherwise you get `None`.
+-- **`xlsx_edit.py` insert/delete does not shift references** (raw
+-  openpyxl behavior). Use `xlsx_restructure.py`, which does — but even
+-  it cannot move chart anchors, images, or conditional-format RULE
+-  formulas; read its JSON report's `not_shifted` list and
+-  `references/restructuring.md`.
+-- **Sheet protection is NOT security.** `--protect` sets the standard
+-  xlsx sheet-protection hash: it signals "don't edit this" to
+-  well-behaved apps and nothing more. Anyone can strip it by editing
+-  the zip's XML or unchecking it in LibreOffice. Never rely on it for
+-  confidentiality or integrity; it does not encrypt anything.
+-- **`data_only=True` then save** silently discards all formulas
+-  (cached values replace them). Never save a workbook loaded that way
+-  unless that is the goal.
+-- **Loading strips charts/images**: openpyxl does not round-trip
+-  charts, so editing a charted workbook and saving drops the charts.
+-  Re-add charts after editing, or avoid re-saving charted files.
+-- **CSV locale traps**: always pass explicit encodings (the scripts
+-  already do) and remember European CSVs often use `;` delimiters and
+-  decimal commas — use `--delimiter ';'` and expect strings like
+-  `"12,5"` to stay strings.
+-- **Dates are datetimes**: Excel stores dates as serial numbers;
+-  openpyxl returns `datetime`/`date` objects. Dumps here emit ISO
+-  strings.
+-- Sheet names are capped at 31 chars and reject `[ ] : * ? / \`.
++1. **openpyxl does not calculate** — formula results are available only via `load_workbook(path, data_only=True)` and only when the file was previously saved by Excel/LibreOffice; otherwise you get `None`. Use `xlsx_recalc.py` (LibreOffice headless) to materialize values, then reload with `--data-only`.
++2. **`xlsx_edit.py` insert/delete does not shift references** (raw openpyxl behavior) — use `xlsx_restructure.py`, which does, but even it cannot move chart anchors, images, or conditional-format RULE formulas; read its JSON report's `not_shifted` list and `references/restructuring.md`.
++3. **Sheet protection is NOT security** — `--protect` sets the standard xlsx sheet-protection hash: it signals "don't edit this" to well-behaved apps and nothing more. Anyone can strip it by editing the zip's XML or unchecking it in LibreOffice. Never rely on it for confidentiality or integrity; it does not encrypt anything.
++4. **`data_only=True` then save silently discards all formulas** — cached values replace them. Never save a workbook loaded that way unless that is the goal.
++5. **Loading strips charts/images** — openpyxl does not round-trip charts; editing a charted workbook and saving drops the charts. Re-add charts after editing, or avoid re-saving charted files.
++6. **CSV locale traps** — always pass explicit encodings (the scripts already do) and remember European CSVs often use `;` delimiters and decimal commas — use `--delimiter ';'` and expect strings like `"12,5"` to stay strings.
++7. **Dates are datetimes** — Excel stores dates as serial numbers; openpyxl returns `datetime`/`date` objects. Dumps here emit ISO strings.
++8. **Sheet name limits** — names are capped at 31 chars and reject `[ ] : * ? / \`.
++9. **Edits in place by default** — `xlsx_edit.py` writes back to the input file unless `--out` is given. Copy first if you need the original preserved.
++10. **`soffice` missing blocks recalc and PDF conversion** — `xlsx_recalc.py` exits 0 with `{"recalculated": false}` and PDF conversion just fails; install LibreOffice or hand the file to the user unconverted rather than claiming success.
+ 
++## Verification
+ ## Verification
+ 
+ - After creating: `xlsx_read.py out.xlsx --sheets` and confirm sheet

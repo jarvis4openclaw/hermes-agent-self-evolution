@@ -1,0 +1,107 @@
+diff --git a/skills/software-development/simplify-code/SKILL.md b/skills/software-development/simplify-code/SKILL.md
+index b1ca84fdc4..ba16c392b1 100644
+--- a/skills/software-development/simplify-code/SKILL.md
++++ b/skills/software-development/simplify-code/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: simplify-code
+ description: "Parallel 4-agent cleanup of recent code changes."
+-version: 1.1.0
++version: 1.2.0
+ author: Hermes Agent (inspired by Claude Code /simplify)
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -9,6 +9,16 @@ metadata:
+   hermes:
+     tags: [code-review, cleanup, refactor, delegation, subagent, parallel, simplify]
+     related_skills: [requesting-code-review, test-driven-development, plan]
++    trigger_conditions:
++      - "simplify"
++      - "simplify my changes"
++      - "simplify these changes"
++      - "clean up my changes"
++      - "review my recent changes"
++      - "/simplify"
++      - "make this code simpler"
++      - "reduce duplication"
++      - "refactor for clarity"
+ ---
+ 
+ # Simplify Code — Parallel Review & Cleanup
+@@ -48,6 +58,14 @@ Do NOT auto-run this after every edit or tack it onto the end of unrelated
+ tasks. It costs four subagents' worth of tokens — invoke it only when the
+ user explicitly asks.
+ 
++## Not For
++
++- Pre-commit security or correctness review — that's a bug hunt with different verification standards → use `requesting-code-review` instead
++- Test-driven development or writing tests — this is a cleanup pass over existing work → use `test-driven-development` instead
++- Large architectural refactors or multi-module rewrites — keep edits scoped to what the diff touched → use `plan` or `improve-codebase-architecture` instead
++- Running automatically after every edit — it costs four subagents' worth of tokens; invoke only when the user explicitly asks
++- Reviewing code that was never committed or that has no git history — the diff source is the whole review input
++
+ ## The Process
+ 
+ ### Phase 1 — Identify the changes
+@@ -221,46 +239,22 @@ Wait for all four to return (batch mode returns them together).
+ 
+ ## Pitfalls
+ 
+-- **Don't fan out wider than 4.** More reviewers means more cost and more
+-  conflicting suggestions to reconcile, not better coverage. The four
+-  categories cover the space.
+-- **Give the WHOLE diff to each reviewer.** Splitting the diff across reviewers
+-  defeats the design — cross-file duplication and N+1s only show up with the
+-  full picture.
+-- **Reviewers search, they don't guess.** A reuse finding with no pointer to
+-  the existing utility ("there's probably a helper for this") is noise. Require
+-  `file:line` evidence; drop findings that lack it.
+-- **Apply ≠ rewrite.** This is cleanup of the user's recent changes, not a
+-  license to refactor the whole module. Keep edits scoped to what the diff
+-  touched plus the minimal surrounding change a fix requires. Altitude
+-  findings are the exception that proves the rule: when the right fix is
+-  deeper than the diff, FLAG it — don't unilaterally rebuild the shared
+-  mechanism inside a cleanup pass.
+-- **Don't drift into bug-hunting.** If a reviewer surfaces a genuine
+-  correctness bug, report it prominently — but as a separate "found a bug"
+-  note, not folded into cleanup fixes. Correctness review is a different
+-  pass with different verification standards.
+-- **Respect project conventions.** If the repo has AGENTS.md / CLAUDE.md /
+-  HERMES.md or a linter config, fold those rules into the reviewer prompts so
+-  suggestions match house style instead of fighting it.
+-- **Large diffs blow context.** If the diff is huge, scope it down before
+-  delegating — four subagents each carrying a 5000-line diff is expensive and
+-  may truncate.
+-- **Over-trusting dead code tools.** `knip`, `ts-prune`, and `depcheck` flag
+-  exports that ARE used dynamically (string-based imports, reflection). Always
+-  grep for the symbol name before removing — a clean tool report is not proof.
+-- **Renaming without checking public contracts.** Export names, API route
+-  paths, DB column names, and config keys are contracts — even if the name is
+-  bad, renaming breaks consumers. Tag public-contract changes as RISKY; never
+-  auto-rename them.
+-- **Removing "unnecessary" error handling.** An empty catch block or ignored
+-  error might be intentional — the error is expected and benign in that
+-  context. Flag it, don't remove it; let the human decide.
+-- **Not every special case is a band-aid.** Compat shims, staged migrations,
+-  and isolation layers around vendored code look like altitude violations but
+-  are deliberate design. Check `git blame` and surrounding comments before
+-  flagging; when the intent is unclear, mark `confidence: low`.
++1. **Don't fan out wider than 4** — more reviewers means more cost and more conflicting suggestions to reconcile, not better coverage. The four categories cover the space.
++2. **Give the WHOLE diff to each reviewer** — splitting the diff across reviewers defeats the design; cross-file duplication and N+1s only show up with the full picture.
++3. **Reviewers search, they don't guess** — a reuse finding with no pointer to the existing utility is noise. Require `file:line` evidence; drop findings that lack it.
++4. **Apply ≠ rewrite** — this is cleanup of the user's recent changes, not a license to refactor the whole module. Keep edits scoped to what the diff touched plus the minimal surrounding change a fix requires. Altitude findings are the exception: when the right fix is deeper than the diff, FLAG it — don't unilaterally rebuild the shared mechanism inside a cleanup pass.
++5. **Don't drift into bug-hunting** — if a reviewer surfaces a genuine correctness bug, report it prominently but as a separate "found a bug" note, not folded into cleanup fixes. Correctness review is a different pass with different verification standards.
++6. **Respect project conventions** — if the repo has AGENTS.md / CLAUDE.md / HERMES.md or a linter config, fold those rules into the reviewer prompts so suggestions match house style instead of fighting it.
++7. **Large diffs blow context** — if the diff is huge, scope it down before delegating; four subagents each carrying a 5000-line diff is expensive and may truncate. Warn the user and offer per-directory/commit scoping.
++8. **Over-trusting dead code tools** — `knip`, `ts-prune`, and `depcheck` flag exports that ARE used dynamically (string-based imports, reflection). Always grep for the symbol name before removing — a clean tool report is not proof.
++9. **Renaming without checking public contracts** — export names, API route paths, DB column names, and config keys are contracts; renaming breaks consumers even when the name is bad. Tag public-contract changes as RISKY; never auto-rename them.
++10. **Removing "unnecessary" error handling** — an empty catch block or ignored error might be intentional; the error is expected and benign in that context. Flag it, don't remove it; let the human decide.
++11. **Not every special case is a band-aid** — compat shims, staged migrations, and isolation layers around vendored code look like altitude violations but are deliberate design. Check `git blame` and surrounding comments before flagging; when the intent is unclear, mark `confidence: low`.
++12. **Subagent drift without the absolute repo path** — a reviewer without the repo root wanders and returns unfindable findings. Always pass the absolute path plus `terminal`/`file`/`search` toolsets.
++13. **Delegation unavailable but the review still must run** — if `delegate_task` can't be called (leaf subagent, disabled, budget exhausted), do NOT skip angles. Work all four reviewer angles inline and say clearly in the summary that it was a single-pass inline review, not the parallel fan-out.
++14. **Phase-1 diff empty and no repo** — if `git diff` and `git diff HEAD` are both empty and there are no named files, say so and stop. There's nothing to simplify; inventing a diff wastes four subagents.
+ 
++## Related
+ ## Related
+ 
+ If your install has the `subagent-driven-development` skill (optional), it
