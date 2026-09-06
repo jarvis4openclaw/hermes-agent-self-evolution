@@ -1,0 +1,44 @@
+diff --git a/skills/creative/comfyui/SKILL.md b/skills/creative/comfyui/SKILL.md
+index 0db5b97cc1..2b5ed8fa80 100644
+--- a/skills/creative/comfyui/SKILL.md
++++ b/skills/creative/comfyui/SKILL.md
+@@ -25,6 +25,23 @@ metadata:
+       - video-generation
+     related_skills: [stable-diffusion]
+     category: creative
++    trigger_conditions:
++      - "generate an image"
++      - "stable diffusion"
++      - "comfyui"
++      - "flux image"
++      - "sd3"
++      - "generate video with ai"
++      - "wan video"
++      - "hunyuan"
++      - "run a comfyui workflow"
++      - "image generation"
++      - "txt2img"
++      - "img2img"
++      - "inpainting"
++      - "controlnet"
++      - "comfy workflow"
++      - "upscale an image"
+ ---
+ 
+ # ComfyUI
+@@ -75,6 +92,15 @@ SDXL inpaint, ESRGAN upscale, AnimateDiff video, Wan T2V. See
+ - User needs ControlNet, inpainting, img2img, or other advanced pipelines
+ - User asks to manage ComfyUI queue, check models, or install custom nodes
+ - User wants video/audio/3D generation via AnimateDiff, Hunyuan, Wan, AudioCraft, etc.
++- User wants to install custom nodes, manage the queue, or check available models
++- User needs to convert an editor-format workflow template to API format
++
++## Not For
++
++- **Quick one-off image generation without workflow control** → use `comfyui`'s sibling skill `stable-diffusion` (if present) or a hosted generator — this skill assumes a running ComfyUI instance
++- **Designing the look of a web page or UI** → use `frontend-taste` or `claude-design` instead
++- **Audio generation with a dedicated tool** → use `kittentts-server` or songwriting/audio skills instead of ComfyUI's AudioCraft unless the workflow is already built
++- **3D modelling outside ComfyUI nodes** → this skill covers ComfyUI node graphs only
+ 
+ ## Architecture: Two Layers
+ 
