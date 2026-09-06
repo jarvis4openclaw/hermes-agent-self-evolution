@@ -1,0 +1,61 @@
+{
+  "cycle": 56,
+  "date": "2026-09-06",
+  "mode": "llm-as-judge-strategy-A",
+  "dojo_targets": 0,
+  "selection": {
+    "delta_actionable": ["devops/proxmox-ssh-lifecycle", "devops/bitcoin-family-dashboard"],
+    "delta_found_but_already_evolved": ["devops/startos", "devops/startos-service-packaging", "devops/bitwarden-cli", "email/agentmail-operations"],
+    "delta_upstream_baseline": ["productivity/document-to-action-items", "productivity/pdf", "software-development/codebase-inspection", "software-development/github", "devops/hermes-config-management", "devops/hermes-provider-config"],
+    "wordcount_fallback": ["devops/mikrotik-router-management", "proactive-agent", "devops/nginx-proxy-manager-native"]
+  },
+  "skills": {
+    "devops/proxmox-ssh-lifecycle": {
+      "version": "1.1.0",
+      "baseline_scores": {"trigger_clarity": 2, "step_completeness": 6, "pitfall_coverage": 8, "command_accuracy": 8, "reuse_potential": 5},
+      "evolved_scores": {"trigger_clarity": 6, "step_completeness": 8, "pitfall_coverage": 8, "command_accuracy": 8, "reuse_potential": 7},
+      "delta": 14,
+      "changes": ["14 triggers", "When to Use", "Not For (5 refs)", "version+category"]
+    },
+    "devops/bitcoin-family-dashboard": {
+      "version": "2.1.0",
+      "baseline_scores": {"trigger_clarity": 6, "step_completeness": 7, "pitfall_coverage": 7, "command_accuracy": 8, "reuse_potential": 5},
+      "evolved_scores": {"trigger_clarity": 8, "step_completeness": 7, "pitfall_coverage": 9, "command_accuracy": 8, "reuse_potential": 6},
+      "delta": 10,
+      "changes": ["Not For (6 refs)", "canonical ## Pitfalls heading", "10a fragment renumbered to 1-14"]
+    },
+    "devops/mikrotik-router-management": {
+      "version": "1.1.0",
+      "baseline_scores": {"trigger_clarity": 7, "step_completeness": 7, "pitfall_coverage": 8, "command_accuracy": 8, "reuse_potential": 5},
+      "evolved_scores": {"trigger_clarity": 9, "step_completeness": 8, "pitfall_coverage": 8, "command_accuracy": 8, "reuse_potential": 6},
+      "delta": 9,
+      "changes": ["When to Use", "Not For (6 refs)"]
+    },
+    "proactive-agent": {
+      "version": "1.2.0",
+      "baseline_scores": {"trigger_clarity": 7, "step_completeness": 6, "pitfall_coverage": 7, "command_accuracy": 7, "reuse_potential": 5},
+      "evolved_scores": {"trigger_clarity": 9, "step_completeness": 7, "pitfall_coverage": 7, "command_accuracy": 7, "reuse_potential": 6},
+      "delta": 9,
+      "changes": ["When to Use", "Not For (5 refs)"]
+    },
+    "devops/nginx-proxy-manager-native": {
+      "version": "1.2.0",
+      "baseline_scores": {"trigger_clarity": 7, "step_completeness": 6, "pitfall_coverage": 7, "command_accuracy": 7, "reuse_potential": 5},
+      "evolved_scores": {"trigger_clarity": 9, "step_completeness": 7, "pitfall_coverage": 7, "command_accuracy": 7, "reuse_potential": 6},
+      "delta": 9,
+      "changes": ["When to Use", "Not For (4 refs)"]
+    }
+  },
+  "average_delta": 10.2,
+  "patch_lines": {
+    "proxmox-ssh-lifecycle": 195,
+    "bitcoin-family-dashboard": 265,
+    "mikrotik-router-management": 431,
+    "proactive-agent": 383,
+    "nginx-proxy-manager-native": 213
+  },
+  "commit_hermes_agent": "3bef8283b5",
+  "branch": "gepa/phase1-skill-optimization-cycle-20260906-56",
+  "pushed_hermes_agent": false,
+  "notes": "All 5 skills were NEW files in repo HEAD (live-path-only). No push of hermes-agent per cycle instructions."
+}
