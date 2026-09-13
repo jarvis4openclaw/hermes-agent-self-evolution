@@ -1,0 +1,173 @@
+{
+  "cycle": 57,
+  "date": "2026-09-13T02:00:00-05:00",
+  "mode": "llm_as_judge_strategy_a",
+  "fast_path_triggered": false,
+  "dojo_targets": {
+    "returned": [
+      "kanban-codex-lane"
+    ],
+    "accepted": [],
+    "rejected_already_evolved": [
+      "kanban-codex-lane"
+    ]
+  },
+  "delta_candidates": {
+    "git_log_commits": 9,
+    "find_newer_live_path": 43,
+    "actionable_missing_gaps": 21,
+    "selected": 5,
+    "rejected_upstream_bundled": [
+      "software-development/github"
+    ]
+  },
+  "branch": "gepa/phase1-skill-optimization-cycle-20260913-20260907",
+  "hermes_agent_commit": "c9a4a710fc",
+  "hermes_agent_remote_push": false,
+  "skills": {
+    "slowbooks-dev": {
+      "category": "devops",
+      "version": "1.0.0 -> 1.1.0",
+      "bytes": "5494 -> 10555",
+      "triggers": 13,
+      "not_for_refs": 6,
+      "numbered_pitfalls": 12,
+      "baseline": {
+        "trigger_clarity": 3,
+        "step_completeness": 5,
+        "pitfall_coverage": 3,
+        "command_accuracy": 8,
+        "reuse_potential": 6
+      },
+      "evolved": {
+        "trigger_clarity": 8,
+        "step_completeness": 8,
+        "pitfall_coverage": 9,
+        "command_accuracy": 9,
+        "reuse_potential": 7
+      },
+      "totals": {
+        "baseline": 25,
+        "evolved": 41,
+        "delta": 16
+      }
+    },
+    "csp-static-site-build": {
+      "category": "web",
+      "version": "none -> 1.1.0",
+      "bytes": "4400 -> 9868",
+      "triggers": 13,
+      "not_for_refs": 6,
+      "numbered_pitfalls": 14,
+      "baseline": {
+        "trigger_clarity": 6,
+        "step_completeness": 8,
+        "pitfall_coverage": 5,
+        "command_accuracy": 8,
+        "reuse_potential": 9
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 9,
+        "pitfall_coverage": 10,
+        "command_accuracy": 9,
+        "reuse_potential": 9
+      },
+      "totals": {
+        "baseline": 36,
+        "evolved": 46,
+        "delta": 10
+      }
+    },
+    "web-redesign-art-direction": {
+      "category": "creative",
+      "version": "none -> 1.1.0",
+      "bytes": "4235 -> 9767",
+      "triggers": 13,
+      "not_for_refs": 8,
+      "numbered_pitfalls": 15,
+      "baseline": {
+        "trigger_clarity": 5,
+        "step_completeness": 7,
+        "pitfall_coverage": 4,
+        "command_accuracy": 7,
+        "reuse_potential": 8
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 9,
+        "pitfall_coverage": 10,
+        "command_accuracy": 8,
+        "reuse_potential": 8
+      },
+      "totals": {
+        "baseline": 31,
+        "evolved": 44,
+        "delta": 13
+      }
+    },
+    "clawd-workspace-backup": {
+      "category": "devops",
+      "version": "1.0.0 -> 1.1.0",
+      "bytes": "5578 -> 10335",
+      "triggers": 13,
+      "not_for_refs": 5,
+      "numbered_pitfalls": 14,
+      "baseline": {
+        "trigger_clarity": 7,
+        "step_completeness": 7,
+        "pitfall_coverage": 5,
+        "command_accuracy": 9,
+        "reuse_potential": 5
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 8,
+        "pitfall_coverage": 10,
+        "command_accuracy": 9,
+        "reuse_potential": 6
+      },
+      "totals": {
+        "baseline": 33,
+        "evolved": 42,
+        "delta": 9
+      }
+    },
+    "personal-wiki-ops": {
+      "category": "research",
+      "version": "1.0.0 -> 1.1.0",
+      "bytes": "4247 -> 7757",
+      "triggers": 14,
+      "not_for_refs": 6,
+      "numbered_pitfalls": 13,
+      "baseline": {
+        "trigger_clarity": 6,
+        "step_completeness": 6,
+        "pitfall_coverage": 5,
+        "command_accuracy": 7,
+        "reuse_potential": 6
+      },
+      "evolved": {
+        "trigger_clarity": 9,
+        "step_completeness": 8,
+        "pitfall_coverage": 9,
+        "command_accuracy": 7,
+        "reuse_potential": 6
+      },
+      "totals": {
+        "baseline": 30,
+        "evolved": 39,
+        "delta": 9
+      }
+    }
+  },
+  "patches_lines": {
+    "slowbooks-dev": 113,
+    "csp-static-site-build": 107,
+    "web-redesign-art-direction": 103,
+    "clawd-workspace-backup": 145,
+    "personal-wiki-ops": 119
+  },
+  "patches_total_lines": 587,
+  "average_delta": 11.4
+}
