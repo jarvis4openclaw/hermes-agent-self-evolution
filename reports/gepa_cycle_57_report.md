@@ -3,7 +3,7 @@
 **Date:** 2026-09-13 02:00 CDT
 **Mode:** LLM-as-Judge Strategy A (direct parent execution) — no CLI, no external API calls
 **Branch:** `gepa/phase1-skill-optimization-cycle-20260913-20260907`
-**hermes-agent commit:** `c9a4a710fc` (local only — not pushed, per pitfall #43)
+**hermes-agent commit:** `dc4a95c91a` (local only — not pushed, per pitfall #43)
 **Fast path:** did NOT trigger · **Average delta: +11.4**
 
 ---
@@ -114,6 +114,12 @@ reuse_potential (0-10 each; 50 max). **Average delta: +11.4**
   `lightrag`; added inversion pitfalls (filing user *preferences* into the wiki instead of
   Mnemosyne; hard-coding `~/wiki` when `WIKI_PATH` is set).
 
+> **Note on the hermes-agent commit SHA:** the commit was created as `c9a4a710fc` with a
+> `cycle-56` subject before the numbering collision was discovered, then amended in a
+> throwaway worktree to the corrected `cycle-57` message. The current, canonical SHA is
+> **`dc4a95c91a`** on branch `gepa/phase1-skill-optimization-cycle-20260913-20260907`
+> (local only — the hermes-agent fork was not pushed, per pitfall #43).
+
 ## Sync & Verification
 
 - **Live path** (`~/.hermes/skills/`): all 5 patched by Python `pathlib` edits executed from
@@ -127,7 +133,7 @@ reuse_potential (0-10 each; 50 max). **Average delta: +11.4**
   (`clawd-workspace-backup` at 12 triggers) that was fixed before sync.
 - **Worktree sync** (pitfall #47): `git worktree add /tmp/hermes-agent-wt-56 -b <branch> HEAD`
   -> `cp` 5 files -> **sha256 byte-verified MATCH on all 5** (pitfall #48) -> `git add`
-  -> commit `c9a4a710fc`.
+  -> commit `dc4a95c91a`.
 - **New-file handling:** all 5 targets were **live-path-only** before this cycle
   (`REPO_FILE: NO`, `TRACKED: no`, `IN_HEAD: no`) — the pitfall #33 superset. All 5 staged as
   additions (`A` in `git status`), never as modifications.
@@ -138,7 +144,7 @@ reuse_potential (0-10 each; 50 max). **Average delta: +11.4**
 
 | Repo | Branch | Commit | Remote push |
 |------|--------|--------|:-----------:|
-| hermes-agent (worktree) | `gepa/phase1-skill-optimization-cycle-20260913-20260907` | `c9a4a710fc` | **NO** (per task instruction; pitfall #43) |
+| hermes-agent (worktree) | `gepa/phase1-skill-optimization-cycle-20260913-20260907` | `dc4a95c91a` | **NO** (per task instruction; pitfall #43) |
 | hermes-agent-self-evolution | same branch | `af10678` — report + metrics + 5 patches | **YES** -> jarvis4openclaw |
 | hermes-skills (backup) | `main` | `3314a96` — 5 skill files | **YES** -> jarvis4openclaw |
 
