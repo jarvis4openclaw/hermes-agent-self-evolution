@@ -139,8 +139,19 @@ reuse_potential (0-10 each; 50 max). **Average delta: +11.4**
 | Repo | Branch | Commit | Remote push |
 |------|--------|--------|:-----------:|
 | hermes-agent (worktree) | `gepa/phase1-skill-optimization-cycle-20260913-20260907` | `c9a4a710fc` | **NO** (per task instruction; pitfall #43) |
-| hermes-agent-self-evolution | same branch | report + metrics + 5 patches | -> jarvis4openclaw |
-| hermes-skills (backup) | `main` | 5 skill files | -> jarvis4openclaw |
+| hermes-agent-self-evolution | same branch | `af10678` — report + metrics + 5 patches | **YES** -> jarvis4openclaw |
+| hermes-skills (backup) | `main` | `3314a96` — 5 skill files | **YES** -> jarvis4openclaw |
+
+**Push verification (read back from the remote, not assumed from push output):**
+
+| Repo | Local SHA | Remote SHA | Match |
+|---|---|---|---|
+| hermes-skills `main` | `3314a96b42ca43519c6f629b8c313ebbfcea30b5` | `3314a96b42ca43519c6f629b8c313ebbfcea30b5` | YES |
+| self-evolution cycle branch | `af10678770eba7652de6c14f5b9608108d21b247` | `af10678770eba7652de6c14f5b9608108d21b247` | YES |
+
+Both were additionally confirmed by fetching the committed files through the GitHub API
+(`repos/.../contents/skills/devops/slowbooks-dev/SKILL.md` -> 10595 bytes) — the push is
+off-box, not merely recorded locally.
 
 ## Next Steps
 
