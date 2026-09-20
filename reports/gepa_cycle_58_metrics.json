@@ -1,0 +1,113 @@
+{
+  "cycle": 58,
+  "date": "2026-09-20",
+  "mode": "manual_llm_as_judge_strategy_a",
+  "branch": "gepa/phase1-skill-optimization-cycle-20260920-58",
+  "hermes_agent_commit": "c08272e4fb44da82075264f0fc6c43b5743ece1e",
+  "fast_path": {
+    "triggered": false,
+    "reason": "last cron cycle (2026-09-20 02:24) crashed mid-run with no report; user/desktop sessions since; last completed cycle was 2026-09-13 (cycle 57)",
+    "session_index": "~/.hermes/state.db (sessions table)"
+  },
+  "dojo": {
+    "ran": true,
+    "days": 3,
+    "targets": [],
+    "slots_used": 0,
+    "note": "empty output = healthy, all failures in core tools (pitfall #44)"
+  },
+  "selection": {
+    "delta_scan_since": "2026-09-13 03:00",
+    "delta_candidates_found": 32,
+    "delta_already_evolved": 25,
+    "delta_actionable": 9,
+    "selected": 5,
+    "bulk_install_clusters": 0,
+    "word_count_fallback_used": false
+  },
+  "skills": [
+    {
+      "name": "devops/sendbitcoin-gift-site",
+      "version_from": "1.0.0", "version_to": "1.1.0",
+      "bytes_from": 53856, "bytes_to": 56507,
+      "triggers_from": 6, "triggers_to": 17,
+      "added": ["When to Use", "Not For", "## Pitfalls heading (was 'Traps that cost real cycles')"],
+      "pitfalls_from": 9, "pitfalls_to": 15,
+      "baseline_scores": {"trigger_clarity": 6, "step_completeness": 8, "pitfall_coverage": 5, "command_accuracy": 8, "reuse_potential": 4, "total": 31},
+      "evolved_scores":  {"trigger_clarity": 9, "step_completeness": 9, "pitfall_coverage": 9, "command_accuracy": 8, "reuse_potential": 5, "total": 40},
+      "delta": 9,
+      "repair": "broken trap numbering 1-8,6,7,7b,8,9 renumbered to 1-13 (+2 new) = 1-15"
+    },
+    {
+      "name": "devops/lightning-gift-app",
+      "version_from": null, "version_to": "1.1.0",
+      "bytes_from": 22860, "bytes_to": 25451,
+      "triggers_from": 0, "triggers_to": 16,
+      "added": ["trigger_conditions", "version", "When to Use", "Not For"],
+      "pitfalls_from": 17, "pitfalls_to": 17,
+      "baseline_scores": {"trigger_clarity": 4, "step_completeness": 8, "pitfall_coverage": 6, "command_accuracy": 8, "reuse_potential": 5, "total": 31},
+      "evolved_scores":  {"trigger_clarity": 8, "step_completeness": 9, "pitfall_coverage": 9, "command_accuracy": 8, "reuse_potential": 6, "total": 40},
+      "delta": 9
+    },
+    {
+      "name": "autonomous-ai-agents/botmaker",
+      "version_from": "0.2.0", "version_to": "0.3.0",
+      "bytes_from": 11578, "bytes_to": 13512,
+      "triggers_from": 0, "triggers_to": 14,
+      "added": ["trigger_conditions", "Not For section (was an inline 'Don't use for' line)"],
+      "pitfalls_from": 0, "pitfalls_to": 19,
+      "baseline_scores": {"trigger_clarity": 5, "step_completeness": 8, "pitfall_coverage": 6, "command_accuracy": 8, "reuse_potential": 6, "total": 33},
+      "evolved_scores":  {"trigger_clarity": 8, "step_completeness": 9, "pitfall_coverage": 9, "command_accuracy": 8, "reuse_potential": 7, "total": 41},
+      "delta": 8,
+      "repair": "17-row symptom->owner table converted to 17 numbered pitfalls (rows preserved) + 2 new"
+    },
+    {
+      "name": "software-development/web-quality-audit",
+      "version_from": "1.0.0", "version_to": "1.1.0",
+      "bytes_from": 7267, "bytes_to": 10452,
+      "triggers_from": 0, "triggers_to": 14,
+      "added": ["trigger_conditions", "When to Use", "Not For"],
+      "pitfalls_from": 7, "pitfalls_to": 11,
+      "baseline_scores": {"trigger_clarity": 4, "step_completeness": 8, "pitfall_coverage": 5, "command_accuracy": 8, "reuse_potential": 8, "total": 33},
+      "evolved_scores":  {"trigger_clarity": 8, "step_completeness": 9, "pitfall_coverage": 9, "command_accuracy": 8, "reuse_potential": 9, "total": 43},
+      "delta": 10
+    },
+    {
+      "name": "creative/web-fonts-self-hosting",
+      "version_from": "1.0.0", "version_to": "1.1.0",
+      "bytes_from": 5317, "bytes_to": 8575,
+      "triggers_from": 0, "triggers_to": 14,
+      "added": ["trigger_conditions", "When to Use", "Not For"],
+      "pitfalls_from": 8, "pitfalls_to": 11,
+      "baseline_scores": {"trigger_clarity": 4, "step_completeness": 7, "pitfall_coverage": 5, "command_accuracy": 8, "reuse_potential": 8, "total": 32},
+      "evolved_scores":  {"trigger_clarity": 8, "step_completeness": 9, "pitfall_coverage": 9, "command_accuracy": 8, "reuse_potential": 8, "total": 42},
+      "delta": 10
+    }
+  ],
+  "totals": {
+    "skills_evolved": 5,
+    "baseline_total": 160,
+    "evolved_total": 206,
+    "average_delta": 9.2,
+    "patches": 5,
+    "new_files_in_hermes_agent_repo": 5,
+    "insertions": 1509
+  },
+  "verification": {
+    "repo_vs_live_byte_parity": "0 diff lines for all 5 (pitfall #48)",
+    "backup_vs_live_parity": "clean for all 5",
+    "gitignored_skills": [],
+    "yaml_frontmatter_parsed": true,
+    "gaps_present_all_5": true
+  },
+  "next_cycle_candidates": [
+    "devops/ssh-file-deploy",
+    "software-development/qr-code-verification",
+    "devops/slowbooks-api",
+    "email/email-inbox-triage"
+  ],
+  "open_items": [
+    "Cycle 58 predecessor (cron 2026-09-20 02:24) crashed with no report; self-inflicted 420s terminal timeout + blocked 'find -delete'. No destructive find used this cycle.",
+    "Curator patched lightning-gift-app 9x at 2026-09-20T07:56Z - re-scan for drift next cycle."
+  ]
+}
