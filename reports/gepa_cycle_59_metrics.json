@@ -1,0 +1,105 @@
+{
+  "cycle": 59,
+  "date": "2026-10-04",
+  "mode": "manual-llm-as-judge-strategy-a",
+  "branch": "gepa/phase1-skill-optimization-cycle-20261004-59",
+  "hermes_agent_commit": "c866eb875a",
+  "hermes_skills_commit": "8376502",
+  "fast_path_triggered": false,
+  "fast_path_reason": "last cycle 14 days ago (Cycle 58, 2026-09-20); 20+ user/cli sessions since",
+  "dojo_targets": [],
+  "selection": {
+    "delta_candidates_found": 22,
+    "delta_already_evolved": 16,
+    "delta_actionable": 6,
+    "selected": 5,
+    "dojo_slots_used": 0,
+    "word_count_fallback_used": false
+  },
+  "skills": [
+    {
+      "name": "ssh-file-deploy",
+      "path": "devops/ssh-file-deploy",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "triggers_added": 13,
+      "when_to_use_bullets_added": 4,
+      "not_for_entries_added": 7,
+      "pitfalls_before": "50 numbered",
+      "pitfalls_after": "50 numbered",
+      "baseline_scores": {"trigger_clarity": 3, "step_completeness": 8, "pitfall_coverage": 10, "command_accuracy": 8, "reuse_potential": 5},
+      "evolved_scores":  {"trigger_clarity": 8, "step_completeness": 9, "pitfall_coverage": 10, "command_accuracy": 8, "reuse_potential": 6},
+      "total_before": 34, "total_after": 41, "delta": 7
+    },
+    {
+      "name": "offline-deploy-bundles",
+      "path": "devops/offline-deploy-bundles",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "triggers_added": 5,
+      "when_to_use_section_created": true,
+      "when_to_use_bullets_added": 6,
+      "not_for_before": 3,
+      "not_for_after": 7,
+      "pitfalls_before": "7 numbered",
+      "pitfalls_after": "7 numbered",
+      "baseline_scores": {"trigger_clarity": 6, "step_completeness": 6, "pitfall_coverage": 8, "command_accuracy": 8, "reuse_potential": 8},
+      "evolved_scores":  {"trigger_clarity": 9, "step_completeness": 8, "pitfall_coverage": 8, "command_accuracy": 8, "reuse_potential": 8},
+      "total_before": 36, "total_after": 41, "delta": 5
+    },
+    {
+      "name": "hermes-desktop-plugins",
+      "path": "hermes-desktop-plugins",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "triggers_added": 13,
+      "when_to_use_bullets_added": 4,
+      "not_for_entries_added": 6,
+      "pitfalls_before": "7 unnumbered",
+      "pitfalls_after": "11 numbered",
+      "baseline_scores": {"trigger_clarity": 4, "step_completeness": 8, "pitfall_coverage": 5, "command_accuracy": 8, "reuse_potential": 7},
+      "evolved_scores":  {"trigger_clarity": 9, "step_completeness": 9, "pitfall_coverage": 9, "command_accuracy": 8, "reuse_potential": 7},
+      "total_before": 32, "total_after": 42, "delta": 10
+    },
+    {
+      "name": "inspecting-hermes-desktop-dom",
+      "path": "software-development/inspecting-hermes-desktop-dom",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "triggers_added": 12,
+      "when_to_use_bullets_added": 3,
+      "not_for_entries_added": 7,
+      "pitfalls_before": "7 unnumbered",
+      "pitfalls_after": "11 numbered",
+      "baseline_scores": {"trigger_clarity": 4, "step_completeness": 8, "pitfall_coverage": 5, "command_accuracy": 8, "reuse_potential": 6},
+      "evolved_scores":  {"trigger_clarity": 9, "step_completeness": 9, "pitfall_coverage": 9, "command_accuracy": 8, "reuse_potential": 6},
+      "total_before": 31, "total_after": 41, "delta": 10
+    },
+    {
+      "name": "hermes-web-and-mcp-import-failures",
+      "path": "devops/hermes-web-and-mcp-import-failures",
+      "version_before": "1.0.0",
+      "version_after": "1.1.0",
+      "triggers_added": 12,
+      "when_to_use_bullets_added": 4,
+      "not_for_entries_added": 7,
+      "pitfalls_before": "5 unnumbered",
+      "pitfalls_after": "11 numbered",
+      "baseline_scores": {"trigger_clarity": 4, "step_completeness": 7, "pitfall_coverage": 4, "command_accuracy": 8, "reuse_potential": 6},
+      "evolved_scores":  {"trigger_clarity": 9, "step_completeness": 8, "pitfall_coverage": 9, "command_accuracy": 8, "reuse_potential": 6},
+      "total_before": 29, "total_after": 40, "delta": 11
+    }
+  ],
+  "totals": {
+    "skills_evolved": 5,
+    "total_before": 162,
+    "total_after": 205,
+    "delta": 43,
+    "avg_delta_per_skill": 8.6
+  },
+  "notes": [
+    "Terminal-only cron session: no read_file/write_file/patch tools available; edits made with assertion-guarded Python heredoc scripts.",
+    "research/llm-wiki surfaced by delta scan but already fully evolved (only its When-to-Use heading is non-standard) -> skipped, not counted as actionable.",
+    "hermes-agent cycle branch committed locally only, not pushed (cron instruction + pitfall #43)."
+  ]
+}

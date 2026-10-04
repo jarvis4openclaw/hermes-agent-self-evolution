@@ -1,0 +1,90 @@
+diff --git a/skills/software-development/inspecting-hermes-desktop-dom/SKILL.md b/skills/software-development/inspecting-hermes-desktop-dom/SKILL.md
+index e9633704d9..9983098319 100644
+--- a/skills/software-development/inspecting-hermes-desktop-dom/SKILL.md
++++ b/skills/software-development/inspecting-hermes-desktop-dom/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: inspecting-hermes-desktop-dom
+ description: "Read the live Hermes desktop DOM/CSS over CDP."
+-version: 1.0.0
++version: 1.1.0
+ author: Hermes Agent
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -9,6 +9,19 @@ metadata:
+   hermes:
+     tags: [desktop, electron, cdp, dom, ui-verification, self-inspection]
+     related_skills: [node-inspect-debugger, systematic-debugging, dogfood]
++    trigger_conditions:
++      - "read the live desktop DOM"
++      - "inspect the running app over CDP"
++      - "which CSS rule is winning"
++      - "why is this element still styled like that"
++      - "get computed style of an element in the app"
++      - "attach to the electron renderer"
++      - "chrome devtools protocol port 9222"
++      - "debug the hermes desktop ui"
++      - "verify a ui change took effect"
++      - "read renderer console errors"
++      - "launch an isolated desktop instance"
++      - "cdp port is closed"
+ ---
+ 
+ # Inspecting the live Hermes desktop DOM
+@@ -37,10 +50,19 @@ CDP; hand aesthetics to the user.
+ - Locating a stable selector for a component you're about to change
+ - Checking a design token's computed value on a real node
+ - Reading renderer console errors the user mentions but can't copy out
++- Confirming which CSS rule won before "fixing" call sites one by one
++- Asserting first-paint facts: font face, computed colour, background ancestor
++- Confirming a plugin's pane actually rendered inside the app
+ 
+-**Don't use for:** perf profiling or heap work (`node-inspect-debugger`,
+-`debugging-hermes-desktop`), or anything where the real question is "does this
+-look right".
++## Not For
++
++- Operating the app as a user (menus, typing, clicking) → use `hermes-desktop-app-interaction` instead
++- Adding or extending UI via a plugin → use `hermes-desktop-plugins` instead
++- Judging whether a UI looks good (aesthetics) → use `frontend-taste` for visual review instead
++- Asserting a web app's UI in a headless browser (not this Electron app) → use `gui-app-headless-testing` instead
++- Debugging a Hermes TUI command → use `debugging-hermes-tui-commands` instead
++- Debugging errors in agent-generated source code → use `debug-generated-code-errors` instead
++- Comparing browser backends for a scraping/automation task → use `homelab-browser-backends` instead
+ 
+ ## The port
+ 
+@@ -138,22 +160,26 @@ also want the perf harness.
+ 
+ ## Pitfalls
+ 
+-- **Never kill the user's dev server or app to "free" anything.** A mid-serve
++1. **Never kill the user's dev server or app to "free" anything.** A mid-serve
+   kill nukes Chromium's socket pool, and the resulting `ERR_NETWORK_CHANGED`
+   gets blamed on whatever you just changed.
+-- **A throwaway `HERMES_HOME` has no backend.** The app logs `ECONNREFUSED` for
++2. **A throwaway `HERMES_HOME` has no backend.** The app logs `ECONNREFUSED` for
+   `hermes:api` and may exit on its own. The renderer still mounts and the DOM is
+   readable — read promptly, and don't mistake a self-exited probe for a broken
+   port. Chromium logs `DevTools listening on ws://127.0.0.1:<port>/…` when it
+   binds; that line is the proof the port opened.
+-- **Poll, don't probe once.** A just-launched app needs a second or two before
++3. **Poll, don't probe once.** A just-launched app needs a second or two before
+   the port answers.
+-- **Never dump the whole DOM.** The desktop renders hundreds of nodes and
++4. **Never dump the whole DOM.** The desktop renders hundreds of nodes and
+   `outerHTML` will bury your context. Project down to a small JSON object inside
+   the evaluated expression.
+-- **Pass `match` to `CDP.connect`.** Without it you may attach to the pet
++5. **Pass `match` to `CDP.connect`.** Without it you may attach to the pet
+   overlay, quick-entry window, or a devtools target instead of the main window.
+-- **`cdp.eval` returns the value; raw `Runtime.evaluate` double-nests it**
++6. **`cdp.eval` returns the value; raw `Runtime.evaluate` double-nests it**
+   (`.result.result.value`). Use the wrapper.
+-- **`import.meta.env.DEV` is `true` under `vite dev`** in this repo. The note in
++7. **`import.meta.env.DEV` is `true` under `vite dev`** in this repo. The note in
+   `apps/desktop/scripts/profile-typing-lag.md` claiming otherwise is stale.
++8. **Never relaunch the user's app to get a port** — that destroys their session and state; launch an isolated instance (`HERMES_HOME` + `--user-data-dir` + a different CDP port) instead.
++9. **A packaged build always has CDP closed** — no environment value overrides it; only a dev-server run (`HERMES_DESKTOP_DEV_SERVER`) opens the port.
++10. **Don't silently guess another port.** An empty `/json/version` means there is no port — say so rather than trying 9223, 9333, …
++11. **`--user-data-dir` is what dodges Electron's single-instance lock** — without it your probe instance cannot start while `hgui` runs.
