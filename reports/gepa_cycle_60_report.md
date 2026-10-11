@@ -3,7 +3,7 @@
 **Date:** 2026-10-11 (CDT) · **Mode:** Manual LLM-as-Judge, Strategy A (direct parent execution)
 **Branch:** `gepa/phase1-skill-optimization-cycle-20261011-60`
 **Live path is the source of truth:** `~/.hermes/skills/` → synced to `~/.hermes/hermes-agent/skills/` (worktree) and `~/hermes-skills/skills/`
-**hermes-agent commit:** `e0bcd01559` · **hermes-skills commit:** (see §6)
+**hermes-agent commit:** `e0bcd01559` (local branch, not pushed) · **hermes-skills commit:** `ff548f3` (pushed) · **self-evolution commit:** `73745ae` (pushed)
 
 ---
 
@@ -84,7 +84,22 @@ Frontmatter YAML validated with `yaml.safe_load` for all 5; pitfall numbering co
 - Patches: `patches/<skill>/gepa-cycle-60.patch` — 203 / 85 / 79 / 96 / 152 lines.
 - Stray-file discipline (pitfall #13): the self-evolution repo carries untracked `evolve_skills_orchestrator.py` and `output/`; commits used **explicit paths** (`reports/ patches/`), never `git add -A`.
 
-## 7. Notes for the next cycle
+## 7. Branch hygiene — one correction made this cycle
+
+The self-evolution repo was found still checked out to **Cycle 59's branch**, so Cycle 60's report/
+patch commit initially landed on `gepa/phase1-skill-optimization-cycle-20261004-59`. Corrected
+non-destructively (no force-push, no `--force`, no branch deletion):
+
+1. `git branch gepa/phase1-skill-optimization-cycle-20261011-60 73745ae` → pushed as the real Cycle 60 branch.
+2. `git revert --no-edit 73745ae` on the Cycle 59 branch → pushed `cbf43df`, restoring that branch's tree to `294ac14`.
+3. Local HEAD switched to the Cycle 60 branch so the **next** cycle starts from a clean, correctly-named branch.
+
+**Add this to the start of every cycle:** `git branch --show-current` in the self-evolution repo — if it is
+not `main`, do not commit until the new `$BRANCH` is created and checked out. The step-7 branch computation
+was performed but the `git checkout main && git checkout -b "$BRANCH"` was skipped for this repo, which is
+exactly how the commit landed on the predecessor branch.
+
+## 8. Notes for the next cycle
 
 - Delta-driven remains the cheapest signal: **31 candidates → 5 actionable** was driven almost entirely by bulk installs and the Television pack. Expect Cycle 61 to start from `bitcoin-payment-rails` + `qr-code-verification` (both missing only When-to-Use/Not-For).
 - The Television pack (`television`, `tv-*`) should be treated as a standing exclusion like the Spark `recipe-*`/`persona-*` set — it will otherwise reappear at the top of every 4-gap scan.
