@@ -1,0 +1,101 @@
+diff --git a/skills/software-development/github/SKILL.md b/skills/software-development/github/SKILL.md
+index 8e843115e3..c662ebeb3c 100644
+--- a/skills/software-development/github/SKILL.md
++++ b/skills/software-development/github/SKILL.md
+@@ -1,7 +1,7 @@
+ ---
+ name: github
+ description: "GitHub via gh CLI: PRs, issues, reviews, repos, auth."
+-version: 2.0.0
++version: 2.1.0
+ author: Ben Barclay (benbarclay), Hermes Agent
+ license: MIT
+ platforms: [linux, macos, windows]
+@@ -9,7 +9,21 @@ metadata:
+   hermes:
+     tags: [github, gh, git, pull-requests, issues, code-review, repos, auth, ci]
+     category: software-development
+-    related_skills: [codebase-inspection, requesting-code-review]
++    related_skills: [github-auth, github-pr-workflow, github-code-review, code-review]
++    trigger_conditions:
++      - "open a pull request"
++      - "create a GitHub issue"
++      - "review this PR"
++      - "why did CI fail / check gh pr checks"
++      - "gh auth status broken"
++      - "clone or fork a repo"
++      - "carry an issue to a PR"
++      - "sweep for duplicate issues before filing"
++      - "gh cli command for X"
++      - "github api endpoint not in gh porcelain"
++      - "is the PR merged"
++      - "set up GitHub auth on a new machine"
++      - "label / assign / close an issue"
+ ---
+ 
+ # GitHub
+@@ -36,6 +50,26 @@ Supporting assets: `scripts/gh-env.sh` + `scripts/git-credential-token.py`
+ `references/ci-troubleshooting.md`, `references/conventional-commits.md`,
+ `references/github-api-cheatsheet.md`, `references/review-output-template.md`.
+ 
++## When to Use
++
++- Any GitHub work driven through the `gh` CLI: auth, issues, PRs, review, repos, releases.
++- You need to pick the correct workflow before acting — this skill routes to the right reference.
++- Diagnosing broken auth on a machine (`gh auth status` fails or returns the wrong account).
++- Opening, watching, or merging a PR and needing honest CI/merge state.
++- Triaging or filing issues, including duplicate sweeps and labelling.
++- Reviewing another person's PR and producing a verdict with evidence.
++- Cloning, forking, or managing remotes and releases.
++
++## Not For
++
++- **Setting up GitHub auth from scratch** (tokens, SSH, `gh login`) → use `github-auth` instead.
++- **The full branch→commit→PR→CI→merge lifecycle in depth** → use `github-pr-workflow` instead.
++- **Reviewing a PR with inline comments via `gh` or REST** → use `github-code-review` instead.
++- **General code-review policy (security/quality focus), not GitHub mechanics** → use `code-review` instead.
++- **Carrying one issue all the way to a verified merged PR** → use `github-issue-to-pr` instead.
++- **Clone/create/fork, remotes, and releases** → use `github-repo-management` instead.
++- **Preventing false-success Git sync runs** (script permissions, repo root) → use `github-sync-script-preflight` instead.
++
+ ## Core discipline (applies to every workflow)
+ 
+ - Preflight once per session: `gh auth status` — if it fails, go to
+@@ -49,6 +83,37 @@ Supporting assets: `scripts/gh-env.sh` + `scripts/git-credential-token.py`
+ - Sweep for duplicates before creating anything:
+   `gh pr list --search` / `gh issue list --search`.
+ 
++## Pitfalls
++
++1. **Reporting CI green without reading `gh pr checks`** — a green badge in a browser or an assumed
++   pass is not evidence. Recovery: run `gh pr checks <n>` and quote its output.
++2. **Claiming a PR is merged without verifying state** — read
++   `gh pr view <n> --json state,mergedAt`; a merge commit in the log does not mean it merged.
++   Recovery: never assert merged from memory.
++3. **Assuming `gh` auth is fine** — a stale or scoped-down token fails only on the write call, not
++   the read. Recovery: preflight `gh auth status` once per session, and re-check on any 403 before
++   blaming the command.
++4. **Reading the title instead of the thread** — decisions live in comments. Recovery:
++   `gh issue view --comments` / `gh pr view --comments` before writing anything.
++5. **Filing a duplicate** — `gh pr list --search` / `gh issue list --search` first; near-identical
++   titles are common. Recovery: sweep before creating.
++6. **Using raw REST where porcelain exists** — `gh api` bypasses porcelain pagination and readable
++   errors. Recovery: prefer `gh` subcommands; drop to `gh api` only for endpoints the porcelain
++   lacks (see `references/github-api-cheatsheet.md`).
++7. **Skipping the reference file and improvising a workflow** — each workflow is complete in
++   `references/*.md`; the body only routes. Recovery: read the matching reference before starting.
++8. **Assuming a fine-grained PAT can open the PR** — a token may push to a fork while being unable
++   to open an upstream PR. Recovery: confirm the token's scope before promising a PR, and check
++   `github-sync-script-preflight` / `references/auth.md`.
++9. **Trusting a cached remote state** — `gh` output is a point-in-time read; the branch can move
++   between the read and the write. Recovery: re-read immediately before merge or close.
++10. **Printing a token or secret into output** — `gh auth token` and env dumps emit live
++    credentials, and anything the job prints is delivered. Recovery: never echo a token; mask or
++    omit it.
++11. **Assuming `gh` is installed** — the skill assumes the CLI, but minimal hosts may only have
++    `git`. Recovery: `command -v gh` first; fall back to the `scripts/gh-env.sh` helper and the
++    REST path in `references/auth.md`.
++
+ ## Verification
+ 
+ - The workflow's own reference file defines done for that task.
