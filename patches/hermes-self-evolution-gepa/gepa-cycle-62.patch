@@ -503,14 +503,14 @@ index 0000000000..478cb38043
 +57. **A skill can pass every `grep` check and still deliver zero triggers — validate frontmatter with `yaml.safe_load`** — `research/blogwatcher` looked fully evolved (`grep -c trigger_conditions` → 12) but line 18 was a malformed sequence entry (`- phrases: "a", "b", ...`) that opens a mapping and then hits bare commas, raising `ParserError: expected <block end>, but found ','`. The entire `trigger_conditions` block fails to load, so all 12 triggers — and any other frontmatter in that document — are silently dropped. `grep` cannot see this; the 4-gap scan reports the skill as complete. **Fix / new verification step:** after evolving any skill, run `python3 -c "import yaml,pathlib; d=yaml.safe_load(open(P).read().split('---',2)[1]); print(len(d['metadata']['hermes'].get('trigger_conditions',[])))"` and assert the count is non-zero. Observed Cycle 61 — the defect pre-dated the cycle (verified byte-identical against the pre-edit backup).
 diff --git a/skills/devops/hermes-self-evolution-gepa/references/gepa_cycle_62_report.md b/skills/devops/hermes-self-evolution-gepa/references/gepa_cycle_62_report.md
 new file mode 100644
-index 0000000000..db4ad1efc1
+index 0000000000..b21e9d4e79
 --- /dev/null
 +++ b/skills/devops/hermes-self-evolution-gepa/references/gepa_cycle_62_report.md
-@@ -0,0 +1,137 @@
+@@ -0,0 +1,153 @@
 +# GEPA Self-Evolution Cycle 62
 +
 +**Date:** 2026-10-25 02:0x CDT
-+**Branch:** `gepa/phase1-skill-optimization-cycle-20261025-62` (both repos) · hermes-agent commit `1ccd3d7424`
++**Branch:** `gepa/phase1-skill-optimization-cycle-20261025-62` (both repos) · hermes-agent commits `1ccd3d7424` → `651c14f91f` (branch tip)
 +**Mode:** LLM-as-Judge, Strategy A (direct parent execution) — no live GEPA API run
 +**Predecessor:** Cycle 61 (2026-10-18)
 +
@@ -610,7 +610,7 @@ index 0000000000..db4ad1efc1
 +| `patches/slowbooks-api/gepa-cycle-62.patch` | 145 |
 +| `patches/social-thread-extraction/gepa-cycle-62.patch` | 138 |
 +| `patches/email-inbox-triage/gepa-cycle-62.patch` | 77 |
-+| `patches/hermes-self-evolution-gepa/gepa-cycle-62.patch` | 502 |
++| `patches/hermes-self-evolution-gepa/gepa-cycle-62.patch` | 646 (SKILL.md + cycle-62 reference) |
 +
 +No patch was 0 lines; all were generated *after* the sync (pitfall #7, #40).
 +
@@ -638,6 +638,22 @@ index 0000000000..db4ad1efc1
 +4. **self-evolution repo `main` is stale** — `main` sits at `402febc` while the cycle-61 commit
 +   `6ff9408` lives on its own branch. The cycle-62 branch was therefore cut from the *current* HEAD,
 +   not from `main`, so no cycle report is lost. Worth fast-forwarding `main` in a future cycle.
++
++## Post-run verification
++
++All six evolved skills re-verified after every write: YAML `yaml.safe_load` parses, `trigger_conditions`
++non-zero, `## Pitfalls` numbered items present, and **three-way sha256 parity** between the live path,
++the hermes-agent repo copy and the `~/hermes-skills` backup. The first parity pass caught a real miss —
++`hermes-self-evolution-gepa` had been synced into the worktree but never into the main checkout's
++`skills/` directory — which was fixed and re-verified (all three copies now `9f0f01bd2223`).
++
++Remote read-back confirmed: `hermes-skills` `main` = `baa2ca5` (matches local) and the self-evolution
++cycle branch = `8fdf03a` (matches local).
++
++**Not done / limitation:** the `mnemosyne_remember` / `mnemosyne_batch` memory tools are **not exposed
++in the cron toolset** (tool search finds no such tool in this context), so no durable memory entry was
++written this cycle. The cycle report itself is persisted in three places (self-evolution repo,
++`hermes-skills` backup, and the skill's own `references/` dir).
 +
 +## Blocker / caveat
 +

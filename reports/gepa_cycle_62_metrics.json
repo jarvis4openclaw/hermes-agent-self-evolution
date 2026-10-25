@@ -3,7 +3,7 @@
   "date": "2026-10-25",
   "mode": "LLM-as-Judge, Strategy A (direct parent execution)",
   "branch": "gepa/phase1-skill-optimization-cycle-20261025-62",
-  "hermes_agent_commit": "1ccd3d7424",
+  "hermes_agent_commit": "55042f75a7",
   "fast_path_triggered": false,
   "dojo_targets": [],
   "delta_candidates_found": 16,
@@ -174,12 +174,24 @@
     "slowbooks-api": 145,
     "social-thread-extraction": 138,
     "email-inbox-triage": 77,
-    "hermes-self-evolution-gepa": 502
+    "hermes-self-evolution-gepa": 662
   },
   "yaml_validation": "all 5 evolved skills parsed with yaml.safe_load; trigger counts 13/13/19/13/13 (pitfall #57 asserted non-zero)",
   "notes": [
     "patch tool unavailable in cron mode - all edits applied via python3 heredoc through terminal (pitfall #58)",
     "4 of 5 targets were live-path-only (not tracked in hermes-agent repo); email-inbox-triage was tracked",
     "hermes-agent commit local only on cycle branch in worktree /tmp/hermes-agent-wt-62 - not pushed (pitfall #43)"
+  ],
+  "verification": {
+    "yaml_safe_load": "pass (all 6)",
+    "three_way_sha256_parity": "pass (all 6)",
+    "remote_readback": {
+      "hermes_skills_main": "baa2ca5",
+      "self_evolution_branch": "8fdf03a"
+    },
+    "parity_defect_found_and_fixed": "hermes-self-evolution-gepa missing from main checkout skills/ path"
+  },
+  "limitations": [
+    "mnemosyne_remember / mnemosyne_batch not exposed in cron toolset - no durable memory entry written"
   ]
 }
