@@ -104,8 +104,9 @@
   "branch": "gepa/phase1-skill-optimization-cycle-20261115-65",
   "commits": {
     "hermes-agent": "46245cddc9",
-    "hermes-skills": "473327e",
-    "self_evolution": "see HEAD"
+    "hermes-agent_gepa_ref": "e3d0c84de4",
+    "hermes-skills": "473327e + gepa-ref commit",
+    "self_evolution": "8f3105b + report update"
   },
   "patches": {
     "lightning-gifts": 304,
@@ -130,5 +131,11 @@
       "full-security-audit version field dropped by description rewrite (repair applied)",
       "cloudflare-temp-accounts two dead sibling skill references repaired"
     ]
-  }
+  },
+  "push": {
+    "self_evolution": "pushed to jarvis4openclaw",
+    "hermes-skills": "pushed to jarvis4openclaw",
+    "hermes_agent": "NOT pushed (per task instruction)"
+  },
+  "gepa_skill_reference": "references/gepa_cycle_65_report.md (+ Output Locations bullet)"
 }

@@ -91,8 +91,9 @@ Deltas sit below the +12–17 zero-gap band, exactly as predicted: only one pick
 ## 7. Sync / commit
 
 - **Live path** (source of truth): `~/.hermes/skills/<path>/SKILL.md` — 5 files written.
-- **hermes-agent repo:** worktree `/tmp/hermes-agent-wt-65` on `gepa/phase1-skill-optimization-cycle-20261115-65`, commit **`46245cddc9`**; all 5 are **new files** (live-path-only) → staged with `git add` and diffed with `--cached` (pitfall #40). Worktree removed. **Not pushed** (per task instruction; pitfall #43 permits but does not require pushing cycle branches).
-- **hermes-skills backup:** 5 files copied; commit **`473327e`** (4 new + `media/heartmula` updated).
+- **hermes-agent repo:** worktree `/tmp/hermes-agent-wt-65` on `gepa/phase1-skill-optimization-cycle-20261115-65`, commit **`46245cddc9`** (5 skills, +1048 lines); all 5 are **new files** (live-path-only) → staged with `git add` and diffed with `--cached` (pitfall #40). A second commit **`e3d0c84de4`** on the same branch carries the condensed cycle-65 reference (`references/gepa_cycle_65_report.md`, new) and its `Output Locations` bullet in the GEPA skill itself. Worktree removed. **Not pushed** (per task instruction; pitfall #43 permits but does not require pushing cycle branches).
+- **Pushes:** `hermes-agent-self-evolution` (this branch) and `hermes-skills` (`main`) pushed to `jarvis4openclaw`. First attempt returned **403** under the active account `wahidmy`; `gh auth switch --user jarvis4openclaw` fixed it (pitfall #5).
+- **hermes-skills backup:** 5 files copied; commit **`473327e`** (4 new + `media/heartmula` updated), then **`(2nd)`** for the GEPA reference; `main` pushed (`f0dbdca..473327e` + ref commit).
 - **self-evolution repo:** 5 patches + this report + metrics committed.
 
 ## 8. Pitfalls encountered
