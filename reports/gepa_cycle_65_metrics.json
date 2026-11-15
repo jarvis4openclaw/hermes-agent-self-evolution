@@ -1,0 +1,134 @@
+{
+  "cycle": 65,
+  "date": "2026-11-15",
+  "strategy": "LLM-as-Judge Strategy A (cron: terminal + python heredoc)",
+  "fast_path_triggered": false,
+  "dojo": {
+    "targets_raw": [
+      "kanban-codex-lane",
+      "kanban-codex-lane"
+    ],
+    "targets_unique": 1,
+    "accepted": 0,
+    "rejected_already_evolved": [
+      "autonomous-ai-agents/kanban-codex-lane"
+    ],
+    "overall_success_pct": 75.8,
+    "sessions": 591,
+    "tool_calls": 2488
+  },
+  "selection": {
+    "delta_found": 3,
+    "delta_actionable": 0,
+    "delta_already_evolved": 3,
+    "word_count_selected": 5,
+    "third_party_excluded": [
+      "television",
+      "tv-tasks",
+      "tv-calendar",
+      "tv-table",
+      "taproot-skill/*",
+      "make-custom-apps",
+      "sonoscli",
+      "creative/baoyu-*",
+      "creative/pixel-art",
+      "inference-sh/cli",
+      "smart-home/openhue",
+      "mlops/training/unsloth",
+      "productivity/microsoft-office"
+    ]
+  },
+  "skills": {
+    "lightning-gifts": {
+      "path": "lightning-gifts",
+      "version": "1.0.0",
+      "gaps_before": 4,
+      "triggers": 13,
+      "pitfalls": 12,
+      "bytes_before": 12683,
+      "bytes_after": 17625,
+      "baseline_total": 31,
+      "evolved_total": 42,
+      "delta": 11
+    },
+    "full-security-audit": {
+      "path": "full-security-audit",
+      "version": "1.1.0",
+      "gaps_before": 2,
+      "triggers": 13,
+      "pitfalls": 12,
+      "bytes_before": 12161,
+      "bytes_after": 15675,
+      "baseline_total": 36,
+      "evolved_total": 43,
+      "delta": 7
+    },
+    "github-issue-to-pr": {
+      "path": "github/github-issue-to-pr",
+      "version": "1.1.0",
+      "gaps_before": 2,
+      "triggers": 13,
+      "pitfalls": 11,
+      "bytes_before": 6042,
+      "bytes_after": 10319,
+      "baseline_total": 34,
+      "evolved_total": 43,
+      "delta": 9
+    },
+    "heartmula": {
+      "path": "media/heartmula",
+      "version": "1.1.0",
+      "gaps_before": 2,
+      "triggers": 13,
+      "pitfalls": 11,
+      "bytes_before": 6400,
+      "bytes_after": 10760,
+      "baseline_total": 32,
+      "evolved_total": 41,
+      "delta": 9
+    },
+    "cloudflare-temp-accounts": {
+      "path": "devops/cloudflare-temp-accounts",
+      "version": "1.0.0",
+      "gaps_before": 2,
+      "triggers": 13,
+      "pitfalls": 11,
+      "bytes_before": 5005,
+      "bytes_after": 8633,
+      "baseline_total": 32,
+      "evolved_total": 41,
+      "delta": 9
+    }
+  },
+  "average_delta": 9.0,
+  "branch": "gepa/phase1-skill-optimization-cycle-20261115-65",
+  "commits": {
+    "hermes-agent": "46245cddc9",
+    "hermes-skills": "473327e",
+    "self_evolution": "see HEAD"
+  },
+  "patches": {
+    "lightning-gifts": 304,
+    "full-security-audit": 189,
+    "github-issue-to-pr": 144,
+    "heartmula": 241,
+    "cloudflare-temp-accounts": 200
+  },
+  "verification": {
+    "yaml_parse": "5/5 OK",
+    "triggers_each": 13,
+    "numbered_pitfalls": [
+      12,
+      12,
+      11,
+      11,
+      11
+    ],
+    "byte_parity_vs_repo": "0 diff lines x5",
+    "heredocs_failed": 0,
+    "near_misses": [
+      "full-security-audit version field dropped by description rewrite (repair applied)",
+      "cloudflare-temp-accounts two dead sibling skill references repaired"
+    ]
+  }
+}
